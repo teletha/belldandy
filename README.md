@@ -6,6 +6,11 @@
     <a href="https://teletha.github.io/belldandy"><img src="https://img.shields.io/website.svg?down_color=red&down_message=CLOSE&label=Official%20Site&up_color=green&up_message=OPEN&url=https%3A%2F%2Fteletha.github.io%2Fbelldandy"></a>
 </p>
 
+## Summary
+Beldandy offers various functions specifically for virtual threads.
+
+- ScheduledExecutorService
+<p align="right"><a href="#top">back to top</a></p>
 
 
 
