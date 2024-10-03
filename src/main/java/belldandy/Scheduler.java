@@ -16,14 +16,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,12 +33,6 @@ import java.util.function.Function;
 
 public class Scheduler implements ScheduledExecutorService {
 
-    /** The task queue. */
-    protected final BlockingQueue<ScheduledFutureTask<?>> taskQueue = new PriorityBlockingQueue<>();
-
-    /** The queue thread. */
-    protected final Thread monitor;
-
     /** The running state of task queue. */
     private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -50,39 +42,19 @@ public class Scheduler implements ScheduledExecutorService {
     /** The counter for the executed tasks. */
     protected final AtomicLong executedTask = new AtomicLong();
 
-    /**
-     * Build simple task manager by virtual thread.
-     */
-    public Scheduler() {
-        this(Thread::startVirtualThread);
-    }
-
-    /**
-     * Build simple task manager by virtual thread.
-     */
-    public Scheduler(Function<Runnable, Thread> factory) {
-        monitor = factory.apply(() -> {
-            while (running.get()) {
-                try {
-                    executeTask(taskQueue.take());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-        });
-    }
+    /** The thread factory. */
+    protected Function<Runnable, Thread> factory = Thread::startVirtualThread;
 
     /**
      * Execute the task.
      * 
      * @param task
      */
-    private void executeTask(ScheduledFutureTask task) {
+    protected void executeTask(ScheduledFutureTask task) {
         if (!task.isCancelled()) {
             runningTask.incrementAndGet();
 
-            Thread.ofVirtual().start(() -> {
+            factory.apply(() -> {
                 try {
                     Thread.sleep(Duration.ofNanos(task.getDelay(TimeUnit.NANOSECONDS)));
 
@@ -100,7 +72,7 @@ public class Scheduler implements ScheduledExecutorService {
                                 // fixed delay
                                 task.time.set(calculateNext(-task.period, TimeUnit.NANOSECONDS));
                             }
-                            taskQueue.offer(task);
+                            executeTask(task);
                         }
                     }
                 } catch (InterruptedException e) {
@@ -119,7 +91,7 @@ public class Scheduler implements ScheduledExecutorService {
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(delay, unit), 0);
-        taskQueue.offer(task);
+        executeTask(task);
         return task;
     }
 
@@ -129,7 +101,7 @@ public class Scheduler implements ScheduledExecutorService {
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
         ScheduledFutureTask<V> task = new ScheduledFutureTask(command, calculateNext(delay, unit), 0);
-        taskQueue.offer(task);
+        executeTask(task);
         return task;
     }
 
@@ -139,7 +111,7 @@ public class Scheduler implements ScheduledExecutorService {
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
-        taskQueue.offer(task);
+        executeTask(task);
         return task;
     }
 
@@ -149,7 +121,7 @@ public class Scheduler implements ScheduledExecutorService {
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
-        taskQueue.offer(task);
+        executeTask(task);
         return task;
     }
 
@@ -172,7 +144,6 @@ public class Scheduler implements ScheduledExecutorService {
     public List<Runnable> shutdownNow() {
         running.set(false);
         List<Runnable> remainingTasks = new ArrayList<>();
-        taskQueue.drainTo(remainingTasks);
         return remainingTasks;
     }
 
@@ -189,7 +160,7 @@ public class Scheduler implements ScheduledExecutorService {
      */
     @Override
     public boolean isTerminated() {
-        return isShutdown() && taskQueue.isEmpty();
+        return isShutdown();
     }
 
     /**
@@ -426,7 +397,6 @@ public class Scheduler implements ScheduledExecutorService {
             boolean result = cancelled.compareAndSet(false, true);
             if (result) {
                 done.set(true);
-                taskQueue.remove(this);
             }
             return result;
         }

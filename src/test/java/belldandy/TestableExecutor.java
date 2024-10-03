@@ -11,12 +11,15 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import kiss.I;
 
@@ -26,8 +29,20 @@ public class TestableExecutor extends Scheduler {
 
     private long awaitingLimit = 1000;
 
-    public TestableExecutor() {
-        super(Thread.ofVirtual()::unstarted);
+    private final AtomicBoolean starting = new AtomicBoolean();
+
+    private List<ScheduledFutureTask> startingBuffer = new ArrayList();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void executeTask(ScheduledFutureTask task) {
+        if (starting.get()) {
+            super.executeTask(task);
+        } else {
+            startingBuffer.add(task);
+        }
     }
 
     /**
@@ -36,7 +51,7 @@ public class TestableExecutor extends Scheduler {
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(delay, unit), 0);
-        taskQueue.offer(task);
+        executeTask(task);
 
         futures.put(command, task);
         return task;
@@ -48,7 +63,7 @@ public class TestableExecutor extends Scheduler {
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(command, calculateNext(delay, unit), 0);
-        taskQueue.offer(task);
+        executeTask(task);
 
         futures.put(command, task);
         return task;
@@ -60,7 +75,7 @@ public class TestableExecutor extends Scheduler {
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
-        taskQueue.offer(task);
+        executeTask(task);
 
         futures.put(command, task);
         return task;
@@ -72,7 +87,7 @@ public class TestableExecutor extends Scheduler {
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
         ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
-        taskQueue.offer(task);
+        executeTask(task);
 
         futures.put(command, task);
         return task;
@@ -84,7 +99,12 @@ public class TestableExecutor extends Scheduler {
      * @return
      */
     protected final TestableExecutor start() {
-        monitor.start();
+        if (starting.compareAndSet(false, true)) {
+            for (ScheduledFutureTask task : startingBuffer) {
+                super.executeTask(task);
+            }
+            startingBuffer.clear();
+        }
         return this;
     }
 
@@ -100,7 +120,7 @@ public class TestableExecutor extends Scheduler {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
 
-        while (count++ == 0 || !taskQueue.isEmpty() || runningTask.getAcquire() != 0) {
+        while (count++ == 0 || runningTask.getAcquire() != 0) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {
@@ -108,8 +128,7 @@ public class TestableExecutor extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("Too long task is active. TaskQueue:" + taskQueue.size() + " RunningTask:" + runningTask
-                        .get() + "  ExecutedTask:" + executedTask);
+                throw new Error("Too long task is active. RunningTask:" + runningTask.get() + "  ExecutedTask:" + executedTask);
             }
         }
         return true;
