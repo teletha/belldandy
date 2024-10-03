@@ -27,18 +27,18 @@ import kiss.I;
 
 public class SchedulerTestSupport {
 
-    protected TestableScheduler executor;
+    protected TestableScheduler scheduler;
 
     @BeforeEach
     void setUp() {
-        executor = new TestableScheduler();
+        scheduler = new TestableScheduler();
 
         assert !Thread.currentThread().isVirtual();
     }
 
     @AfterEach
     void tearDown() throws InterruptedException {
-        executor.shutdown();
+        scheduler.shutdown();
     }
 
     /**
@@ -202,7 +202,7 @@ public class SchedulerTestSupport {
                 endTime.add(System.nanoTime());
 
                 if (endTime.size() == max) {
-                    executor.cancel(this);
+                    scheduler.cancel(this);
                 }
             }
         }

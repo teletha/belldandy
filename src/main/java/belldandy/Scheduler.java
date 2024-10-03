@@ -15,14 +15,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +46,7 @@ public class Scheduler implements ScheduledExecutorService {
      * 
      * @param task
      */
-    protected void executeTask(ScheduledFutureTask task) {
+    protected void executeTask(Task task) {
         if (!task.isCancelled()) {
             runningTask.incrementAndGet();
 
@@ -90,7 +86,7 @@ public class Scheduler implements ScheduledExecutorService {
      */
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(delay, unit), 0);
+        Task task = new Task(callable(command), calculateNext(delay, unit), 0);
         executeTask(task);
         return task;
     }
@@ -100,7 +96,7 @@ public class Scheduler implements ScheduledExecutorService {
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        ScheduledFutureTask<V> task = new ScheduledFutureTask(command, calculateNext(delay, unit), 0);
+        Task<V> task = new Task(command, calculateNext(delay, unit), 0);
         executeTask(task);
         return task;
     }
@@ -110,7 +106,7 @@ public class Scheduler implements ScheduledExecutorService {
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
+        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
         executeTask(task);
         return task;
     }
@@ -120,7 +116,7 @@ public class Scheduler implements ScheduledExecutorService {
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
+        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
         executeTask(task);
         return task;
     }
@@ -270,170 +266,5 @@ public class Scheduler implements ScheduledExecutorService {
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         throw new UnsupportedOperationException("invokeAny is not supported in this implementation");
-    }
-
-    class ScheduledFutureTask<V> implements RunnableFuture<V>, ScheduledFuture<V> {
-
-        /** The actual task, */
-        private final Callable<V> task;
-
-        /** The next trigger time. */
-        private final AtomicLong time;
-
-        /** The interval time. */
-        private final long period;
-
-        private V result;
-
-        private Throwable exception;
-
-        private final AtomicBoolean cancelled = new AtomicBoolean(false);
-
-        private final AtomicBoolean done = new AtomicBoolean(false);
-
-        ScheduledFutureTask(Callable<V> task, long next, long period) {
-            this.task = Objects.requireNonNull(task);
-            this.time = new AtomicLong(next);
-            this.period = period;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public long getDelay(TimeUnit unit) {
-            return unit.convert(time.get() - System.nanoTime(), TimeUnit.NANOSECONDS);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compareTo(Delayed other) {
-            if (other == this) {
-                return 0;
-            }
-            if (other instanceof ScheduledFutureTask task) {
-                long diff = time.get() - task.time.get();
-                if (diff < 0) {
-                    return -1;
-                } else if (diff > 0) {
-                    return 1;
-                } else {
-                    return 1;
-                }
-            }
-            long d = (getDelay(TimeUnit.NANOSECONDS) - other.getDelay(TimeUnit.NANOSECONDS));
-            return (d == 0) ? 0 : ((d < 0) ? -1 : 1);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void run() {
-            if (!cancelled.get()) {
-                try {
-                    this.result = task.call();
-                } catch (Throwable e) {
-                    this.exception = e;
-                } finally {
-                    done.set(true);
-                }
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public V get() throws InterruptedException, ExecutionException {
-            while (!isDone()) {
-                if (Thread.interrupted()) {
-                    throw new InterruptedException();
-                }
-                Thread.onSpinWait();
-            }
-            if (isCancelled()) {
-                throw new CancellationException();
-            }
-            if (exception != null) {
-                throw new ExecutionException(exception);
-            }
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            long remainingNanos = unit.toNanos(timeout);
-            long end = System.nanoTime() + remainingNanos;
-            while (!isDone() && remainingNanos > 0) {
-                if (Thread.interrupted()) {
-                    throw new InterruptedException();
-                }
-                Thread.onSpinWait();
-                remainingNanos = end - System.nanoTime();
-            }
-            if (!isDone()) {
-                throw new TimeoutException();
-            }
-            if (isCancelled()) {
-                throw new CancellationException();
-            }
-            if (exception != null) {
-                throw new ExecutionException(exception);
-            }
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            boolean result = cancelled.compareAndSet(false, true);
-            if (result) {
-                done.set(true);
-            }
-            return result;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isCancelled() {
-            return cancelled.get();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isDone() {
-            return done.get();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public State state() {
-            if (!isDone()) return State.RUNNING;
-            if (isCancelled()) return State.CANCELLED;
-            if (exception != null) return State.FAILED;
-            return State.SUCCESS;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return "Task[result: " + result + " exception: " + exception + " cancelled: " + cancelled + " done: " + done + " period: " + period + "]";
-        }
     }
 }

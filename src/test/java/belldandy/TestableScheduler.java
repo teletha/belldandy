@@ -31,13 +31,13 @@ public class TestableScheduler extends Scheduler {
 
     private final AtomicBoolean starting = new AtomicBoolean();
 
-    private List<ScheduledFutureTask> startingBuffer = new ArrayList();
+    private List<Task> startingBuffer = new ArrayList();
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void executeTask(ScheduledFutureTask task) {
+    protected void executeTask(Task task) {
         if (starting.get()) {
             super.executeTask(task);
         } else {
@@ -50,7 +50,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(delay, unit), 0);
+        Task task = new Task(callable(command), calculateNext(delay, unit), 0);
         executeTask(task);
 
         futures.put(command, task);
@@ -62,7 +62,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(command, calculateNext(delay, unit), 0);
+        Task task = new Task(command, calculateNext(delay, unit), 0);
         executeTask(task);
 
         futures.put(command, task);
@@ -74,7 +74,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
+        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
         executeTask(task);
 
         futures.put(command, task);
@@ -86,7 +86,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        ScheduledFutureTask task = new ScheduledFutureTask(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
+        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
         executeTask(task);
 
         futures.put(command, task);
@@ -100,7 +100,7 @@ public class TestableScheduler extends Scheduler {
      */
     protected final TestableScheduler start() {
         if (starting.compareAndSet(false, true)) {
-            for (ScheduledFutureTask task : startingBuffer) {
+            for (Task task : startingBuffer) {
                 super.executeTask(task);
             }
             startingBuffer.clear();
