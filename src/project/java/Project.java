@@ -14,7 +14,7 @@ import javax.lang.model.SourceVersion;
 
 public class Project extends bee.api.Project {
     {
-        product("com.github.teletha", "belldandy", "0.1");
+        product("com.github.teletha", "belldandy", ref("version.txt"));
         license(MIT);
         describe("""
                 Beldandy offers various functions specifically for virtual threads.

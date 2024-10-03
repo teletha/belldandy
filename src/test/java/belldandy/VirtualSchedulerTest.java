@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +29,6 @@ class VirtualSchedulerTest extends ExecutorTestSupport {
         executor.execute(() -> {
             count[0] = 1;
         });
-
         assert executor.start().awaitIdling();
         assert count[0] == 1 : Arrays.toString(count) + "  " + count[0] + executor;
     }
@@ -200,15 +198,6 @@ class VirtualSchedulerTest extends ExecutorTestSupport {
         List<Runnable> pendingTasks = executor.shutdownNow();
         assertFalse(pendingTasks.isEmpty());
         assertTrue(executor.isShutdown());
-    }
-
-    void testExceptionHandling() {
-        ScheduledFuture<String> future = executor.schedule(() -> {
-            throw new RuntimeException("Test exception");
-        }, 100, TimeUnit.MILLISECONDS);
-
-        ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(1, TimeUnit.SECONDS));
-        assertEquals("Test exception", exception.getCause().getMessage());
     }
 
     @RepeatedTest(5)
