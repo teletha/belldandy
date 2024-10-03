@@ -9,6 +9,8 @@
  */
 package belldandy;
 
+import static java.time.temporal.ChronoUnit.*;
+
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -147,111 +151,34 @@ import java.util.regex.Pattern;
  */
 public class Cron {
 
-    enum CronFieldType {
-        SECOND(0, 59, null) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getSecond();
-            }
+    static class FieldType {
+        static final FieldType SECOND = new FieldType(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, null);
 
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                return dateTime.withSecond(value).withNano(0);
-            }
+        static final FieldType MINUTE = new FieldType(ChronoField.MINUTE_OF_HOUR, HOURS, 0, 59, null);
 
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                return dateTime.plusMinutes(1).withSecond(0).withNano(0);
-            }
-        },
-        MINUTE(0, 59, null) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getMinute();
-            }
+        static final FieldType HOUR = new FieldType(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, null);
 
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                return dateTime.withMinute(value).withSecond(0).withNano(0);
-            }
+        static final FieldType DAY_OF_MONTH = new FieldType(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null);
 
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                return dateTime.plusHours(1).withMinute(0).withSecond(0).withNano(0);
-            }
-        },
-        HOUR(0, 23, null) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getHour();
-            }
+        static final FieldType MONTH = new FieldType(ChronoField.MONTH_OF_YEAR, YEARS, 1, 12, List
+                .of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"));
 
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                return dateTime.withHour(value).withMinute(0).withSecond(0).withNano(0);
-            }
+        static final FieldType DAY_OF_WEEK = new FieldType(ChronoField.DAY_OF_WEEK, null, 1, 7, List
+                .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"));
 
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                return dateTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            }
-        },
-        DAY_OF_MONTH(1, 31, null) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getDayOfMonth();
-            }
+        private final ChronoField field;
 
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                return dateTime.withDayOfMonth(value).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            }
+        private final ChronoUnit upper;
 
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                return dateTime.plusMonths(1).withDayOfMonth(0).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            }
-        },
-        MONTH(1, 12, Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getMonthValue();
-            }
+        final int min, max;
 
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                return dateTime.withMonth(value).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            }
+        private final List<String> names;
 
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                return dateTime.plusYears(1).withMonth(1).withHour(0).withDayOfMonth(1).withMinute(0).withSecond(0).withNano(0);
-            }
-        },
-        DAY_OF_WEEK(1, 7, Arrays.asList("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")) {
-            @Override
-            int getValue(ZonedDateTime dateTime) {
-                return dateTime.getDayOfWeek().getValue();
-            }
-
-            @Override
-            ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            ZonedDateTime overflow(ZonedDateTime dateTime) {
-                throw new UnsupportedOperationException();
-            }
-        };
-
-        final int from, to;
-
-        final List<String> names;
-
-        CronFieldType(int from, int to, List<String> names) {
-            this.from = from;
-            this.to = to;
+        private FieldType(ChronoField field, ChronoUnit upper, int min, int max, List<String> names) {
+            this.field = field;
+            this.upper = upper;
+            this.min = min;
+            this.max = max;
             this.names = names;
         }
 
@@ -259,7 +186,9 @@ public class Cron {
          * @param dateTime {@link ZonedDateTime} instance
          * @return The field time or date value from {@code dateTime}
          */
-        abstract int getValue(ZonedDateTime dateTime);
+        int getValue(ZonedDateTime dateTime) {
+            return dateTime.get(field);
+        }
 
         /**
          * @param dateTime Initial {@link ZonedDateTime} instance to use
@@ -267,7 +196,13 @@ public class Cron {
          * @return {@link ZonedDateTime} with {@code value} set for this field and all smaller
          *         fields cleared
          */
-        abstract ZonedDateTime setValue(ZonedDateTime dateTime, int value);
+        ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
+            return switch (field) {
+            case DAY_OF_WEEK -> throw new UnsupportedOperationException();
+            case MONTH_OF_YEAR -> dateTime.withMonth(value).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            default -> dateTime.with(field, value).truncatedTo(field.getBaseUnit());
+            };
+        }
 
         /**
          * Handle when this field overflows and the next higher field should be incremented
@@ -276,7 +211,13 @@ public class Cron {
          * @return {@link ZonedDateTime} with the next greater field incremented and all smaller
          *         fields cleared
          */
-        abstract ZonedDateTime overflow(ZonedDateTime dateTime);
+        ZonedDateTime overflow(ZonedDateTime dateTime) {
+            return switch (field) {
+            case DAY_OF_WEEK -> throw new UnsupportedOperationException();
+            case MONTH_OF_YEAR -> dateTime.plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            default -> dateTime.plus(1, upper).with(field, min).truncatedTo(field.getBaseUnit());
+            };
+        }
     }
 
     private final String expr;
@@ -312,11 +253,11 @@ public class Cron {
         }
 
         int ix = withSeconds ? 1 : 0;
-        this.secondField = new SimpleField(CronFieldType.SECOND, withSeconds ? parts[0] : "0");
-        this.minuteField = new SimpleField(CronFieldType.MINUTE, parts[ix++]);
-        this.hourField = new SimpleField(CronFieldType.HOUR, parts[ix++]);
+        this.secondField = new SimpleField(FieldType.SECOND, withSeconds ? parts[0] : "0");
+        this.minuteField = new SimpleField(FieldType.MINUTE, parts[ix++]);
+        this.hourField = new SimpleField(FieldType.HOUR, parts[ix++]);
         this.dayOfMonthField = new DayOfMonthField(parts[ix++]);
-        this.monthField = new SimpleField(CronFieldType.MONTH, parts[ix++]);
+        this.monthField = new SimpleField(FieldType.MONTH, parts[ix++]);
         this.dayOfWeekField = new DayOfWeekField(parts[ix++]);
     }
 
@@ -423,11 +364,11 @@ public class Cron {
         private static final Pattern CRON_FIELD_REGEXP = Pattern
                 .compile("(?:                                             # start of group 1\n" + "   (?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L))  # global flag (L, ?, *)\n" + " | (?<start>[0-9]{1,2}|[a-z]{3,3})              # or start number or symbol\n" + "      (?:                                        # start of group 2\n" + "         (?<mod>L|W)                             # modifier (L,W)\n" + "       | -(?<end>[0-9]{1,2}|[a-z]{3,3})        # or end nummer or symbol (in range)\n" + "      )?                                         # end of group 2\n" + ")                                              # end of group 1\n" + "(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?        # increment and increment modifier (/ or \\#)\n", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
-        final CronFieldType fieldType;
+        final FieldType fieldType;
 
         final List<FieldPart> parts = new ArrayList<>();
 
-        private BasicField(CronFieldType fieldType, String fieldExpr) {
+        private BasicField(FieldType fieldType, String fieldExpr) {
             this.fieldType = fieldType;
             parse(fieldExpr);
         }
@@ -454,13 +395,13 @@ public class Cron {
                         part.to = mapValue(sluttNummer);
                         part.increment = 1;
                     } else if (increment != null) {
-                        part.to = fieldType.to;
+                        part.to = fieldType.max;
                     } else {
                         part.to = part.from;
                     }
                 } else if (m.group("all") != null) {
-                    part.from = fieldType.from;
-                    part.to = fieldType.to;
+                    part.from = fieldType.min;
+                    part.to = fieldType.max;
                     part.increment = 1;
                 } else if (m.group("ignore") != null) {
                     part.modifier = m.group("ignore");
@@ -492,19 +433,19 @@ public class Cron {
         }
 
         private void validateRange(FieldPart part) {
-            if ((part.from != -1 && part.from < fieldType.from) || (part.to != -1 && part.to > fieldType.to)) {
+            if ((part.from != -1 && part.from < fieldType.min) || (part.to != -1 && part.to > fieldType.max)) {
                 throw new IllegalArgumentException(String
-                        .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.from, part.to, fieldType.from, fieldType.to));
+                        .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.from, part.to, fieldType.min, fieldType.max));
             } else if (part.from != -1 && part.to != -1 && part.from > part.to) {
                 throw new IllegalArgumentException(String
-                        .format("Invalid interval [%s-%s].  Rolling periods are not supported (ex. 5-1, only 1-5) since this won't give a deterministic result. Must be %s<=_<=%s", part.from, part.to, fieldType.from, fieldType.to));
+                        .format("Invalid interval [%s-%s].  Rolling periods are not supported (ex. 5-1, only 1-5) since this won't give a deterministic result. Must be %s<=_<=%s", part.from, part.to, fieldType.min, fieldType.max));
             }
         }
 
         protected int mapValue(String value) {
             int idx;
             if (fieldType.names != null && (idx = fieldType.names.indexOf(value.toUpperCase(Locale.getDefault()))) >= 0) {
-                return idx + fieldType.from;
+                return idx + fieldType.min;
             }
             return Integer.parseInt(value);
         }
@@ -535,12 +476,12 @@ public class Cron {
     }
 
     static class SimpleField extends BasicField {
-        SimpleField(CronFieldType fieldType, String fieldExpr) {
+        SimpleField(FieldType fieldType, String fieldExpr) {
             super(fieldType, fieldExpr);
         }
 
         public boolean matches(int val) {
-            if (val >= fieldType.from && val <= fieldType.to) {
+            if (val >= fieldType.min && val <= fieldType.max) {
                 for (FieldPart part : parts) {
                     if (matches(val, part)) {
                         return true;
@@ -580,7 +521,7 @@ public class Cron {
     static class DayOfWeekField extends BasicField {
 
         DayOfWeekField(String fieldExpr) {
-            super(CronFieldType.DAY_OF_WEEK, fieldExpr);
+            super(FieldType.DAY_OF_WEEK, fieldExpr);
         }
 
         boolean matches(LocalDate dato) {
@@ -624,7 +565,7 @@ public class Cron {
 
     static class DayOfMonthField extends BasicField {
         DayOfMonthField(String fieldExpr) {
-            super(CronFieldType.DAY_OF_MONTH, fieldExpr);
+            super(FieldType.DAY_OF_MONTH, fieldExpr);
         }
 
         boolean matches(LocalDate dato) {

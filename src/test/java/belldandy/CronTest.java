@@ -24,7 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import belldandy.Cron.CronFieldType;
+import belldandy.Cron.FieldType;
 import belldandy.Cron.DayOfMonthField;
 import belldandy.Cron.DayOfWeekField;
 import belldandy.Cron.SimpleField;
@@ -48,13 +48,13 @@ public class CronTest {
 
     @Test
     public void shall_parse_number() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.MINUTE, "5");
+        SimpleField field = new SimpleField(FieldType.MINUTE, "5");
         assertPossibleValues(field, 5);
     }
 
     private void assertPossibleValues(SimpleField field, Integer... values) {
         Set<Integer> valid = values == null ? new HashSet<Integer>() : new HashSet<>(Arrays.asList(values));
-        for (int i = field.fieldType.from; i <= field.fieldType.to; i++) {
+        for (int i = field.fieldType.min; i <= field.fieldType.max; i++) {
             if (valid.contains(i)) {
                 assert field.matches(i);
             } else {
@@ -65,31 +65,31 @@ public class CronTest {
 
     @Test
     public void shall_parse_number_with_increment() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.MINUTE, "0/15");
+        SimpleField field = new SimpleField(FieldType.MINUTE, "0/15");
         assertPossibleValues(field, 0, 15, 30, 45);
     }
 
     @Test
     public void shall_parse_range() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.MINUTE, "5-10");
+        SimpleField field = new SimpleField(FieldType.MINUTE, "5-10");
         assertPossibleValues(field, 5, 6, 7, 8, 9, 10);
     }
 
     @Test
     public void shall_parse_range_with_increment() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.MINUTE, "20-30/2");
+        SimpleField field = new SimpleField(FieldType.MINUTE, "20-30/2");
         assertPossibleValues(field, 20, 22, 24, 26, 28, 30);
     }
 
     @Test
     public void shall_parse_asterix() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.DAY_OF_WEEK, "*");
+        SimpleField field = new SimpleField(FieldType.DAY_OF_WEEK, "*");
         assertPossibleValues(field, 1, 2, 3, 4, 5, 6, 7);
     }
 
     @Test
     public void shall_parse_asterix_with_increment() throws Exception {
-        SimpleField field = new SimpleField(CronFieldType.DAY_OF_WEEK, "*/2");
+        SimpleField field = new SimpleField(FieldType.DAY_OF_WEEK, "*/2");
         assertPossibleValues(field, 1, 3, 5, 7);
     }
 
@@ -113,7 +113,7 @@ public class CronTest {
     @Test
     public void shall_give_error_if_minute_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(CronFieldType.MINUTE, "?");
+            SimpleField field = new SimpleField(FieldType.MINUTE, "?");
             field.matches(1);
         });
     }
@@ -121,7 +121,7 @@ public class CronTest {
     @Test
     public void shall_give_error_if_hour_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(CronFieldType.HOUR, "?");
+            SimpleField field = new SimpleField(FieldType.HOUR, "?");
             field.matches(1);
         });
     }
@@ -129,7 +129,7 @@ public class CronTest {
     @Test
     public void shall_give_error_if_month_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(CronFieldType.MONTH, "?");
+            SimpleField field = new SimpleField(FieldType.MONTH, "?");
             field.matches(1);
         });
     }
