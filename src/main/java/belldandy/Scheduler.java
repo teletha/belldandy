@@ -13,21 +13,19 @@ import static java.util.concurrent.Executors.*;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
-public class Scheduler implements ScheduledExecutorService {
+public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
     /** The running state of task queue. */
     private final AtomicBoolean running = new AtomicBoolean(true);
@@ -188,83 +186,15 @@ public class Scheduler implements ScheduledExecutorService {
      * {@inheritDoc}
      */
     @Override
-    public <T> Future<T> submit(Callable<T> task) {
-        return schedule(task, 0, TimeUnit.NANOSECONDS);
+    protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+        return new Task(callable, 0, 0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Future<?> submit(Runnable task) {
-        return schedule(task, 0, TimeUnit.NANOSECONDS);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> Future<T> submit(Runnable task, T result) {
-        return schedule(Executors.callable(task, result), 0, TimeUnit.NANOSECONDS);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
-        List<Future<T>> futures = new ArrayList<>(tasks.size());
-        for (Callable<T> task : tasks) {
-            futures.add(submit(task));
-        }
-        for (Future<T> future : futures) {
-            try {
-                future.get();
-            } catch (ExecutionException e) {
-                // Ignore
-            }
-        }
-        return futures;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
-        long end = System.nanoTime() + unit.toNanos(timeout);
-        List<Future<T>> futures = new ArrayList<>(tasks.size());
-        for (Callable<T> task : tasks) {
-            futures.add(submit(task));
-        }
-        for (Future<T> future : futures) {
-            long remainingTime = end - System.nanoTime();
-            if (remainingTime <= 0) {
-                break;
-            }
-            try {
-                future.get(remainingTime, TimeUnit.NANOSECONDS);
-            } catch (ExecutionException | TimeoutException e) {
-                // Ignore
-            }
-        }
-        return futures;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
-        throw new UnsupportedOperationException("invokeAny is not supported in this implementation");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, TimeoutException {
-        throw new UnsupportedOperationException("invokeAny is not supported in this implementation");
+    protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+        return newTaskFor(Executors.callable(runnable, value));
     }
 }
