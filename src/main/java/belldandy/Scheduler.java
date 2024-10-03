@@ -125,7 +125,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     }
 
     public ScheduledFuture<?> scheduleAt(Runnable command, String cron) {
-        Cron c = Cron.create(cron);
+        Cron c = new Cron(cron);
         ZonedDateTime now = ZonedDateTime.now();
         Instant next = c.nextTimeAfter(now).toInstant();
         long nano = next.getEpochSecond() * 1000000000 + next.getNano();

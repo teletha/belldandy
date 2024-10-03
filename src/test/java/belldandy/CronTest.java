@@ -24,9 +24,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import belldandy.Cron.FieldType;
 import belldandy.Cron.DayOfMonthField;
 import belldandy.Cron.DayOfWeekField;
+import belldandy.Cron.FieldType;
 import belldandy.Cron.SimpleField;
 
 public class CronTest {
@@ -166,7 +166,7 @@ public class CronTest {
 
     @Test
     public void check_invalid_input() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> new Cron(null));
+        assertThrows(NullPointerException.class, () -> new Cron(null));
     }
 
     @Test
@@ -813,15 +813,10 @@ public class CronTest {
     }
 
     @Test
-    public void test_seconds_specified_but_should_be_omitted() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> Cron.createWithoutSeconds("* * * 29 2 *"));
-    }
-
-    @Test
     public void test_without_seconds() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, zoneId);
-        assert Cron.createWithoutSeconds("* * 29 2 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("* * 29 2 *").nextTimeAfter(after).equals(expected);
     }
 
     @Test

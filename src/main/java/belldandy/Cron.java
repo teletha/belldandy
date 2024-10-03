@@ -234,23 +234,14 @@ public class Cron {
 
     private final DayOfMonthField dayOfMonthField;
 
-    public Cron(final String expr) {
-        this(expr, true);
-    }
-
-    public Cron(final String expr, final boolean withSeconds) {
-        if (expr == null) {
-            throw new IllegalArgumentException("expr is null"); //$NON-NLS-1$
-        }
-
+    public Cron(String expr) {
         this.expr = expr;
-
-        final int expectedParts = withSeconds ? 6 : 5;
-        final String[] parts = expr.split("\\s+"); //$NON-NLS-1$
-        if (parts.length != expectedParts) {
-            throw new IllegalArgumentException(String
-                    .format("Invalid cron expression [%s], expected %s field, got %s", expr, expectedParts, parts.length));
-        }
+        String[] parts = expr.split("\\s+");
+        boolean withSeconds = switch (parts.length) {
+        case 5 -> false;
+        case 6 -> true;
+        default -> throw new IllegalArgumentException(expr);
+        };
 
         int ix = withSeconds ? 1 : 0;
         this.secondField = new SimpleField(FieldType.SECOND, withSeconds ? parts[0] : "0");
@@ -259,14 +250,6 @@ public class Cron {
         this.dayOfMonthField = new DayOfMonthField(parts[ix++]);
         this.monthField = new SimpleField(FieldType.MONTH, parts[ix++]);
         this.dayOfWeekField = new DayOfWeekField(parts[ix++]);
-    }
-
-    public static Cron create(final String expr) {
-        return new Cron(expr, true);
-    }
-
-    public static Cron createWithoutSeconds(final String expr) {
-        return new Cron(expr, false);
     }
 
     public ZonedDateTime nextTimeAfter(ZonedDateTime afterTime) {
