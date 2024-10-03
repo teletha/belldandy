@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import kiss.I;
 
-public class TestableExecutor extends VirtualScheduler {
+public class TestableExecutor extends Scheduler {
 
     private Map<Object, Future> futures = new ConcurrentHashMap();
 

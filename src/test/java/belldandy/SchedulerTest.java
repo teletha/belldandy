@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.RepeatedTest;
 
 @SuppressWarnings("resource")
-class VirtualSchedulerTest extends ExecutorTestSupport {
+class SchedulerTest extends ExecutorTestSupport {
 
     @RepeatedTest(5)
     void execute() {

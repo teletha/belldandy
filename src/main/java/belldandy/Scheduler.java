@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
-public class VirtualScheduler implements ScheduledExecutorService {
+public class Scheduler implements ScheduledExecutorService {
 
     /** The task queue. */
     protected final BlockingQueue<ScheduledFutureTask<?>> taskQueue = new PriorityBlockingQueue<>();
@@ -53,14 +53,14 @@ public class VirtualScheduler implements ScheduledExecutorService {
     /**
      * Build simple task manager by virtual thread.
      */
-    public VirtualScheduler() {
+    public Scheduler() {
         this(Thread::startVirtualThread);
     }
 
     /**
      * Build simple task manager by virtual thread.
      */
-    public VirtualScheduler(Function<Runnable, Thread> factory) {
+    public Scheduler(Function<Runnable, Thread> factory) {
         monitor = factory.apply(() -> {
             while (running.get()) {
                 try {
