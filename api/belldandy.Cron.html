@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta content="width=device-width, initial-scale=1" name="viewport"/>
+		<meta content="Explains how to use Belldandy and its API. " name="description"/>
+		<link href="https://fonts.googleapis.com" rel="preconnect"/>
+		<link href="https://cdn.jsdelivr.net" rel="preconnect"/>
+		<title>Belldandy API</title>
+		<base href="../"/>
+		<script src="mimic.js" type="module"></script>
+		<link href="main.css" rel="stylesheet"/>
+	</head>
+	<body class="K">
+		<header class="O">
+			<h1 class="P" date="" ver="0.1"><code>Belldandy</code></h1>
+			<nav class="I"><a href="api/"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#package"/>
+					</svg><code>API</code></a><a href="https://github.com/teletha/belldandy/discussions" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#user"/>
+					</svg>Community</a><a href="doc/changelog.html"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#activity"/>
+					</svg>Activity</a><a href="https://github.com/teletha/belldandy" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#github"/>
+					</svg>Repository</a></nav>
+			<div class="T" id="ViewMode"><a id="light" title="Change to a brighter color scheme"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#sun"/>
+					</svg>
+				</a><a id="dark" title="Change to a darker color scheme"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#moon"/>
+					</svg>
+				</a></div>
+		</header>
+		<main class="N">
+			<nav class="b">
+				<div></div>
+			</nav>
+			<article class="Z" id="Article">
+				<section class="d"><code class="W">belldandy</code>
+					<h2 class="Class V"><code class="Q">Cron</code></h2>
+					<div class="k"></div><span class="B"><p>This provides cron support for java8 using java-time.</p>
+ <p>
+
+							<p>Parser for unix-like cron expressions: Cron expressions allow specifying combinations of criteria
+for time
+such as: &#38;quot;Each Monday-Friday at 08:00&#38;quot; or &#38;quot;Every last friday of the month at
+01:30&#38;quot;</p>
+ 
+							<p>
+ A cron expressions consists of 5 or 6 mandatory fields (seconds may be omitted) separated by
+ space. 
+								<br/>
+ These are:
+ 
+								<table cellspacing="8">
+ 
+									<tr>
+ 
+										<th align="left">Field</th>
+ 
+										<th align="left">&#38;nbsp;</th>
+ 
+										<th align="left">Allowable values</th>
+ 
+										<th align="left">&#38;nbsp;</th>
+ 
+										<th align="left">Special Characters</th>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Seconds (may be omitted)</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>0-59</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * /</code></td>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Minutes</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>0-59</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * /</code></td>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Hours</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>0-23</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * /</code></td>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Day of month</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>1-31</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * ? / L W</code></td>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Month</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>1-12 or JAN-DEC (note: english abbreviations)</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * /</code></td>
+ </tr>
+ 
+									<tr>
+ 
+										<td align="left"><code>Day of week</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>1-7 or MON-SUN (note: english abbreviations)</code></td>
+ 
+										<td align="left">&#38;nbsp;</td>
+ 
+										<td align="left"><code>, - * ? / L #</code></td>
+ </tr>
+ </table>
+ 
+								<p>
+ &#39;*&#39; Can be used in all fields and means &#39;for all values&#39;. E.g. &#38;quot;*&#38;quot; in minutes, means
+ &#39;for all minutes&#39;
+ 
+									<p>
+ &#39;?&#39; Can be used in Day-of-month and Day-of-week fields. Used to signify &#39;no special value&#39;. It is
+ used when one want
+ to specify something for one of those two fields, but not the other.
+ 
+										<p>
+ &#39;-&#39; Used to specify a time interval. E.g. &#38;quot;10-12&#38;quot; in Hours field means &#39;for hours 10,
+ 11 and 12&#39;
+ 
+											<p>
+ &#39;,&#39; Used to specify multiple values for a field. E.g. &#38;quot;MON,WED,FRI&#38;quot; in Day-of-week
+ field means &#38;quot;for
+ monday, wednesday and friday&#38;quot;
+ 
+												<p>
+ &#39;/&#39; Used to specify increments. E.g. &#38;quot;0/15&#38;quot; in Seconds field means &#38;quot;for seconds 0,
+ 15, 30, ad
+ 45&#38;quot;. And &#38;quot;5/15&#38;quot; in seconds field means &#38;quot;for seconds 5, 20, 35, and 50&#38;quot;.
+ If &#39;*&#39; s specified
+ before &#39;/&#39; it is the same as saying it starts at 0. For every field there&#39;s a list of values that
+ can be turned on or
+ off. For Seconds and Minutes these range from 0-59. For Hours from 0 to 23, For Day-of-month it&#39;s
+ 1 to 31, For Months
+ 1 to 12. &#38;quot;/&#38;quot; character helsp turn some of these values back on. Thus &#38;quot;7/6&#38;quot; in
+ Months field
+ specify just Month 7. It doesn&#39;t turn on every 6 month following, since cron fields never roll
+ over
+ 
+													<p>
+ &#39;L&#39; Can be used on Day-of-month and Day-of-week fields. It signifies last day of the set of
+ allowed values. In
+ Day-of-month field it&#39;s the last day of the month (e.g.. 31 jan, 28 feb (29 in leap years), 31
+ march, etc.). In
+ Day-of-week field it&#39;s Sunday. If there&#39;s a prefix, this will be subtracted (5L in Day-of-month
+ means 5 days before
+ last day of Month: 26 jan, 23 feb, etc.)
+ 
+														<p>
+ &#39;W&#39; Can be specified in Day-of-Month field. It specifies closest weekday (monday-friday).
+ Holidays are not accounted
+ for. &#38;quot;15W&#38;quot; in Day-of-Month field means &#39;closest weekday to 15 i in given month&#39;. If the
+ 15th is a Saturday,
+ it gives Friday. If 15th is a Sunday, the it gives following Monday.
+ 
+															<p>
+ &#39;#&#39; Can be used in Day-of-Week field. For example: &#38;quot;5#3&#38;quot; means &#39;third friday in month&#39;
+ (day 5 = friday, #3
+ - the third). If the day does not exist (e.g. &#38;quot;5#5&#38;quot; - 5th friday of month) and there
+ aren&#39;t 5 fridays in
+ the month, then it won&#39;t match until the next month with 5 fridays.
+ 
+																<p>
+ <b>Case-sensitive</b> No fields are case-sensitive
+ 
+																	<p>
+ <b>Dependencies between fields</b> Fields are always evaluated independently, but the expression
+ doesn&#39;t match until
+ the constraints of each field are met. Overlap of intervals are not allowed. That is: for
+ Day-of-week field &#38;quot;FRI-MON&#38;quot; is invalid,but &#38;quot;FRI-SUN,MON&#38;quot; is valid
+</p>
+																</p>
+															</p>
+														</p>
+													</p>
+												</p>
+											</p>
+										</p>
+									</p>
+								</p>
+							</p>
+						</p>
+					</span></section>
+				<section class="d" id="Cron(java.lang.String)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">Cron</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code>expr</code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="Cron(java.lang.String,boolean)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">Cron</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>, <code>boolean</code> <code class="parameterName">withSeconds</code>)</code></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code>expr</code></td>
+							<td></td>
+						</tr>
+						<tr class="a">
+							<td><code>boolean</code> <code>withSeconds</code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="create(java.lang.String)">
+					<h2 class="e"><i class="STATIC PUBLIC"></i><code class="Q">create</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code><i class="l"><code><a href="api/belldandy.Cron.html">Cron</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code>expr</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="api/belldandy.Cron.html">Cron</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="createWithoutSeconds(java.lang.String)">
+					<h2 class="e"><i class="STATIC PUBLIC"></i><code class="Q">createWithoutSeconds</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code><i class="l"><code><a href="api/belldandy.Cron.html">Cron</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code>expr</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="api/belldandy.Cron.html">Cron</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="nextTimeAfter(java.time.ZonedDateTime)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">nextTimeAfter</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>afterTime</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="nextLocalDateTimeAfter(java.time.LocalDateTime)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">nextLocalDateTimeAfter</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code> <code class="parameterName">dateTime</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code> <code>dateTime</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="nextTimeAfter(java.time.ZonedDateTime,long)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">nextTimeAfter</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>, <code>long</code> <code class="parameterName">durationInMillis</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>afterTime</code></td>
+							<td></td>
+						</tr>
+						<tr class="a">
+							<td><code>long</code> <code>durationInMillis</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="nextTimeAfter(java.time.ZonedDateTime,java.time.ZonedDateTime)">
+					<h2 class="e"><i class="PUBLIC"></i><code class="Q">nextTimeAfter</code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">dateTimeBarrier</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
+					<table class="S">
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>afterTime</code></td>
+							<td></td>
+						</tr>
+						<tr class="a">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>dateTimeBarrier</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="d" id="toString()">
+					<h2 class="e"><i class="OVERRIDE PUBLIC"></i><code class="Q">toString</code><code class="L">()</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></h2>
+					<table class="S">
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+			</article>
+			<aside class="f" id="SubNavi">
+				<div class="M">
+					<h5 class="g">Constructors</h5>
+					<ul>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#Cron(java.lang.String)">Cron</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#Cron(java.lang.String,boolean)">Cron</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>, <code>boolean</code> <code class="parameterName">withSeconds</code>)</code></li>
+					</ul>
+					<h5 class="g">Static Methods</h5>
+					<ul>
+						<li><i class="STATIC PUBLIC"></i><code><a href="api/belldandy.Cron.html#create(java.lang.String)">create</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code><i class="i"><code><a href="api/belldandy.Cron.html">Cron</a></code></i></li>
+						<li><i class="STATIC PUBLIC"></i><code><a href="api/belldandy.Cron.html#createWithoutSeconds(java.lang.String)">createWithoutSeconds</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code><i class="i"><code><a href="api/belldandy.Cron.html">Cron</a></code></i></li>
+					</ul>
+					<h5 class="g">Methods</h5>
+					<ul>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextTimeAfter(java.time.ZonedDateTime)">nextTimeAfter</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>)</code><i class="i"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextLocalDateTimeAfter(java.time.LocalDateTime)">nextLocalDateTimeAfter</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code> <code class="parameterName">dateTime</code>)</code><i class="i"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/LocalDateTime.html">LocalDateTime</a></code></i></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextTimeAfter(java.time.ZonedDateTime,long)">nextTimeAfter</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>, <code>long</code> <code class="parameterName">durationInMillis</code>)</code><i class="i"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextTimeAfter(java.time.ZonedDateTime,java.time.ZonedDateTime)">nextTimeAfter</a></code><code class="L">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">afterTime</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">dateTimeBarrier</code>)</code><i class="i"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Cron.html#toString()">toString</a></code><code class="L">()</code><i class="i"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></li>
+					</ul>
+				</div>
+			</aside>
+		</main>
+		<script src="root.js"></script>
+		<script src="main.js" type="module"></script>
+	</body>
+</html>
