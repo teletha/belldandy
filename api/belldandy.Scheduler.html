@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta content="width=device-width, initial-scale=1" name="viewport"/>
+		<meta content="Explains how to use Belldandy and its API. " name="description"/>
+		<link href="https://fonts.googleapis.com" rel="preconnect"/>
+		<link href="https://cdn.jsdelivr.net" rel="preconnect"/>
+		<title>Belldandy API</title>
+		<base href="../"/>
+		<script src="mimic.js" type="module"></script>
+		<link href="main.css" rel="stylesheet"/>
+	</head>
+	<body class="I">
+		<header class="V">
+			<h1 class="S" date="" ver="0.1"><code>Belldandy</code></h1>
+			<nav class="g"><a href="api/"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#package"/>
+					</svg><code>API</code></a><a href="https://github.com/teletha/belldandy/discussions" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#user"/>
+					</svg>Community</a><a href="doc/changelog.html"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#activity"/>
+					</svg>Activity</a><a href="https://github.com/teletha/belldandy" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#github"/>
+					</svg>Repository</a></nav>
+			<div class="T" id="ViewMode"><a id="light" title="Change to a brighter color scheme"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#sun"/>
+					</svg>
+				</a><a id="dark" title="Change to a darker color scheme"><svg class="A svg" viewBox="0 0 24 24">
+						<use href="main.svg#moon"/>
+					</svg>
+				</a></div>
+		</header>
+		<main class="e">
+			<nav class="Z">
+				<div></div>
+			</nav>
+			<article class="P" id="Article">
+				<section class="c"><code class="O">belldandy</code>
+					<h2 class="Class N"><code class="X">Scheduler</code></h2>
+					<div class="M">
+						<ul class="C F">
+							<li><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/AutoCloseable.html">AutoCloseable</a></code></li>
+							<li><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Executor.html">Executor</a></code></li>
+							<li><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ExecutorService.html">ExecutorService</a></code></li>
+							<li><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledExecutorService.html">ScheduledExecutorService</a></code></li>
+						</ul>
+					</div>
+				</section>
+				<section class="c" id="taskQueue">
+					<h2 class="J"><i class="FINAL"><i class="PROTECTED"></i></i><code class="X">taskQueue</code><i class="d"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/BlockingQueue.html">BlockingQueue</a><code class="parameters"><code><a href="api/belldandy.Scheduler.ScheduledFutureTask.html">ScheduledFutureTask</a><code class="parameters"><code>?</code></code></code></code></code></i></h2><span class="B"><p>The task queue.</p>
+</span></section>
+				<section class="c" id="monitor">
+					<h2 class="J"><i class="FINAL"><i class="PROTECTED"></i></i><code class="X">monitor</code><i class="d"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Thread.html">Thread</a></code></i></h2><span class="B"><p>The queue thread.</p>
+</span></section>
+				<section class="c" id="runningTask">
+					<h2 class="J"><i class="FINAL"><i class="PROTECTED"></i></i><code class="X">runningTask</code><i class="d"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/atomic/AtomicLong.html">AtomicLong</a></code></i></h2><span class="B"><p>The counter for the running tasks.</p>
+</span></section>
+				<section class="c" id="executedTask">
+					<h2 class="J"><i class="FINAL"><i class="PROTECTED"></i></i><code class="X">executedTask</code><i class="d"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/atomic/AtomicLong.html">AtomicLong</a></code></i></h2><span class="B"><p>The counter for the executed tasks.</p>
+</span></section>
+				<section class="c" id="Scheduler()">
+					<h2 class="J"><i class="PUBLIC"></i><code class="X">Scheduler</code><code class="Q">()</code></h2><span class="B"><p>Build simple task manager by virtual thread.</p>
+</span></section>
+				<section class="c" id="Scheduler(java.util.function.Function)">
+					<h2 class="J"><i class="PUBLIC"></i><code class="X">Scheduler</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/function/Function.html">Function</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Thread.html">Thread</a></code></code></code> <code class="parameterName">factory</code>)</code></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/function/Function.html">Function</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Thread.html">Thread</a></code></code></code> <code>factory</code></td>
+							<td></td>
+						</tr>
+					</table><span class="B"><p>Build simple task manager by virtual thread.</p>
+</span></section>
+				<section class="c" id="schedule(java.lang.Runnable,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">schedule</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>command</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>delay</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="schedule(java.util.concurrent.Callable,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">schedule</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>V</code></code></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>V</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>V</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>V</code></code></code> <code>command</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>delay</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>V</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="scheduleAtFixedRate(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">scheduleAtFixedRate</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">initialDelay</code>, <code>long</code> <code class="parameterName">period</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>command</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>initialDelay</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>period</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="scheduleWithFixedDelay(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">scheduleWithFixedDelay</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">initialDelay</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>command</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>initialDelay</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>delay</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="shutdown()">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">shutdown</code><code class="Q">()</code><i class="d"><code>void</code></i></h2>
+				</section>
+				<section class="c" id="shutdownNow()">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">shutdownNow</code><code class="Q">()</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code></code></code></i></h2>
+					<table class="Y">
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="isShutdown()">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">isShutdown</code><code class="Q">()</code><i class="d"><code>boolean</code></i></h2>
+					<table class="Y">
+						<tr class="j">
+							<td><code>boolean</code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="isTerminated()">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">isTerminated</code><code class="Q">()</code><i class="d"><code>boolean</code></i></h2>
+					<table class="Y">
+						<tr class="j">
+							<td><code>boolean</code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="awaitTermination(long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">awaitTermination</code><code class="Q">(<code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code>boolean</code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code>long</code> <code>timeout</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code>boolean</code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/InterruptedException.html">InterruptedException</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="execute(java.lang.Runnable)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">execute</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>)</code><i class="d"><code>void</code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>command</code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="submit(java.util.concurrent.Callable)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">submit</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code> <code class="parameterName">task</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code> <code>task</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="submit(java.lang.Runnable)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">submit</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">task</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>?</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>task</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>?</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="submit(java.lang.Runnable,java.lang.Object)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">submit</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">task</code>, <code>T</code> <code class="parameterName">result</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code>task</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>T</code> <code>result</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="invokeAll(java.util.Collection)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">invokeAll</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code>tasks</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/InterruptedException.html">InterruptedException</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="invokeAll(java.util.Collection,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">invokeAll</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>, <code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code>tasks</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>timeout</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/InterruptedException.html">InterruptedException</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="invokeAny(java.util.Collection)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">invokeAny</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>)</code><i class="d"><code>T</code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code>tasks</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/InterruptedException.html">InterruptedException</a></code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ExecutionException.html">ExecutionException</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+				<section class="c" id="invokeAny(java.util.Collection,long,java.util.concurrent.TimeUnit)">
+					<h2 class="J"><i class="OVERRIDE PUBLIC"></i><code class="X">invokeAny</code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>, <code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="d"><code>T</code></i></h2>
+					<table class="Y">
+						<tr class="h">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code>tasks</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code>long</code> <code>timeout</code></td>
+							<td></td>
+						</tr>
+						<tr class="K">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code>unit</code></td>
+							<td></td>
+						</tr>
+						<tr class="j">
+							<td><code>T</code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/InterruptedException.html">InterruptedException</a></code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ExecutionException.html">ExecutionException</a></code></td>
+							<td></td>
+						</tr>
+						<tr class="L">
+							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeoutException.html">TimeoutException</a></code></td>
+							<td></td>
+						</tr>
+					</table>
+				</section>
+			</article>
+			<aside class="i" id="SubNavi">
+				<div class="b">
+					<h5 class="m">Constructors</h5>
+					<ul>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#Scheduler()">Scheduler</a></code><code class="Q">()</code></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#Scheduler(java.util.function.Function)">Scheduler</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/function/Function.html">Function</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Thread.html">Thread</a></code></code></code> <code class="parameterName">factory</code>)</code></li>
+					</ul>
+					<h5 class="m">Fields</h5>
+					<ul>
+						<li><i class="FINAL"><i class="PROTECTED"></i></i><code><a href="api/belldandy.Scheduler.html#taskQueue">taskQueue</a></code><i class="R"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/BlockingQueue.html">BlockingQueue</a><code class="parameters"><code><a href="api/belldandy.Scheduler.ScheduledFutureTask.html">ScheduledFutureTask</a><code class="parameters"><code>?</code></code></code></code></code></i></li>
+						<li><i class="FINAL"><i class="PROTECTED"></i></i><code><a href="api/belldandy.Scheduler.html#monitor">monitor</a></code><i class="R"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Thread.html">Thread</a></code></i></li>
+						<li><i class="FINAL"><i class="PROTECTED"></i></i><code><a href="api/belldandy.Scheduler.html#runningTask">runningTask</a></code><i class="R"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/atomic/AtomicLong.html">AtomicLong</a></code></i></li>
+						<li><i class="FINAL"><i class="PROTECTED"></i></i><code><a href="api/belldandy.Scheduler.html#executedTask">executedTask</a></code><i class="R"><code class="return"><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/atomic/AtomicLong.html">AtomicLong</a></code></i></li>
+					</ul>
+					<h5 class="m">Methods</h5>
+					<ul>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#schedule(java.lang.Runnable,long,java.util.concurrent.TimeUnit)">schedule</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#schedule(java.util.concurrent.Callable,long,java.util.concurrent.TimeUnit)">schedule</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>V</code></code></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>V</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#scheduleAtFixedRate(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)">scheduleAtFixedRate</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">initialDelay</code>, <code>long</code> <code class="parameterName">period</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#scheduleWithFixedDelay(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)">scheduleWithFixedDelay</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>, <code>long</code> <code class="parameterName">initialDelay</code>, <code>long</code> <code class="parameterName">delay</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/ScheduledFuture.html">ScheduledFuture</a><code class="parameters"><code>?</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#shutdown()">shutdown</a></code><code class="Q">()</code><i class="R"><code>void</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#shutdownNow()">shutdownNow</a></code><code class="Q">()</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#isShutdown()">isShutdown</a></code><code class="Q">()</code><i class="R"><code>boolean</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#isTerminated()">isTerminated</a></code><code class="Q">()</code><i class="R"><code>boolean</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#awaitTermination(long,java.util.concurrent.TimeUnit)">awaitTermination</a></code><code class="Q">(<code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code>boolean</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#execute(java.lang.Runnable)">execute</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">command</code>)</code><i class="R"><code>void</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#submit(java.util.concurrent.Callable)">submit</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code> <code class="parameterName">task</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#submit(java.lang.Runnable)">submit</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">task</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>?</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#submit(java.lang.Runnable,java.lang.Object)">submit</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/Runnable.html">Runnable</a></code> <code class="parameterName">task</code>, <code>T</code> <code class="parameterName">result</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#invokeAll(java.util.Collection)">invokeAll</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#invokeAll(java.util.Collection,long,java.util.concurrent.TimeUnit)">invokeAll</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>, <code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/List.html">List</a><code class="parameters"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Future.html">Future</a><code class="parameters"><code>T</code></code></code></code></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#invokeAny(java.util.Collection)">invokeAny</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>)</code><i class="R"><code>T</code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Scheduler.html#invokeAny(java.util.Collection,long,java.util.concurrent.TimeUnit)">invokeAny</a></code><code class="Q">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/Collection.html">Collection</a><code class="parameters"><code>?</code><code class="extends"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/Callable.html">Callable</a><code class="parameters"><code>T</code></code></code></code></code></code> <code class="parameterName">tasks</code>, <code>long</code> <code class="parameterName">timeout</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/TimeUnit.html">TimeUnit</a></code> <code class="parameterName">unit</code>)</code><i class="R"><code>T</code></i></li>
+					</ul>
+				</div>
+			</aside>
+		</main>
+		<script src="root.js"></script>
+		<script src="main.js" type="module"></script>
+	</body>
+</html>

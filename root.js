@@ -8,7 +8,7 @@ const root = {
 		{
 			"modifiers": {
 				"#": "java.util.Collections$UnmodifiableSet",},
-			"name": "VirtualScheduler",
+			"name": "Scheduler",
 			"packageName": "belldandy",
 			"type": "Class"
 		}
