@@ -10,11 +10,19 @@
  */
 import static bee.api.License.*;
 
+import javax.lang.model.SourceVersion;
+
 public class Project extends bee.api.Project {
     {
         product("com.github.teletha", "belldandy", "0.1");
         license(MIT);
+        describe("""
+                Beldandy offers various functions specifically for virtual threads.
 
+                - ScheduledExecutorService
+                """);
+
+        require(SourceVersion.RELEASE_21);
         require("com.github.teletha", "sinobu").atTest();
         require("com.github.teletha", "antibug").atTest();
 

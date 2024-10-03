@@ -31,11 +31,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 public class VirtualScheduler implements ScheduledExecutorService {
 
     /** The task queue. */
     protected final BlockingQueue<ScheduledFutureTask<?>> taskQueue = new PriorityBlockingQueue<>();
+
+    /** The queue thread. */
+    protected final Thread monitor;
 
     /** The running state of task queue. */
     private final AtomicBoolean running = new AtomicBoolean(true);
@@ -50,7 +54,14 @@ public class VirtualScheduler implements ScheduledExecutorService {
      * Build simple task manager by virtual thread.
      */
     public VirtualScheduler() {
-        Thread.ofVirtual().start(() -> {
+        this(Thread::startVirtualThread);
+    }
+
+    /**
+     * Build simple task manager by virtual thread.
+     */
+    public VirtualScheduler(Function<Runnable, Thread> factory) {
+        monitor = factory.apply(() -> {
             while (running.get()) {
                 try {
                     executeTask(taskQueue.take());
@@ -84,7 +95,7 @@ public class VirtualScheduler implements ScheduledExecutorService {
                             // reschedule task
                             if (task.period > 0) {
                                 // fixed rate
-                                task.time.updateAndGet(x -> x + task.period);
+                                task.time.addAndGet(task.period);
                             } else {
                                 // fixed delay
                                 task.time.set(calculateNext(-task.period, TimeUnit.NANOSECONDS));
@@ -142,7 +153,7 @@ public class VirtualScheduler implements ScheduledExecutorService {
         return task;
     }
 
-    private long calculateNext(long delay, TimeUnit unit) {
+    long calculateNext(long delay, TimeUnit unit) {
         return System.nanoTime() + unit.toNanos(delay);
     }
 
@@ -290,7 +301,7 @@ public class VirtualScheduler implements ScheduledExecutorService {
         throw new UnsupportedOperationException("invokeAny is not supported in this implementation");
     }
 
-    private class ScheduledFutureTask<V> implements RunnableFuture<V>, ScheduledFuture<V> {
+    class ScheduledFutureTask<V> implements RunnableFuture<V>, ScheduledFuture<V> {
 
         /** The actual task, */
         private final Callable<V> task;
@@ -309,9 +320,9 @@ public class VirtualScheduler implements ScheduledExecutorService {
 
         private final AtomicBoolean done = new AtomicBoolean(false);
 
-        private ScheduledFutureTask(Callable<V> task, long time, long period) {
+        ScheduledFutureTask(Callable<V> task, long next, long period) {
             this.task = Objects.requireNonNull(task);
-            this.time = new AtomicLong(time);
+            this.time = new AtomicLong(next);
             this.period = period;
         }
 
@@ -355,8 +366,9 @@ public class VirtualScheduler implements ScheduledExecutorService {
                     this.result = task.call();
                 } catch (Throwable e) {
                     this.exception = e;
+                } finally {
+                    done.set(true);
                 }
-                done.set(true);
             }
         }
 
@@ -444,6 +456,14 @@ public class VirtualScheduler implements ScheduledExecutorService {
             if (isCancelled()) return State.CANCELLED;
             if (exception != null) return State.FAILED;
             return State.SUCCESS;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+            return "Task[result: " + result + " exception: " + exception + " cancelled: " + cancelled + " done: " + done + " period: " + period + "]";
         }
     }
 }
