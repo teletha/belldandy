@@ -11,7 +11,12 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
+import java.time.DateTimeException;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
@@ -119,6 +124,17 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         return task;
     }
 
+    public ScheduledFuture<?> scheduleAt(Runnable command, String cron) {
+        Cron c = Cron.create(cron);
+        ZonedDateTime now = ZonedDateTime.now();
+        Instant next = c.nextTimeAfter(now).toInstant();
+        long nano = next.getEpochSecond() * 1000000000 + next.getNano();
+
+        Task task = new Task(callable(command), nano, 0);
+        executeTask(task);
+        return task;
+    }
+
     long calculateNext(long delay, TimeUnit unit) {
         return System.nanoTime() + unit.toNanos(delay);
     }
@@ -196,5 +212,28 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     @Override
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return newTaskFor(Executors.callable(runnable, value));
+    }
+
+    protected static ZonedDateTime next(ZonedDateTime base, int month, int day, int hour, int minute) {
+        base = find(base, minute, ChronoField.MINUTE_OF_HOUR, ChronoUnit.HOURS);
+        base = find(base, hour, ChronoField.HOUR_OF_DAY, ChronoUnit.DAYS);
+        base = find(base, day, ChronoField.DAY_OF_MONTH, ChronoUnit.MONTHS);
+        base = find(base, month, ChronoField.MONTH_OF_YEAR, ChronoUnit.YEARS);
+
+        return base;
+    }
+
+    private static ZonedDateTime find(ZonedDateTime base, int value, ChronoField target, ChronoUnit upper) {
+        try {
+            if (value < 0) {
+                return base;
+            } else if (base.get(target) <= value) {
+                return base.with(target, value);
+            } else {
+                return base.plus(1, upper).with(target, value);
+            }
+        } catch (DateTimeException e) {
+            return find(base.plus(1, upper), value, target, upper);
+        }
     }
 }
