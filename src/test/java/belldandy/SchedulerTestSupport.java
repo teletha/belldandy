@@ -25,13 +25,13 @@ import org.junit.jupiter.api.BeforeEach;
 
 import kiss.I;
 
-public class ExecutorTestSupport {
+public class SchedulerTestSupport {
 
-    protected TestableExecutor executor;
+    protected TestableScheduler executor;
 
     @BeforeEach
     void setUp() {
-        executor = new TestableExecutor();
+        executor = new TestableScheduler();
 
         assert !Thread.currentThread().isVirtual();
     }

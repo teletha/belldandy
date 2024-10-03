@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import kiss.I;
 
-public class TestableExecutor extends Scheduler {
+public class TestableScheduler extends Scheduler {
 
     private Map<Object, Future> futures = new ConcurrentHashMap();
 
@@ -98,7 +98,7 @@ public class TestableExecutor extends Scheduler {
      * 
      * @return
      */
-    protected final TestableExecutor start() {
+    protected final TestableScheduler start() {
         if (starting.compareAndSet(false, true)) {
             for (ScheduledFutureTask task : startingBuffer) {
                 super.executeTask(task);
@@ -108,7 +108,7 @@ public class TestableExecutor extends Scheduler {
         return this;
     }
 
-    protected TestableExecutor limitAwaitTime(long millis) {
+    protected TestableScheduler limitAwaitTime(long millis) {
         awaitingLimit = millis;
         return this;
     }
