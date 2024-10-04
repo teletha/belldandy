@@ -24,10 +24,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import belldandy.Cron.BasicField;
-import belldandy.Cron.FieldPart;
+import belldandy.Cron.Field;
+import belldandy.Cron.Part;
 import belldandy.Cron.FieldType;
-import belldandy.Cron.SimpleField;
 
 public class CronTest {
     TimeZone original;
@@ -48,11 +47,11 @@ public class CronTest {
 
     @Test
     public void shall_parse_number() throws Exception {
-        SimpleField field = new SimpleField(FieldType.MINUTE, "5");
+        Field field = new Field(FieldType.MINUTE, "5");
         assertPossibleValues(field, 5);
     }
 
-    private void assertPossibleValues(SimpleField field, Integer... values) {
+    private void assertPossibleValues(Field field, Integer... values) {
         Set<Integer> valid = values == null ? new HashSet<Integer>() : new HashSet<>(Arrays.asList(values));
         for (int i = field.fieldType.min; i <= field.fieldType.max; i++) {
             if (valid.contains(i)) {
@@ -63,10 +62,10 @@ public class CronTest {
         }
     }
 
-    private boolean matches(BasicField field, int value) {
+    private boolean matches(Field field, int value) {
         if (value >= field.fieldType.min && value <= field.fieldType.max) {
-            for (FieldPart part : field.parts) {
-                if (BasicField.matches(value, part)) {
+            for (Part part : field.parts) {
+                if (Field.matches(value, part)) {
                     return true;
                 }
             }
@@ -76,44 +75,44 @@ public class CronTest {
 
     @Test
     public void shall_parse_number_with_increment() throws Exception {
-        SimpleField field = new SimpleField(FieldType.MINUTE, "0/15");
+        Field field = new Field(FieldType.MINUTE, "0/15");
         assertPossibleValues(field, 0, 15, 30, 45);
     }
 
     @Test
     public void shall_parse_range() throws Exception {
-        SimpleField field = new SimpleField(FieldType.MINUTE, "5-10");
+        Field field = new Field(FieldType.MINUTE, "5-10");
         assertPossibleValues(field, 5, 6, 7, 8, 9, 10);
     }
 
     @Test
     public void shall_parse_range_with_increment() throws Exception {
-        SimpleField field = new SimpleField(FieldType.MINUTE, "20-30/2");
+        Field field = new Field(FieldType.MINUTE, "20-30/2");
         assertPossibleValues(field, 20, 22, 24, 26, 28, 30);
     }
 
     @Test
     public void shall_parse_asterix() throws Exception {
-        SimpleField field = new SimpleField(FieldType.DAY_OF_WEEK, "*");
+        Field field = new Field(FieldType.DAY_OF_WEEK, "*");
         assertPossibleValues(field, 1, 2, 3, 4, 5, 6, 7);
     }
 
     @Test
     public void shall_parse_asterix_with_increment() throws Exception {
-        SimpleField field = new SimpleField(FieldType.DAY_OF_WEEK, "*/2");
+        Field field = new Field(FieldType.DAY_OF_WEEK, "*/2");
         assertPossibleValues(field, 1, 3, 5, 7);
     }
 
     @Test
     public void shall_ignore_field_in_day_of_week() throws Exception {
-        BasicField field = new BasicField(FieldType.DAY_OF_WEEK, "?");
-        assert BasicField.matchesDay(ZonedDateTime.now().toLocalDate(), field);
+        Field field = new Field(FieldType.DAY_OF_WEEK, "?");
+        assert Field.matchesDay(ZonedDateTime.now().toLocalDate(), field);
     }
 
     @Test
     public void shall_ignore_field_in_day_of_month() throws Exception {
-        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "?");
-        assert BasicField.matchesDay(ZonedDateTime.now().toLocalDate(), field);
+        Field field = new Field(FieldType.DAY_OF_MONTH, "?");
+        assert Field.matchesDay(ZonedDateTime.now().toLocalDate(), field);
     }
 
     @Test
@@ -124,35 +123,35 @@ public class CronTest {
     @Test
     public void shall_give_error_if_minute_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleField(FieldType.MINUTE, "?");
+            new Field(FieldType.MINUTE, "?");
         });
     }
 
     @Test
     public void shall_give_error_if_hour_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleField(FieldType.HOUR, "?");
+            new Field(FieldType.HOUR, "?");
         });
     }
 
     @Test
     public void shall_give_error_if_month_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            new SimpleField(FieldType.MONTH, "?");
+            new Field(FieldType.MONTH, "?");
         });
     }
 
     @Test
     public void shall_give_last_day_of_month_in_leapyear() throws Exception {
-        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "L");
-        assert BasicField.matchesDay(LocalDate.of(2012, 02, 29), field);
+        Field field = new Field(FieldType.DAY_OF_MONTH, "L");
+        assert Field.matchesDay(LocalDate.of(2012, 02, 29), field);
     }
 
     @Test
     public void shall_give_last_day_of_month() throws Exception {
-        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "L");
+        Field field = new Field(FieldType.DAY_OF_MONTH, "L");
         YearMonth now = YearMonth.now();
-        assert BasicField.matchesDay(LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()), field);
+        assert Field.matchesDay(LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()), field);
     }
 
     @Test

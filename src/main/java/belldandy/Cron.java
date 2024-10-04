@@ -234,17 +234,17 @@ public class Cron {
 
     private final String expr;
 
-    private final SimpleField second;
+    private final Field second;
 
-    private final SimpleField minute;
+    private final Field minute;
 
-    private final SimpleField hour;
+    private final Field hour;
 
-    private final BasicField dow;
+    private final Field dow;
 
-    private final SimpleField month;
+    private final Field month;
 
-    private final BasicField day;
+    private final Field day;
 
     public Cron(String expr) {
         this.expr = expr;
@@ -256,12 +256,12 @@ public class Cron {
         };
 
         int i = withSeconds ? 1 : 0;
-        this.second = new SimpleField(FieldType.SECOND, withSeconds ? parts[0] : "0");
-        this.minute = new SimpleField(FieldType.MINUTE, parts[i++]);
-        this.hour = new SimpleField(FieldType.HOUR, parts[i++]);
-        this.day = new BasicField(FieldType.DAY_OF_MONTH, parts[i++]);
-        this.month = new SimpleField(FieldType.MONTH, parts[i++]);
-        this.dow = new BasicField(FieldType.DAY_OF_WEEK, parts[i++]);
+        this.second = new Field(FieldType.SECOND, withSeconds ? parts[0] : "0");
+        this.minute = new Field(FieldType.MINUTE, parts[i++]);
+        this.hour = new Field(FieldType.HOUR, parts[i++]);
+        this.day = new Field(FieldType.DAY_OF_MONTH, parts[i++]);
+        this.month = new Field(FieldType.MONTH, parts[i++]);
+        this.dow = new Field(FieldType.DAY_OF_WEEK, parts[i++]);
     }
 
     public ZonedDateTime nextTimeAfter(ZonedDateTime base) {
@@ -311,7 +311,7 @@ public class Cron {
     private boolean findDay(ZonedDateTime[] dateTime, ZonedDateTime dateTimeBarrier) {
         int month = dateTime[0].getMonthValue();
 
-        while (!(BasicField.matchesDay(dateTime[0].toLocalDate(), day) && BasicField.matchesDoW(dateTime[0].toLocalDate(), dow))) {
+        while (!(Field.matchesDay(dateTime[0].toLocalDate(), day) && Field.matchesDoW(dateTime[0].toLocalDate(), dow))) {
             dateTime[0] = dateTime[0].plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             if (dateTime[0].getMonthValue() != month) {
                 return false;
@@ -325,26 +325,15 @@ public class Cron {
         return getClass().getSimpleName() + "<" + expr + ">";
     }
 
-    static class FieldPart implements Comparable<FieldPart> {
-        private int min = -1, max = -1, increment = -1;
-
-        private String modifier, incrementModifier;
-
-        @Override
-        public int compareTo(FieldPart o) {
-            return Integer.compare(min, o.min);
-        }
-    }
-
-    protected static class BasicField {
+    static class Field {
         private static final Pattern CRON_FIELD_REGEXP = Pattern
                 .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
         final FieldType fieldType;
 
-        final List<FieldPart> parts = new ArrayList<>();
+        final List<Part> parts = new ArrayList<>();
 
-        BasicField(FieldType fieldType, String fieldExpr) {
+        Field(FieldType fieldType, String fieldExpr) {
             this.fieldType = fieldType;
             parse(fieldExpr);
         }
@@ -362,7 +351,7 @@ public class Cron {
                 String incrementModifier = m.group("incmod");
                 String increment = m.group("inc");
 
-                FieldPart part = new FieldPart();
+                Part part = new Part();
                 part.increment = 999;
                 if (startNummer != null) {
                     part.min = fieldType.map(startNummer);
@@ -400,7 +389,7 @@ public class Cron {
             Collections.sort(parts);
         }
 
-        private void validatePart(FieldPart part) {
+        private void validatePart(Part part) {
             if (part.modifier != null && !fieldType.modifier.contains(part.modifier)) {
                 throw new IllegalArgumentException(String.format("Invalid modifier [%s]", part.modifier));
             } else if (part.incrementModifier != null && !fieldType.increment.contains(part.incrementModifier)) {
@@ -408,7 +397,7 @@ public class Cron {
             }
         }
 
-        private void validateRange(FieldPart part) {
+        private void validateRange(Part part) {
             if ((part.min != -1 && part.min < fieldType.min) || (part.max != -1 && part.max > fieldType.max)) {
                 throw new IllegalArgumentException(String
                         .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.min, part.max, fieldType.min, fieldType.max));
@@ -418,12 +407,12 @@ public class Cron {
             }
         }
 
-        static boolean matches(int value, FieldPart part) {
+        static boolean matches(int value, Part part) {
             return part.min <= value && value <= part.max && (value - part.min) % part.increment == 0;
         }
 
-        static boolean matchesDay(LocalDate date, BasicField field) {
-            for (FieldPart part : field.parts) {
+        static boolean matchesDay(LocalDate date, Field field) {
+            for (Part part : field.parts) {
                 if ("L".equals(part.modifier)) {
                     YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                     return date.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
@@ -444,8 +433,8 @@ public class Cron {
             return false;
         }
 
-        static boolean matchesDoW(LocalDate date, BasicField field) {
-            for (FieldPart part : field.parts) {
+        static boolean matchesDoW(LocalDate date, Field field) {
+            for (Part part : field.parts) {
                 if ("L".equals(part.modifier)) {
                     YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                     return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
@@ -462,7 +451,7 @@ public class Cron {
             return false;
         }
 
-        protected int nextMatch(int value, FieldPart part) {
+        protected int nextMatch(int value, Part part) {
             if (value > part.max) {
                 return -1;
             }
@@ -478,12 +467,6 @@ public class Cron {
 
             return nextPotential <= part.max ? nextPotential : -1;
         }
-    }
-
-    static class SimpleField extends BasicField {
-        SimpleField(FieldType fieldType, String fieldExpr) {
-            super(fieldType, fieldExpr);
-        }
 
         /**
          * Find the next match for this field. If a match cannot be found force an overflow and
@@ -497,7 +480,7 @@ public class Cron {
         protected boolean nextMatch(ZonedDateTime[] dateTime) {
             int value = fieldType.getValue(dateTime[0]);
 
-            for (FieldPart part : parts) {
+            for (Part part : parts) {
                 int nextMatch = nextMatch(value, part);
                 if (nextMatch > -1) {
                     if (nextMatch != value) {
@@ -509,6 +492,17 @@ public class Cron {
 
             dateTime[0] = fieldType.overflow(dateTime[0]);
             return false;
+        }
+    }
+
+    static class Part implements Comparable<Part> {
+        private int min = -1, max = -1, increment = -1;
+
+        private String modifier, incrementModifier;
+
+        @Override
+        public int compareTo(Part o) {
+            return Integer.compare(min, o.min);
         }
     }
 }
