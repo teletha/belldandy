@@ -89,8 +89,8 @@ class SchedulerTest extends SchedulerTestSupport {
         Verifier verifier2 = new Verifier("2");
         Verifier verifier3 = new Verifier("3");
         ScheduledFuture<String> future1 = scheduler.schedule((Callable) verifier1, 50, TimeUnit.MILLISECONDS);
-        ScheduledFuture<String> future2 = scheduler.schedule((Callable) verifier2, 50, TimeUnit.MILLISECONDS);
-        ScheduledFuture<String> future3 = scheduler.schedule((Callable) verifier3, 50, TimeUnit.MILLISECONDS);
+        ScheduledFuture<String> future2 = scheduler.schedule((Callable) verifier2, 150, TimeUnit.MILLISECONDS);
+        ScheduledFuture<String> future3 = scheduler.schedule((Callable) verifier3, 250, TimeUnit.MILLISECONDS);
         assert verifyRunning(future1, future2, future3);
         assert scheduler.start().awaitIdling();
         assert verifySuccessed(future1, "1");
