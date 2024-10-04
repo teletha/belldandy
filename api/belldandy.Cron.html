@@ -12,9 +12,9 @@
 		<link href="main.css" rel="stylesheet"/>
 	</head>
 	<body class="Q">
-		<header class="U">
-			<h1 class="f" date="" ver="0.1"><code>Belldandy</code></h1>
-			<nav class="R"><a href="api/"><svg class="A svg" viewBox="0 0 24 24">
+		<header class="W">
+			<h1 class="U" date="" ver="0.1"><code>Belldandy</code></h1>
+			<nav class="O"><a href="api/"><svg class="A svg" viewBox="0 0 24 24">
 						<use href="main.svg#package"/>
 					</svg><code>API</code></a><a href="https://github.com/teletha/belldandy/discussions" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
 						<use href="main.svg#user"/>
@@ -23,7 +23,7 @@
 					</svg>Activity</a><a href="https://github.com/teletha/belldandy" target="_blank"><svg class="A svg" viewBox="0 0 24 24">
 						<use href="main.svg#github"/>
 					</svg>Repository</a></nav>
-			<div class="I" id="ViewMode"><a id="light" title="Change to a brighter color scheme"><svg class="A svg" viewBox="0 0 24 24">
+			<div class="f" id="ViewMode"><a id="light" title="Change to a brighter color scheme"><svg class="A svg" viewBox="0 0 24 24">
 						<use href="main.svg#sun"/>
 					</svg>
 				</a><a id="dark" title="Change to a darker color scheme"><svg class="A svg" viewBox="0 0 24 24">
@@ -31,257 +31,84 @@
 					</svg>
 				</a></div>
 		</header>
-		<main class="k">
-			<nav class="h">
+		<main class="l">
+			<nav class="M">
 				<div></div>
 			</nav>
-			<article class="Z" id="Article">
-				<section class="j"><code class="V">belldandy</code>
-					<h2 class="Class M"><code class="d">Cron</code></h2>
-					<div class="W"></div><span class="B"><p>This provides cron support for java8 using java-time.</p>
- <p>
-
-							<p>Parser for unix-like cron expressions: Cron expressions allow specifying combinations of criteria
-for time
-such as: &#38;quot;Each Monday-Friday at 08:00&#38;quot; or &#38;quot;Every last friday of the month at
-01:30&#38;quot;</p>
- 
-							<p>
- A cron expressions consists of 5 or 6 mandatory fields (seconds may be omitted) separated by
- space. 
-								<br/>
- These are:
- 
-								<table cellspacing="8">
- 
-									<tr>
- 
-										<th align="left">Field</th>
- 
-										<th align="left">&#38;nbsp;</th>
- 
-										<th align="left">Allowable values</th>
- 
-										<th align="left">&#38;nbsp;</th>
- 
-										<th align="left">Special Characters</th>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Seconds (may be omitted)</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>0-59</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * /</code></td>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Minutes</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>0-59</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * /</code></td>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Hours</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>0-23</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * /</code></td>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Day of month</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>1-31</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * ? / L W</code></td>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Month</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>1-12 or JAN-DEC (note: english abbreviations)</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * /</code></td>
- </tr>
- 
-									<tr>
- 
-										<td align="left"><code>Day of week</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>1-7 or MON-SUN (note: english abbreviations)</code></td>
- 
-										<td align="left">&#38;nbsp;</td>
- 
-										<td align="left"><code>, - * ? / L #</code></td>
- </tr>
- </table>
- 
-								<p>
- &#39;*&#39; Can be used in all fields and means &#39;for all values&#39;. E.g. &#38;quot;*&#38;quot; in minutes, means
- &#39;for all minutes&#39;
- 
-									<p>
- &#39;?&#39; Can be used in Day-of-month and Day-of-week fields. Used to signify &#39;no special value&#39;. It is
- used when one want
- to specify something for one of those two fields, but not the other.
- 
-										<p>
- &#39;-&#39; Used to specify a time interval. E.g. &#38;quot;10-12&#38;quot; in Hours field means &#39;for hours 10,
- 11 and 12&#39;
- 
-											<p>
- &#39;,&#39; Used to specify multiple values for a field. E.g. &#38;quot;MON,WED,FRI&#38;quot; in Day-of-week
- field means &#38;quot;for
- monday, wednesday and friday&#38;quot;
- 
-												<p>
- &#39;/&#39; Used to specify increments. E.g. &#38;quot;0/15&#38;quot; in Seconds field means &#38;quot;for seconds 0,
- 15, 30, ad
- 45&#38;quot;. And &#38;quot;5/15&#38;quot; in seconds field means &#38;quot;for seconds 5, 20, 35, and 50&#38;quot;.
- If &#39;*&#39; s specified
- before &#39;/&#39; it is the same as saying it starts at 0. For every field there&#39;s a list of values that
- can be turned on or
- off. For Seconds and Minutes these range from 0-59. For Hours from 0 to 23, For Day-of-month it&#39;s
- 1 to 31, For Months
- 1 to 12. &#38;quot;/&#38;quot; character helsp turn some of these values back on. Thus &#38;quot;7/6&#38;quot; in
- Months field
- specify just Month 7. It doesn&#39;t turn on every 6 month following, since cron fields never roll
- over
- 
-													<p>
- &#39;L&#39; Can be used on Day-of-month and Day-of-week fields. It signifies last day of the set of
- allowed values. In
- Day-of-month field it&#39;s the last day of the month (e.g.. 31 jan, 28 feb (29 in leap years), 31
- march, etc.). In
- Day-of-week field it&#39;s Sunday. If there&#39;s a prefix, this will be subtracted (5L in Day-of-month
- means 5 days before
- last day of Month: 26 jan, 23 feb, etc.)
- 
-														<p>
- &#39;W&#39; Can be specified in Day-of-Month field. It specifies closest weekday (monday-friday).
- Holidays are not accounted
- for. &#38;quot;15W&#38;quot; in Day-of-Month field means &#39;closest weekday to 15 i in given month&#39;. If the
- 15th is a Saturday,
- it gives Friday. If 15th is a Sunday, the it gives following Monday.
- 
-															<p>
- &#39;#&#39; Can be used in Day-of-Week field. For example: &#38;quot;5#3&#38;quot; means &#39;third friday in month&#39;
- (day 5 = friday, #3
- - the third). If the day does not exist (e.g. &#38;quot;5#5&#38;quot; - 5th friday of month) and there
- aren&#39;t 5 fridays in
- the month, then it won&#39;t match until the next month with 5 fridays.
- 
-																<p>
- <b>Case-sensitive</b> No fields are case-sensitive
- 
-																	<p>
- <b>Dependencies between fields</b> Fields are always evaluated independently, but the expression
- doesn&#39;t match until
- the constraints of each field are met. Overlap of intervals are not allowed. That is: for
- Day-of-week field &#38;quot;FRI-MON&#38;quot; is invalid,but &#38;quot;FRI-SUN,MON&#38;quot; is valid
-</p>
-																</p>
-															</p>
-														</p>
-													</p>
-												</p>
-											</p>
-										</p>
-									</p>
-								</p>
-							</p>
-						</p>
-					</span></section>
-				<section class="j" id="Cron(java.lang.String)">
-					<h2 class="O"><i class="PUBLIC"></i><code class="d">Cron</code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></h2>
-					<table class="b">
-						<tr class="P">
+			<article class="N" id="Article">
+				<section class="H"><code class="Y">belldandy</code>
+					<h2 class="Class V"><code class="X">Cron</code></h2>
+					<div class="k"></div><span class="B"><p>Represents a cron expression and provides methods to calculate the next execution time.
+This class supports both 5-field (minute, hour, day of month, month, day of week)
+and 6-field (second, minute, hour, day of month, month, day of week) cron expressions.</p>
+</span></section>
+				<section class="H" id="Cron(java.lang.String)">
+					<h2 class="m"><i class="PUBLIC"></i><code class="X">Cron</code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></h2>
+					<table class="a">
+						<tr class="i">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code>expr</code></td>
-							<td></td>
+							<td><span><p>The cron expression string.</p>
+</span></td>
 						</tr>
-					</table>
-				</section>
-				<section class="j" id="nextTimeAfter(java.time.ZonedDateTime)">
-					<h2 class="O"><i class="PUBLIC"></i><code class="d">nextTimeAfter</code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
-					<table class="b">
-						<tr class="P">
+					</table><span class="B"><p>Constructs a new Cron instance based on the given cron expression.</p>
+</span></section>
+				<section class="H" id="next(java.time.ZonedDateTime)">
+					<h2 class="m"><i class="PUBLIC"></i><code class="X">next</code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>)</code><i class="e"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
+					<table class="a">
+						<tr class="i">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>base</code></td>
-							<td></td>
+							<td><span><p>The base time to start the search from.</p>
+</span></td>
 						</tr>
-						<tr class="X">
+						<tr class="d">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></td>
-							<td></td>
+							<td><span><p>The next execution time as a ZonedDateTime.</p>
+</span></td>
 						</tr>
-					</table>
-				</section>
-				<section class="j" id="nextTimeAfter(java.time.ZonedDateTime,java.time.ZonedDateTime)">
-					<h2 class="O"><i class="PUBLIC"></i><code class="d">nextTimeAfter</code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">limit</code>)</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
-					<table class="b">
-						<tr class="P">
+					</table><span class="B"><p>Calculates the next execution time after the given base time.
+This method searches for the next execution time within the next four years.</p>
+</span></section>
+				<section class="H" id="next(java.time.ZonedDateTime,java.time.ZonedDateTime)">
+					<h2 class="m"><i class="PUBLIC"></i><code class="X">next</code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">limit</code>)</code><i class="e"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></h2>
+					<table class="a">
+						<tr class="i">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>base</code></td>
-							<td></td>
+							<td><span><p>The base time to start the search from.</p>
+</span></td>
 						</tr>
-						<tr class="P">
+						<tr class="i">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code>limit</code></td>
-							<td></td>
+							<td><span><p>The upper limit for the search.</p>
+</span></td>
 						</tr>
-						<tr class="X">
+						<tr class="d">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></td>
-							<td></td>
+							<td><span><p>The next execution time as a ZonedDateTime.</p>
+</span></td>
 						</tr>
-					</table>
-				</section>
-				<section class="j" id="toString()">
-					<h2 class="O"><i class="OVERRIDE PUBLIC"></i><code class="d">toString</code><code class="e">()</code><i class="l"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></h2>
-					<table class="b">
-						<tr class="X">
+					</table><span class="B"><p>Calculates the next execution time after the given base time and before the given limit.</p>
+</span></section>
+				<section class="H" id="toString()">
+					<h2 class="m"><i class="OVERRIDE PUBLIC"></i><code class="X">toString</code><code class="R">()</code><i class="e"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></h2>
+					<table class="a">
+						<tr class="d">
 							<td><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></td>
 							<td></td>
 						</tr>
 					</table>
 				</section>
 			</article>
-			<aside class="i" id="SubNavi">
-				<div class="a">
-					<h5 class="J">Constructors</h5>
+			<aside class="J" id="SubNavi">
+				<div class="S">
+					<h5 class="P">Constructors</h5>
 					<ul>
-						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#Cron(java.lang.String)">Cron</a></code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#Cron(java.lang.String)">Cron</a></code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code> <code class="parameterName">expr</code>)</code></li>
 					</ul>
-					<h5 class="J">Methods</h5>
+					<h5 class="P">Methods</h5>
 					<ul>
-						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextTimeAfter(java.time.ZonedDateTime)">nextTimeAfter</a></code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>)</code><i class="H"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
-						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#nextTimeAfter(java.time.ZonedDateTime,java.time.ZonedDateTime)">nextTimeAfter</a></code><code class="e">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">limit</code>)</code><i class="H"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
-						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Cron.html#toString()">toString</a></code><code class="e">()</code><i class="H"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#next(java.time.ZonedDateTime)">next</a></code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>)</code><i class="L"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
+						<li><i class="PUBLIC"></i><code><a href="api/belldandy.Cron.html#next(java.time.ZonedDateTime,java.time.ZonedDateTime)">next</a></code><code class="R">(<code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">base</code>, <code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code> <code class="parameterName">limit</code>)</code><i class="L"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/time/ZonedDateTime.html">ZonedDateTime</a></code></i></li>
+						<li><i class="OVERRIDE PUBLIC"></i><code><a href="api/belldandy.Cron.html#toString()">toString</a></code><code class="R">()</code><i class="L"><code><a href="https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/lang/String.html">String</a></code></i></li>
 					</ul>
 				</div>
 			</aside>
