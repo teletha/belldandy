@@ -11,6 +11,8 @@ package belldandy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -138,7 +140,7 @@ public class SchedulerTestSupport {
      */
     protected boolean verifyStartExecutionOrder(Verifier<?>... verifiers) {
         for (int i = 1; i < verifiers.length; i++) {
-            assert verifiers[i - 1].startTime.getFirst() <= verifiers[i].startTime.getFirst();
+            assert verifiers[i - 1].startTime.getFirst().isBefore(verifiers[i].startTime.getFirst());
         }
         return true;
     }
@@ -150,7 +152,7 @@ public class SchedulerTestSupport {
      */
     protected boolean verifyEndExecutionOrder(Verifier<?>... verifiers) {
         for (int i = 1; i < verifiers.length; i++) {
-            assert verifiers[i - 1].endTime.getFirst() <= verifiers[i].endTime.getFirst();
+            assert verifiers[i - 1].endTime.getFirst().isBefore(verifiers[i].endTime.getFirst());
         }
         return true;
     }
@@ -160,11 +162,11 @@ public class SchedulerTestSupport {
      */
     protected class Verifier<T> implements Callable<T>, Runnable {
 
-        private final long created = System.currentTimeMillis();
+        private final Instant created = Instant.now();
 
-        private final List<Long> startTime = new ArrayList();
+        private final List<Instant> startTime = new ArrayList();
 
-        private final List<Long> endTime = new ArrayList();
+        private final List<Instant> endTime = new ArrayList();
 
         private final T expectedResult;
 
@@ -191,7 +193,7 @@ public class SchedulerTestSupport {
          */
         @Override
         public T call() throws Exception {
-            startTime.add(System.nanoTime());
+            startTime.add(Instant.now());
             try {
                 if (expectedError != null) {
                     throw I.quiet(expectedError);
@@ -199,7 +201,7 @@ public class SchedulerTestSupport {
                     return expectedResult;
                 }
             } finally {
-                endTime.add(System.nanoTime());
+                endTime.add(Instant.now());
 
                 if (endTime.size() == max) {
                     scheduler.cancel(this);
@@ -224,7 +226,7 @@ public class SchedulerTestSupport {
          */
         protected boolean verifyInitialDelay(long time, TimeUnit unit) {
             assert !startTime.isEmpty();
-            assert unit.toMillis(time) <= startTime.get(0) - created;
+            assert Duration.between(created, startTime.getFirst()).minus(time, unit.toChronoUnit()).isPositive();
 
             return true;
         }
@@ -235,8 +237,8 @@ public class SchedulerTestSupport {
         protected boolean verifyRate(TimeUnit unit, long... rates) {
             assert startTime.size() == rates.length;
             for (int i = 0; i < rates.length; i++) {
-                long diff = startTime.get(i) - (i == 0 ? created : startTime.get(i - 1));
-                assert unit.toMillis(rates[i]) <= diff : diff;
+                Duration diff = Duration.between(i == 0 ? created : startTime.get(i - 1), startTime.get(i));
+                assert diff.minus(rates[i], unit.toChronoUnit()).isPositive();
             }
             return true;
         }
@@ -247,8 +249,8 @@ public class SchedulerTestSupport {
         protected boolean verifyInterval(TimeUnit unit, long... delays) {
             assert startTime.size() == delays.length;
             for (int i = 0; i < delays.length; i++) {
-                long diff = startTime.get(i) - (i == 0 ? created : endTime.get(i - 1));
-                assert unit.toMillis(delays[i]) <= diff : diff;
+                Duration diff = Duration.between(i == 0 ? created : endTime.get(i - 1), startTime.get(i));
+                assert diff.minus(delays[i], unit.toChronoUnit()).isPositive();
             }
             return true;
         }

@@ -97,11 +97,11 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifySuccessed(future2, "2");
         assert verifySuccessed(future3, "3");
         assert verifier1.verifyInitialDelay(50, TimeUnit.MILLISECONDS);
-        // assert verifier1.verifyExecutionCount(1);
-        // assert verifier2.verifyInitialDelay(50, TimeUnit.MILLISECONDS);
-        // assert verifier2.verifyExecutionCount(1);
-        // assert verifier3.verifyInitialDelay(50, TimeUnit.MILLISECONDS);
-        // assert verifier3.verifyExecutionCount(1);
+        assert verifier1.verifyExecutionCount(1);
+        assert verifier2.verifyInitialDelay(50, TimeUnit.MILLISECONDS);
+        assert verifier2.verifyExecutionCount(1);
+        assert verifier3.verifyInitialDelay(50, TimeUnit.MILLISECONDS);
+        assert verifier3.verifyExecutionCount(1);
     }
 
     @Test
