@@ -7,9 +7,10 @@
 </p>
 
 ## Summary
-Beldandy offers various functions specifically for virtual threads.
+Beldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
 
-- ScheduledExecutorService
+- VIrtual thread based Scheduler
+- Cron Expression
 <p align="right"><a href="#top">back to top</a></p>
 
 

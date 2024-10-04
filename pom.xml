@@ -5,9 +5,10 @@
 	<version>0.1</version>
 	<packaging>jar</packaging>
 	<name>belldandy</name>
-	<description>Beldandy offers various functions specifically for virtual threads.
+	<description>Beldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
 
-- ScheduledExecutorService</description>
+- VIrtual thread based Scheduler
+- Cron Expression</description>
 	<dependencies>
 		<dependency>
 			<groupId>com.github.teletha</groupId>
