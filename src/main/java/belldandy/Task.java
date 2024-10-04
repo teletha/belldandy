@@ -15,7 +15,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
 
@@ -23,9 +23,9 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     final AtomicLong time;
 
     /** The interval calculator. */
-    final Function<Long, Long> interval;
+    final ToLongFunction<Long> interval;
 
-    Task(Callable<V> task, long next, Function<Long, Long> interval) {
+    Task(Callable<V> task, long next, ToLongFunction<Long> interval) {
         super(task);
 
         this.time = new AtomicLong(next);

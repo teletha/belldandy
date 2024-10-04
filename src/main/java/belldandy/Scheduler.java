@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 /**
  * A custom implementation of {@link ScheduledExecutorService} that provides
@@ -88,7 +89,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                             // one shot
                         } else {
                             // reschedule task
-                            long next = task.interval.apply(task.time.get());
+                            long next = task.interval.applyAsLong(task.time.get());
                             task.time.set(next);
                             executeTask(task);
                         }
@@ -164,11 +165,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     public ScheduledFuture<?> scheduleAt(Runnable command, String format) {
         Cron cron = new Cron(format);
-        Function<Long, Long> next = prev -> {
+        ToLongFunction<Long> next = prev -> {
+            // effective conversion
             return cron.next(ZonedDateTime.now()).toEpochSecond() * 1000;
         };
 
-        Task task = new Task(callable(command), next.apply(0L), old -> next.apply(0L));
+        Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
         executeTask(task);
         return task;
     }

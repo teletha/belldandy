@@ -20,6 +20,7 @@ public class Project extends bee.api.Project {
                 Beldandy offers various functions specifically for virtual threads.
 
                 - ScheduledExecutorService
+                - Cron Expression
                 """);
 
         require(SourceVersion.RELEASE_21);

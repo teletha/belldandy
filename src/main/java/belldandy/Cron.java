@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * This class supports both 5-field (minute, hour, day of month, month, day of week)
  * and 6-field (second, minute, hour, day of month, month, day of week) cron expressions.
  */
-public class Cron {
+class Cron {
 
     /** Field representing seconds in the cron expression. */
     private final Field second;
@@ -55,7 +55,7 @@ public class Cron {
      * @throws IllegalArgumentException if the expression is invalid or has an incorrect number of
      *             fields.
      */
-    public Cron(String expr) {
+     Cron(String expr) {
         String[] parts = expr.split("\\s+");
         boolean hasSec = switch (parts.length) {
         case 5 -> false;

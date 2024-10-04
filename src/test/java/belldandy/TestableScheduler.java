@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
+import java.util.function.ToLongFunction;
 
 import kiss.I;
 
@@ -99,11 +99,11 @@ public class TestableScheduler extends Scheduler {
     @Override
     public ScheduledFuture<?> scheduleAt(Runnable command, String fromat) {
         Cron cron = new Cron(fromat);
-        Function<Long, Long> next = prev -> {
+        ToLongFunction<Long> next = prev -> {
             return cron.next(ZonedDateTime.now()).toEpochSecond() * 1000;
         };
 
-        Task task = new Task(callable(command), next.apply(0L), old -> next.apply(0L));
+        Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
         executeTask(task);
 
         futures.put(command, task);
