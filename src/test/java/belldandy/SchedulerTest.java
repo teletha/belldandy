@@ -148,24 +148,22 @@ class SchedulerTest extends SchedulerTestSupport {
 
     @RepeatedTest(5)
     void fixedRate() {
-        Verifier verifier = new Verifier().max(3);
+        Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(verifier, 0, 50, TimeUnit.MILLISECONDS);
 
         assert verifyRunning(future);
-        assert scheduler.start().awaitIdling();
-        assert verifyCanceled(future);
+        assert scheduler.start().awaitExecutions(3);
         assert verifier.verifyExecutionCount(3);
         assert verifier.verifyRate(0, 30, 30);
     }
 
     @RepeatedTest(5)
     void fixedDelay() {
-        Verifier verifier = new Verifier().max(3);
+        Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(verifier, 0, 50, TimeUnit.MILLISECONDS);
 
         assert verifyRunning(future);
-        assert scheduler.start().awaitIdling();
-        assert verifyCanceled(future);
+        assert scheduler.start().awaitExecutions(3);
         assert verifier.verifyExecutionCount(3);
         assert verifier.verifyInterval(0, 50, 50);
     }
@@ -174,12 +172,11 @@ class SchedulerTest extends SchedulerTestSupport {
     void cron() {
         scheduler.limitAwaitTime(4000);
 
-        Verifier verifier = new Verifier().max(3);
+        Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "* * * * * *");
 
         assert verifyRunning(future);
-        assert scheduler.start().awaitIdling();
-        assert verifyCanceled(future);
+        assert scheduler.start().awaitExecutions(3);
         assert verifier.verifyExecutionCount(3);
         assert verifier.verifyRate(0, 1000, 1000);
     }
@@ -188,12 +185,11 @@ class SchedulerTest extends SchedulerTestSupport {
     void cronStep() {
         scheduler.limitAwaitTime(4000);
 
-        Verifier verifier = new Verifier().max(2);
+        Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "*/2 * * * * *");
 
         assert verifyRunning(future);
-        assert scheduler.start().awaitIdling();
-        assert verifyCanceled(future);
+        assert scheduler.start().awaitExecutions(2);
         assert verifier.verifyExecutionCount(2);
         assert verifier.verifyInterval(0, 2000);
     }

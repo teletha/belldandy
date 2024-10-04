@@ -171,8 +171,6 @@ public class SchedulerTestSupport {
 
         private final Throwable expectedError;
 
-        private long max = -1;
-
         public Verifier() {
             this((T) "Success");
         }
@@ -201,10 +199,6 @@ public class SchedulerTestSupport {
                 }
             } finally {
                 endTime.add(System.currentTimeMillis());
-
-                if (endTime.size() == max) {
-                    scheduler.cancel(this);
-                }
             }
         }
 
@@ -284,18 +278,6 @@ public class SchedulerTestSupport {
         protected boolean verifyAfterExecutionCount(long expected) {
             assert endTime.size() == expected;
             return true;
-        }
-
-        /**
-         * Limit the maximum execution count. When counter reaches the limit, this task will be
-         * cancelled automatically.
-         * 
-         * @param max
-         * @return
-         */
-        protected Verifier max(long max) {
-            this.max = max;
-            return this;
         }
     }
 }

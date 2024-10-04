@@ -108,9 +108,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        Task task = new Task(callable(command), calculateNext(delay, unit), null);
-        executeTask(task);
-        return task;
+        return schedule(Executors.callable(command), delay, unit);
     }
 
     /**

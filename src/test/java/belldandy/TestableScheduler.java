@@ -9,26 +9,13 @@
  */
 package belldandy;
 
-import static java.util.concurrent.Executors.*;
-
-import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.UnaryOperator;
 
 import kiss.I;
 
 public class TestableScheduler extends Scheduler {
-
-    private Map<Object, Future> futures = new ConcurrentHashMap();
 
     private long awaitingLimit = 1000;
 
@@ -41,73 +28,12 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     protected void executeTask(Task task) {
+
         if (starting.get()) {
             super.executeTask(task);
         } else {
             startingBuffer.add(task);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        Task task = new Task(callable(command), calculateNext(delay, unit), null);
-        executeTask(task);
-
-        futures.put(command, task);
-        return task;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        Task task = new Task(command, calculateNext(delay, unit), null);
-        executeTask(task);
-
-        futures.put(command, task);
-        return task;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> old.plus(interval, unit.toChronoUnit()));
-        executeTask(task);
-
-        futures.put(command, task);
-        return task;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> Instant.now().plus(interval, unit.toChronoUnit()));
-        executeTask(task);
-
-        futures.put(command, task);
-        return task;
-    }
-
-    @Override
-    public ScheduledFuture<?> scheduleAt(Runnable command, String fromat) {
-        Cron cron = new Cron(fromat);
-        UnaryOperator<Instant> next = prev -> {
-            return cron.next(ZonedDateTime.now()).toInstant();
-        };
-
-        Task task = new Task(callable(command), next.apply(Instant.EPOCH), old -> next.apply(Instant.EPOCH));
-        executeTask(task);
-
-        futures.put(command, task);
-        return task;
     }
 
     /**
@@ -152,7 +78,7 @@ public class TestableScheduler extends Scheduler {
     }
 
     /**
-     * Await the required tasks are executed.
+     * Awaits until the specified number of tasks have been executed.
      * 
      * @param required
      * @return
@@ -172,13 +98,6 @@ public class TestableScheduler extends Scheduler {
             }
         }
         return true;
-    }
-
-    protected void cancel(Object command) {
-        Future future = futures.get(command);
-        if (future != null) {
-            future.cancel(false);
-        }
     }
 
     /**

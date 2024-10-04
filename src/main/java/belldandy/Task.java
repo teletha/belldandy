@@ -60,14 +60,10 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public int compareTo(Delayed other) {
-        if (other == this) {
-            return 0;
-        }
         if (other instanceof Task task) {
             return time.get().compareTo((Instant) task.time.get());
+        } else {
+            return 0;
         }
-
-        long d = (getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS));
-        return (d == 0) ? 0 : ((d < 0) ? -1 : 1);
     }
 }
