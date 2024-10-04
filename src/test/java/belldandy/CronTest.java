@@ -160,15 +160,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 1, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 2, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 2, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 2, 1, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 59, 59, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 14, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -182,23 +182,23 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 1, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 1, 3, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 1, 3, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 2, 3, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 59, 3, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 14, 0, 3, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 23, 59, 3, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 0, 0, 3, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 30, 23, 59, 3, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 1, 0, 0, 3, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -207,33 +207,33 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 5, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 5, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 20, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 20, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 35, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 35, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 50, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 50, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 1, 5, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         // if rolling over minute then reset second (cron rules - increment affects only values in
         // own field)
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 50, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 1, 10, 0, zoneId);
-        assert new Cron("10/100 * * * * *").nextTimeAfter(after).equals(expected);
+        assert new Cron("10/100 * * * * *").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 1, 10, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 2, 10, 0, zoneId);
-        assert new Cron("10/100 * * * * *").nextTimeAfter(after).equals(expected);
+        assert new Cron("10/100 * * * * *").next(after).equals(expected);
     }
 
     @Test
@@ -242,15 +242,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 7, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 7, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 19, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 19, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 1, 7, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -259,23 +259,23 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 42, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 42, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 43, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 43, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 44, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 44, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 0, 45, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 0, 45, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 1, 42, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -294,11 +294,11 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 1, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 3, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 3, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 14, 3, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -307,19 +307,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 15, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 15, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 30, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 30, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 45, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 45, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 14, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -328,11 +328,11 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 13, 7, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 13, 7, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 13, 19, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -341,15 +341,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 1, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 11, 3, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 11, 3, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 3, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 11, 3, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 12, 3, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -358,23 +358,23 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 15, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 15, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 15, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 15, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 11, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 0, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 11, 15, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 15, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -383,15 +383,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 10, 19, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 19, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 10, 19, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 10, 19, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 7, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -407,7 +407,7 @@ public class CronTest {
         int count = 0;
         ZonedDateTime lastTime = tid;
         while (tid.isBefore(slutt)) {
-            ZonedDateTime nextTime = cron.nextTimeAfter(tid);
+            ZonedDateTime nextTime = cron.next(tid);
             assert nextTime.isAfter(lastTime);
             lastTime = nextTime;
             tid = tid.plusHours(1);
@@ -429,7 +429,7 @@ public class CronTest {
         int count = 0;
         ZonedDateTime lastTime = tid;
         while (tid.isBefore(slutt)) {
-            ZonedDateTime nextTime = cron.nextTimeAfter(tid);
+            ZonedDateTime nextTime = cron.next(tid);
             assert nextTime.isAfter(lastTime);
             lastTime = nextTime;
             tid = tid.plusHours(1);
@@ -444,19 +444,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 5, 3, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 3, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 3, 0, 1, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 3, 0, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 3, 1, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 3, 23, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 6, 3, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -465,18 +465,18 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 16, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 16, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 16, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -485,19 +485,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 19, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 19, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 7, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 7, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 19, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 5, 30, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 6, 7, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -506,11 +506,11 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 29, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -519,11 +519,11 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 30 - 3, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 29 - 3, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -533,21 +533,21 @@ public class CronTest {
         // 9 - is weekday in may
         ZonedDateTime after = ZonedDateTime.of(2012, 5, 2, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 5, 9, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         // 9 - is weekday in may
         after = ZonedDateTime.of(2012, 5, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         // 9 - saturday, friday closest weekday in june
         after = ZonedDateTime.of(2012, 5, 9, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 6, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         // 9 - sunday, monday closest weekday in september
         after = ZonedDateTime.of(2012, 9, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 9, 10, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -564,24 +564,24 @@ public class CronTest {
     public void check_month_number() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 1 5 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 1 5 *").next(after).equals(expected);
     }
 
     @Test
     public void check_month_increment() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 1 5/2 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 1 5/2 *").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 1 5/2 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 1 5/2 *").next(after).equals(expected);
 
         // if rolling over year then reset month field (cron rules - increments only affect own
         // field)
         after = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2013, 5, 1, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 1 5/10 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 1 5/10 *").next(after).equals(expected);
     }
 
     @Test
@@ -590,15 +590,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -607,15 +607,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -629,19 +629,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 4, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 4, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 12, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 18, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 18, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 25, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -650,19 +650,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 4, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 4, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -671,15 +671,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 2, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 2, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -688,15 +688,15 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 2, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 2, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -705,19 +705,19 @@ public class CronTest {
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 1, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 27, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 4, 27, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 25, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 24, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
 
         after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 24, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * FRIL").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * FRIL").next(after).equals(expected);
     }
 
     @Test
@@ -734,53 +734,53 @@ public class CronTest {
     public void check_dayOfWeek_shall_interpret_0_as_sunday() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 0").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 0").next(after).equals(expected);
 
         expected = ZonedDateTime.of(2012, 4, 29, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 0L").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 0L").next(after).equals(expected);
 
         expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 0#2").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 0#2").next(after).equals(expected);
     }
 
     @Test
     public void check_dayOfWeek_shall_interpret_7_as_sunday() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 7").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 7").next(after).equals(expected);
 
         expected = ZonedDateTime.of(2012, 4, 29, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 7L").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 7L").next(after).equals(expected);
 
         expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 7#2").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 7#2").next(after).equals(expected);
     }
 
     @Test
     public void check_dayOfWeek_nth_day_in_month() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 4, 20, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 5#3").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 5#3").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 4, 20, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 18, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 5#3").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 5#3").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 3, 30, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 7#1").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 7#1").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 5, 6, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 7#1").nextTimeAfter(after).equals(expected);
+        assert new Cron("0 0 0 * * 7#1").next(after).equals(expected);
 
         after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 29, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * 3#5").nextTimeAfter(after).equals(expected); // leapday
+        assert new Cron("0 0 0 * * 3#5").next(after).equals(expected); // leapday
 
         after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 2, 29, 0, 0, 0, 0, zoneId);
-        assert new Cron("0 0 0 * * WED#5").nextTimeAfter(after).equals(expected); // leapday
+        assert new Cron("0 0 0 * * WED#5").next(after).equals(expected); // leapday
     }
 
     @Test
@@ -791,7 +791,7 @@ public class CronTest {
     @Test
     public void non_existing_date_throws_exception() throws Exception {
         // Will check for the next 4 years - no 30th of February is found so a IAE is thrown.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 30 2 *").nextTimeAfter(ZonedDateTime.now()));
+        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 30 2 *").next(ZonedDateTime.now()));
     }
 
     @Test
@@ -801,7 +801,7 @@ public class CronTest {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, zoneId);
         // the default barrier is 4 years - so leap years are considered.
-        assertEquals(expected, cronExpr.nextTimeAfter(after));
+        assertEquals(expected, cronExpr.next(after));
     }
 
     @Test
@@ -809,74 +809,74 @@ public class CronTest {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime barrier = ZonedDateTime.of(2013, 3, 1, 0, 0, 0, 0, zoneId);
         // The next leap year is 2016, so an IllegalArgumentException is expected.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").nextTimeAfter(after, barrier));
+        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").next(after, barrier));
     }
 
     @Test
     public void test_two_year_barrier() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         // The next leap year is 2016, so an IllegalArgumentException is expected.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").nextTimeAfter(after, after.plusYears(2)));
+        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").next(after, after.plusYears(2)));
     }
 
     @Test
     public void test_without_seconds() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, zoneId);
-        assert new Cron("* * 29 2 *").nextTimeAfter(after).equals(expected);
+        assert new Cron("* * 29 2 *").next(after).equals(expected);
     }
 
     @Test
     public void testTriggerProblemSameMonth() {
         assertEquals(ZonedDateTime.parse("2020-01-02T00:50:00Z"), new Cron("00 50 * 1-8 1 *")
-                .nextTimeAfter(ZonedDateTime.parse("2020-01-01T23:50:00Z")));
+                .next(ZonedDateTime.parse("2020-01-01T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextMonth() {
         assertEquals(ZonedDateTime.parse("2020-02-01T00:50:00Z"), new Cron("00 50 * 1-8 2 *")
-                .nextTimeAfter(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextYear() {
         assertEquals(ZonedDateTime.parse("2020-01-01T00:50:00Z"), new Cron("00 50 * 1-8 1 *")
-                .nextTimeAfter(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextMonthMonthAst() {
         assertEquals(ZonedDateTime.parse("2020-02-01T00:50:00Z"), new Cron("00 50 * 1-8 * *")
-                .nextTimeAfter(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextYearMonthAst() {
         assertEquals(ZonedDateTime.parse("2020-01-01T00:50:00Z"), new Cron("00 50 * 1-8 * *")
-                .nextTimeAfter(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextMonthDayAst() {
         assertEquals(ZonedDateTime.parse("2020-02-01T00:50:00Z"), new Cron("00 50 * * 2 *")
-                .nextTimeAfter(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextYearDayAst() {
         assertEquals(ZonedDateTime.parse("2020-01-01T00:50:00Z"), new Cron("00 50 * * 1 *")
-                .nextTimeAfter(ZonedDateTime.parse("2019-12-31T22:50:00Z")));
+                .next(ZonedDateTime.parse("2019-12-31T22:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextMonthAllAst() {
         assertEquals(ZonedDateTime.parse("2020-02-01T00:50:00Z"), new Cron("00 50 * * * *")
-                .nextTimeAfter(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2020-01-31T23:50:00Z")));
     }
 
     @Test
     public void testTriggerProblemNextYearAllAst() {
         assertEquals(ZonedDateTime.parse("2020-01-01T00:50:00Z"), new Cron("00 50 * * * *")
-                .nextTimeAfter(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
+                .next(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
     }
 }

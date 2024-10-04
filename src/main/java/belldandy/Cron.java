@@ -24,142 +24,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This provides cron support for java8 using java-time.
- * <P>
- * 
- * Parser for unix-like cron expressions: Cron expressions allow specifying combinations of criteria
- * for time
- * such as: &quot;Each Monday-Friday at 08:00&quot; or &quot;Every last friday of the month at
- * 01:30&quot;
- * <p>
- * A cron expressions consists of 5 or 6 mandatory fields (seconds may be omitted) separated by
- * space. <br>
- * These are:
- *
- * <table cellspacing="8">
- * <tr>
- * <th align="left">Field</th>
- * <th align="left">&nbsp;</th>
- * <th align="left">Allowable values</th>
- * <th align="left">&nbsp;</th>
- * <th align="left">Special Characters</th>
- * </tr>
- * <tr>
- * <td align="left"><code>Seconds (may be omitted)</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>0-59</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * /</code></td>
- * </tr>
- * <tr>
- * <td align="left"><code>Minutes</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>0-59</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * /</code></td>
- * </tr>
- * <tr>
- * <td align="left"><code>Hours</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>0-23</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * /</code></td>
- * </tr>
- * <tr>
- * <td align="left"><code>Day of month</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>1-31</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * ? / L W</code></td>
- * </tr>
- * <tr>
- * <td align="left"><code>Month</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>1-12 or JAN-DEC (note: english abbreviations)</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * /</code></td>
- * </tr>
- * <tr>
- * <td align="left"><code>Day of week</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>1-7 or MON-SUN (note: english abbreviations)</code></td>
- * <td align="left">&nbsp;</th>
- * <td align="left"><code>, - * ? / L #</code></td>
- * </tr>
- * </table>
- *
- * <P>
- * '*' Can be used in all fields and means 'for all values'. E.g. &quot;*&quot; in minutes, means
- * 'for all minutes'
- * <P>
- * '?' Can be used in Day-of-month and Day-of-week fields. Used to signify 'no special value'. It is
- * used when one want
- * to specify something for one of those two fields, but not the other.
- * <P>
- * '-' Used to specify a time interval. E.g. &quot;10-12&quot; in Hours field means 'for hours 10,
- * 11 and 12'
- * <P>
- * ',' Used to specify multiple values for a field. E.g. &quot;MON,WED,FRI&quot; in Day-of-week
- * field means &quot;for
- * monday, wednesday and friday&quot;
- * <P>
- * '/' Used to specify increments. E.g. &quot;0/15&quot; in Seconds field means &quot;for seconds 0,
- * 15, 30, ad
- * 45&quot;. And &quot;5/15&quot; in seconds field means &quot;for seconds 5, 20, 35, and 50&quot;.
- * If '*' s specified
- * before '/' it is the same as saying it starts at 0. For every field there's a list of values that
- * can be turned on or
- * off. For Seconds and Minutes these range from 0-59. For Hours from 0 to 23, For Day-of-month it's
- * 1 to 31, For Months
- * 1 to 12. &quot;/&quot; character helsp turn some of these values back on. Thus &quot;7/6&quot; in
- * Months field
- * specify just Month 7. It doesn't turn on every 6 month following, since cron fields never roll
- * over
- * <P>
- * 'L' Can be used on Day-of-month and Day-of-week fields. It signifies last day of the set of
- * allowed values. In
- * Day-of-month field it's the last day of the month (e.g.. 31 jan, 28 feb (29 in leap years), 31
- * march, etc.). In
- * Day-of-week field it's Sunday. If there's a prefix, this will be subtracted (5L in Day-of-month
- * means 5 days before
- * last day of Month: 26 jan, 23 feb, etc.)
- * <P>
- * 'W' Can be specified in Day-of-Month field. It specifies closest weekday (monday-friday).
- * Holidays are not accounted
- * for. &quot;15W&quot; in Day-of-Month field means 'closest weekday to 15 i in given month'. If the
- * 15th is a Saturday,
- * it gives Friday. If 15th is a Sunday, the it gives following Monday.
- * <P>
- * '#' Can be used in Day-of-Week field. For example: &quot;5#3&quot; means 'third friday in month'
- * (day 5 = friday, #3
- * - the third). If the day does not exist (e.g. &quot;5#5&quot; - 5th friday of month) and there
- * aren't 5 fridays in
- * the month, then it won't match until the next month with 5 fridays.
- * <P>
- * <b>Case-sensitive</b> No fields are case-sensitive
- * <P>
- * <b>Dependencies between fields</b> Fields are always evaluated independently, but the expression
- * doesn't match until
- * the constraints of each field are met. Overlap of intervals are not allowed. That is: for
- * Day-of-week field &quot;FRI-MON&quot; is invalid,but &quot;FRI-SUN,MON&quot; is valid
- *
+ * Represents a cron expression and provides methods to calculate the next execution time.
+ * This class supports both 5-field (minute, hour, day of month, month, day of week)
+ * and 6-field (second, minute, hour, day of month, month, day of week) cron expressions.
  */
 public class Cron {
 
+    /** The original cron expression string. */
     private final String expr;
 
+    /** Field representing seconds in the cron expression. */
     private final Field second;
 
+    /** Field representing minutes in the cron expression. */
     private final Field minute;
 
+    /** Field representing hours in the cron expression. */
     private final Field hour;
 
+    /** Field representing days of the week in the cron expression. */
     private final Field dow;
 
+    /** Field representing months in the cron expression. */
     private final Field month;
 
+    /** Field representing days of the month in the cron expression. */
     private final Field day;
 
+    /**
+     * Constructs a new Cron instance based on the given cron expression.
+     *
+     * @param expr The cron expression string.
+     * @throws IllegalArgumentException if the expression is invalid or has an incorrect number of
+     *             fields.
+     */
     public Cron(String expr) {
         this.expr = expr;
         String[] parts = expr.split("\\s+");
@@ -178,67 +76,84 @@ public class Cron {
         this.dow = new Field(Type.DAY_OF_WEEK, parts[i++]);
     }
 
-    public ZonedDateTime nextTimeAfter(ZonedDateTime base) {
+    /**
+     * Calculates the next execution time after the given base time.
+     * This method searches for the next execution time within the next four years.
+     *
+     * @param base The base time to start the search from.
+     * @return The next execution time as a ZonedDateTime.
+     * @throws IllegalArgumentException if no execution time can be found within four years.
+     */
+    public ZonedDateTime next(ZonedDateTime base) {
         // The range is four years, taking into account leap years.
-        return nextTimeAfter(base, base.plusYears(4));
+        return next(base, base.plusYears(4));
     }
 
-    public ZonedDateTime nextTimeAfter(ZonedDateTime base, ZonedDateTime limit) {
-        ZonedDateTime[] nextDateTime = {base.plusSeconds(1).withNano(0)};
+    /**
+     * Calculates the next execution time after the given base time and before the given limit.
+     *
+     * @param base The base time to start the search from.
+     * @param limit The upper limit for the search.
+     * @return The next execution time as a ZonedDateTime.
+     * @throws IllegalArgumentException if no execution time can be found before the limit.
+     */
+    public ZonedDateTime next(ZonedDateTime base, ZonedDateTime limit) {
+        ZonedDateTime[] next = {base.plusSeconds(1)};
 
         while (true) {
-            if (nextDateTime[0].isAfter(limit)) {
+            if (next[0].isAfter(limit)) {
                 throw new IllegalArgumentException("No next execution time could be determined that is before the limit of " + limit);
             }
 
-            if (!month.nextMatch(nextDateTime)) {
+            if (!month.nextMatch(next)) {
                 continue;
             }
-            if (!findDay(nextDateTime, limit)) {
+            if (!findDay(next, limit)) {
                 continue;
             }
-            if (!hour.nextMatch(nextDateTime)) {
+            if (!hour.nextMatch(next)) {
                 continue;
             }
-            if (!minute.nextMatch(nextDateTime)) {
+            if (!minute.nextMatch(next)) {
                 continue;
             }
-            if (!second.nextMatch(nextDateTime)) {
+            if (!second.nextMatch(next)) {
                 continue;
             }
-            return nextDateTime[0];
+            return next[0];
         }
     }
 
     /**
-     * Find the next match for the day field.
-     * <p>
-     * This is handled different than all other fields because there are two ways to describe the
-     * day and it is easier
-     * to handle them together in the same method.
+     * Finds the next matching day based on both day of month and day of week fields.
      *
-     * @param dateTime Initial {@link ZonedDateTime} instance to start from
-     * @param dateTimeBarrier At which point stop searching for next execution time
-     * @return {@code true} if a match was found for this field or {@code false} if the field
-     *         overflowed
+     * @param base Array containing a single ZonedDateTime to be updated.
+     * @param limit The upper limit for the search.
+     * @return true if a matching day was found, false otherwise.
      */
-    private boolean findDay(ZonedDateTime[] dateTime, ZonedDateTime dateTimeBarrier) {
-        int month = dateTime[0].getMonthValue();
+    private boolean findDay(ZonedDateTime[] base, ZonedDateTime limit) {
+        int month = base[0].getMonthValue();
 
-        while (!(day.matchesDay(dateTime[0].toLocalDate()) && dow.matchesDoW(dateTime[0].toLocalDate()))) {
-            dateTime[0] = dateTime[0].plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            if (dateTime[0].getMonthValue() != month) {
+        while (!(day.matchesDay(base[0].toLocalDate()) && dow.matchesDoW(base[0].toLocalDate()))) {
+            base[0] = base[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
+            if (base[0].getMonthValue() != month) {
                 return false;
             }
         }
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + expr + ">";
     }
 
+    /**
+     * Represents a type of cron field (e.g., second, minute, hour, etc.).
+     */
     static class Type {
         static final Type SECOND = new Type(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, null, "", "/");
 
@@ -266,6 +181,17 @@ public class Cron {
 
         private final List<String> increment;
 
+        /**
+         * Constructs a new Type instance.
+         *
+         * @param field The ChronoField this type represents.
+         * @param upper The upper ChronoUnit for this type.
+         * @param min The minimum allowed value for this type.
+         * @param max The maximum allowed value for this type.
+         * @param names List of string names for this type (e.g., month names).
+         * @param modifier Allowed modifiers for this type.
+         * @param increment Allowed increment modifiers for this type.
+         */
         private Type(ChronoField field, ChronoUnit upper, int min, int max, List<String> names, String modifier, String increment) {
             this.field = field;
             this.upper = upper;
@@ -277,18 +203,21 @@ public class Cron {
         }
 
         /**
-         * @param dateTime {@link ZonedDateTime} instance
-         * @return The field time or date value from {@code dateTime}
+         * Gets the value of this field from the given ZonedDateTime.
+         *
+         * @param dateTime The ZonedDateTime to extract the value from.
+         * @return The value of this field in the given dateTime.
          */
         int getValue(ZonedDateTime dateTime) {
             return dateTime.get(field);
         }
 
         /**
-         * @param dateTime Initial {@link ZonedDateTime} instance to use
-         * @param value to set for this field in {@code dateTime}
-         * @return {@link ZonedDateTime} with {@code value} set for this field and all smaller
-         *         fields cleared
+         * Sets the value of this field in the given ZonedDateTime.
+         *
+         * @param dateTime The ZonedDateTime to modify.
+         * @param value The new value to set.
+         * @return A new ZonedDateTime with the updated field value.
          */
         ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
             return switch (field) {
@@ -299,11 +228,10 @@ public class Cron {
         }
 
         /**
-         * Handle when this field overflows and the next higher field should be incremented
+         * Handles overflow of this field by incrementing the next higher field.
          *
-         * @param dateTime Initial {@link ZonedDateTime} instance to use
-         * @return {@link ZonedDateTime} with the next greater field incremented and all smaller
-         *         fields cleared
+         * @param dateTime The ZonedDateTime to modify.
+         * @return A new ZonedDateTime with the next higher field incremented.
          */
         ZonedDateTime overflow(ZonedDateTime dateTime) {
             return switch (field) {
@@ -313,6 +241,12 @@ public class Cron {
             };
         }
 
+        /**
+         * Maps a string representation to its corresponding numeric value for this field.
+         *
+         * @param name The string representation to map.
+         * @return The corresponding numeric value.
+         */
         int map(String name) {
             if (names != null) {
                 int index = names.indexOf(name.toUpperCase());
@@ -325,6 +259,9 @@ public class Cron {
         }
     }
 
+    /**
+     * Represents a single field in a cron expression.
+     */
     static class Field {
         private static final Pattern CRON_FIELD_REGEXP = Pattern
                 .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
@@ -333,6 +270,13 @@ public class Cron {
 
         final List<Part> parts = new ArrayList<>();
 
+        /**
+         * Constructs a new Field instance based on the given type and expression.
+         *
+         * @param type The Type of this field.
+         * @param expr The expression string for this field.
+         * @throws IllegalArgumentException if the expression is invalid.
+         */
         Field(Type type, String expr) {
             this.type = type;
 
@@ -399,10 +343,23 @@ public class Cron {
             Collections.sort(parts);
         }
 
+        /**
+         * Checks if the given value matches the given Part.
+         *
+         * @param value The value to check.
+         * @param part The Part to match against.
+         * @return true if the value matches, false otherwise.
+         */
         boolean matches(int value, Part part) {
             return "?".equals(part.modifier) || (part.min <= value && value <= part.max && (value - part.min) % part.increment == 0);
         }
 
+        /**
+         * Checks if the given date matches this field's day of month constraints.
+         *
+         * @param date The LocalDate to check.
+         * @return true if the date matches, false otherwise.
+         */
         boolean matchesDay(LocalDate date) {
             for (Part part : parts) {
                 if ("L".equals(part.modifier)) {
@@ -425,6 +382,12 @@ public class Cron {
             return false;
         }
 
+        /**
+         * Checks if the given date matches this field's day of week constraints.
+         *
+         * @param date The LocalDate to check.
+         * @return true if the date matches, false otherwise.
+         */
         boolean matchesDoW(LocalDate date) {
             for (Part part : parts) {
                 if ("L".equals(part.modifier)) {
@@ -444,13 +407,10 @@ public class Cron {
         }
 
         /**
-         * Find the next match for this field. If a match cannot be found force an overflow and
-         * increase the next
-         * greatest field.
+         * Finds the next matching value for this field.
          *
-         * @param dateTime {@link ZonedDateTime} array so the reference can be modified
-         * @return {@code true} if a match was found for this field or {@code false} if the field
-         *         overflowed
+         * @param dateTime Array containing a single ZonedDateTime to be updated.
+         * @return true if a match was found, false if the field overflowed.
          */
         private boolean nextMatch(ZonedDateTime[] dateTime) {
             int value = type.getValue(dateTime[0]);
@@ -469,6 +429,13 @@ public class Cron {
             return false;
         }
 
+        /**
+         * Finds the next matching value within a single Part.
+         *
+         * @param value The current value.
+         * @param part The Part to match against.
+         * @return The next matching value, or -1 if no match is found.
+         */
         private int nextMatch(int value, Part part) {
             if (value > part.max) {
                 return -1;
@@ -487,11 +454,17 @@ public class Cron {
         }
     }
 
+    /**
+     * Represents a single part of a cron field expression.
+     */
     static class Part implements Comparable<Part> {
         private int min = -1, max = -1, increment = -1;
 
         private String modifier, incrementModifier;
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public int compareTo(Part o) {
             return Integer.compare(min, o.min);
