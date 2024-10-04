@@ -94,7 +94,7 @@ public class Cron {
      * @throws IllegalArgumentException if no execution time can be found before the limit.
      */
     public ZonedDateTime next(ZonedDateTime base, ZonedDateTime limit) {
-        ZonedDateTime[] next = {base.plusSeconds(1)};
+        ZonedDateTime[] next = {base.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS)};
 
         root: while (true) {
             if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);

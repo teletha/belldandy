@@ -11,6 +11,7 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import kiss.I;
 
@@ -50,7 +52,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        Task task = new Task(callable(command), calculateNext(delay, unit), 0);
+        Task task = new Task(callable(command), calculateNext(delay, unit), null);
         executeTask(task);
 
         futures.put(command, task);
@@ -62,7 +64,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        Task task = new Task(command, calculateNext(delay, unit), 0);
+        Task task = new Task(command, calculateNext(delay, unit), null);
         executeTask(task);
 
         futures.put(command, task);
@@ -74,7 +76,7 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(period));
+        Task task = new Task<>(callable(command), calculateNext(initialDelay, unit), old -> old + unit.toMillis(period));
         executeTask(task);
 
         futures.put(command, task);
@@ -86,7 +88,22 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        Task task = new Task(callable(command), calculateNext(initialDelay, unit), unit.toNanos(-delay));
+        Task task = new Task<>(callable(command), calculateNext(initialDelay, unit), old -> System.currentTimeMillis() + unit
+                .toMillis(delay));
+        executeTask(task);
+
+        futures.put(command, task);
+        return task;
+    }
+
+    @Override
+    public ScheduledFuture<?> scheduleAt(Runnable command, String fromat) {
+        Cron cron = new Cron(fromat);
+        Function<Long, Long> next = prev -> {
+            return cron.next(ZonedDateTime.now()).toEpochSecond() * 1000;
+        };
+
+        Task task = new Task(callable(command), next.apply(0L), old -> next.apply(0L));
         executeTask(task);
 
         futures.put(command, task);

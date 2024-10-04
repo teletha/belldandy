@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
 class SchedulerTest extends SchedulerTestSupport {
@@ -167,6 +168,34 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifyCanceled(future);
         assert verifier.verifyExecutionCount(3);
         assert verifier.verifyInterval(TimeUnit.MILLISECONDS, 0, 50, 50);
+    }
+
+    @Test
+    void cron() {
+        scheduler.limitAwaitTime(4000);
+
+        Verifier verifier = new Verifier().max(3);
+        ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "* * * * * *");
+
+        assert verifyRunning(future);
+        assert scheduler.start().awaitIdling();
+        assert verifyCanceled(future);
+        assert verifier.verifyExecutionCount(3);
+        assert verifier.verifyInterval(TimeUnit.MILLISECONDS, 0, 1000, 1000);
+    }
+
+    @Test
+    void cronStep() {
+        scheduler.limitAwaitTime(4000);
+
+        Verifier verifier = new Verifier().max(2);
+        ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "*/2 * * * * *");
+
+        assert verifyRunning(future);
+        assert scheduler.start().awaitIdling();
+        assert verifyCanceled(future);
+        assert verifier.verifyExecutionCount(2);
+        assert verifier.verifyInterval(TimeUnit.MILLISECONDS, 0, 2000);
     }
 
     void testInvokeAll() throws InterruptedException {

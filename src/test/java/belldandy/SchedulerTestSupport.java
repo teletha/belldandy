@@ -160,7 +160,7 @@ public class SchedulerTestSupport {
      */
     protected class Verifier<T> implements Callable<T>, Runnable {
 
-        private final long created = System.nanoTime();
+        private final long created = System.currentTimeMillis();
 
         private final List<Long> startTime = new ArrayList();
 
@@ -224,7 +224,7 @@ public class SchedulerTestSupport {
          */
         protected boolean verifyInitialDelay(long time, TimeUnit unit) {
             assert !startTime.isEmpty();
-            assert unit.toNanos(time) <= startTime.get(0) - created;
+            assert unit.toMillis(time) <= startTime.get(0) - created;
 
             return true;
         }
@@ -236,7 +236,7 @@ public class SchedulerTestSupport {
             assert startTime.size() == rates.length;
             for (int i = 0; i < rates.length; i++) {
                 long diff = startTime.get(i) - (i == 0 ? created : startTime.get(i - 1));
-                assert unit.toNanos(rates[i]) <= diff : diff;
+                assert unit.toMillis(rates[i]) <= diff : diff;
             }
             return true;
         }
@@ -248,7 +248,7 @@ public class SchedulerTestSupport {
             assert startTime.size() == delays.length;
             for (int i = 0; i < delays.length; i++) {
                 long diff = startTime.get(i) - (i == 0 ? created : endTime.get(i - 1));
-                assert unit.toNanos(delays[i]) <= diff : diff;
+                assert unit.toMillis(delays[i]) <= diff : diff;
             }
             return true;
         }

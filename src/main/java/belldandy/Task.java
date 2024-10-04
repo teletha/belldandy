@@ -15,20 +15,21 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
 
     /** The next trigger time. */
     final AtomicLong time;
 
-    /** The interval time. */
-    final long period;
+    /** The interval calculator. */
+    final Function<Long, Long> interval;
 
-    Task(Callable<V> task, long next, long period) {
+    Task(Callable<V> task, long next, Function<Long, Long> interval) {
         super(task);
 
         this.time = new AtomicLong(next);
-        this.period = period;
+        this.interval = interval;
     }
 
     /**
@@ -36,7 +37,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public void run() {
-        if (period == 0) {
+        if (interval == null) {
             // one shot
             super.run();
         } else {
@@ -50,7 +51,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public long getDelay(TimeUnit unit) {
-        return unit.convert(time.get() - System.nanoTime(), TimeUnit.NANOSECONDS);
+        return unit.convert(time.get() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -71,7 +72,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
                 return 1;
             }
         }
-        long d = (getDelay(TimeUnit.NANOSECONDS) - other.getDelay(TimeUnit.NANOSECONDS));
+        long d = (getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS));
         return (d == 0) ? 0 : ((d < 0) ? -1 : 1);
     }
 }
