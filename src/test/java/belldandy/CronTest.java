@@ -24,8 +24,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import belldandy.Cron.BasicField;
 import belldandy.Cron.DayOfMonthField;
 import belldandy.Cron.DayOfWeekField;
+import belldandy.Cron.FieldPart;
 import belldandy.Cron.FieldType;
 import belldandy.Cron.SimpleField;
 
@@ -56,11 +58,22 @@ public class CronTest {
         Set<Integer> valid = values == null ? new HashSet<Integer>() : new HashSet<>(Arrays.asList(values));
         for (int i = field.fieldType.min; i <= field.fieldType.max; i++) {
             if (valid.contains(i)) {
-                assert field.matches(i);
+                assert matches(field, i);
             } else {
-                assert field.matches(i) == false;
+                assert matches(field, i) == false;
             }
         }
+    }
+
+    private boolean matches(BasicField field, int value) {
+        if (value >= field.fieldType.min && value <= field.fieldType.max) {
+            for (FieldPart part : field.parts) {
+                if (field.matches(value, part)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Test
@@ -113,24 +126,21 @@ public class CronTest {
     @Test
     public void shall_give_error_if_minute_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(FieldType.MINUTE, "?");
-            field.matches(1);
+            new SimpleField(FieldType.MINUTE, "?");
         });
     }
 
     @Test
     public void shall_give_error_if_hour_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(FieldType.HOUR, "?");
-            field.matches(1);
+            new SimpleField(FieldType.HOUR, "?");
         });
     }
 
     @Test
     public void shall_give_error_if_month_field_ignored() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
-            SimpleField field = new SimpleField(FieldType.MONTH, "?");
-            field.matches(1);
+            new SimpleField(FieldType.MONTH, "?");
         });
     }
 
@@ -809,7 +819,7 @@ public class CronTest {
     public void test_two_year_barrier() throws Exception {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         // The next leap year is 2016, so an IllegalArgumentException is expected.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").nextTimeAfter(after, 1000 * 60 * 60 * 24 * 356 * 2));
+        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").nextTimeAfter(after, after.plusYears(2)));
     }
 
     @Test

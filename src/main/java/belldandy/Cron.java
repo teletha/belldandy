@@ -12,11 +12,8 @@ package belldandy;
 import static java.time.temporal.ChronoUnit.*;
 
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -252,33 +249,23 @@ public class Cron {
         this.dayOfWeekField = new DayOfWeekField(parts[ix++]);
     }
 
-    public ZonedDateTime nextTimeAfter(ZonedDateTime afterTime) {
-        // will search for the next time within the next 4 years. If there is no
-        // time matching, an InvalidArgumentException will be thrown (it is very
-        // likely that the cron expression is invalid, like the February 30th).
-        return nextTimeAfter(afterTime, afterTime.plusYears(4));
+    public ZonedDateTime nextTimeAfter(ZonedDateTime base) {
+        // The range is four years, taking into account leap years.
+        return nextTimeAfter(base, base.plusYears(4));
     }
 
-    public LocalDateTime nextLocalDateTimeAfter(LocalDateTime dateTime) {
-        return nextTimeAfter(ZonedDateTime.of(dateTime, ZoneId.systemDefault())).toLocalDateTime();
-    }
-
-    public ZonedDateTime nextTimeAfter(ZonedDateTime afterTime, long durationInMillis) {
-        // will search for the next time within the next durationInMillis
-        // millisecond. Be aware that the duration is specified in millis,
-        // but in fact the limit is checked on a day-to-day basis.
-        return nextTimeAfter(afterTime, afterTime.plus(Duration.ofMillis(durationInMillis)));
-    }
-
-    public ZonedDateTime nextTimeAfter(ZonedDateTime afterTime, ZonedDateTime dateTimeBarrier) {
-        ZonedDateTime[] nextDateTime = {afterTime.plusSeconds(1).withNano(0)};
+    public ZonedDateTime nextTimeAfter(ZonedDateTime base, ZonedDateTime limit) {
+        ZonedDateTime[] nextDateTime = {base.plusSeconds(1).withNano(0)};
 
         while (true) {
-            checkIfDateTimeBarrierIsReached(nextDateTime[0], dateTimeBarrier);
+            if (nextDateTime[0].isAfter(limit)) {
+                throw new IllegalArgumentException("No next execution time could be determined that is before the limit of " + limit);
+            }
+
             if (!monthField.nextMatch(nextDateTime)) {
                 continue;
             }
-            if (!findDay(nextDateTime, dateTimeBarrier)) {
+            if (!findDay(nextDateTime, limit)) {
                 continue;
             }
             if (!hourField.nextMatch(nextDateTime)) {
@@ -290,8 +277,6 @@ public class Cron {
             if (!secondField.nextMatch(nextDateTime)) {
                 continue;
             }
-
-            checkIfDateTimeBarrierIsReached(nextDateTime[0], dateTimeBarrier);
             return nextDateTime[0];
         }
     }
@@ -321,25 +306,19 @@ public class Cron {
         return true;
     }
 
-    private static void checkIfDateTimeBarrierIsReached(ZonedDateTime nextTime, ZonedDateTime dateTimeBarrier) {
-        if (nextTime.isAfter(dateTimeBarrier)) {
-            throw new IllegalArgumentException("No next execution time could be determined that is before the limit of " + dateTimeBarrier);
-        }
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + expr + ">";
     }
 
     static class FieldPart implements Comparable<FieldPart> {
-        private int from = -1, to = -1, increment = -1;
+        private int min = -1, max = -1, increment = -1;
 
         private String modifier, incrementModifier;
 
         @Override
         public int compareTo(FieldPart o) {
-            return Integer.compare(from, o.from);
+            return Integer.compare(min, o.min);
         }
     }
 
@@ -372,19 +351,19 @@ public class Cron {
                 FieldPart part = new FieldPart();
                 part.increment = 999;
                 if (startNummer != null) {
-                    part.from = mapValue(startNummer);
+                    part.min = mapValue(startNummer);
                     part.modifier = modifier;
                     if (sluttNummer != null) {
-                        part.to = mapValue(sluttNummer);
+                        part.max = mapValue(sluttNummer);
                         part.increment = 1;
                     } else if (increment != null) {
-                        part.to = fieldType.max;
+                        part.max = fieldType.max;
                     } else {
-                        part.to = part.from;
+                        part.max = part.min;
                     }
                 } else if (m.group("all") != null) {
-                    part.from = fieldType.min;
-                    part.to = fieldType.max;
+                    part.min = fieldType.min;
+                    part.max = fieldType.max;
                     part.increment = 1;
                 } else if (m.group("ignore") != null) {
                     part.modifier = m.group("ignore");
@@ -416,12 +395,12 @@ public class Cron {
         }
 
         private void validateRange(FieldPart part) {
-            if ((part.from != -1 && part.from < fieldType.min) || (part.to != -1 && part.to > fieldType.max)) {
+            if ((part.min != -1 && part.min < fieldType.min) || (part.max != -1 && part.max > fieldType.max)) {
                 throw new IllegalArgumentException(String
-                        .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.from, part.to, fieldType.min, fieldType.max));
-            } else if (part.from != -1 && part.to != -1 && part.from > part.to) {
+                        .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.min, part.max, fieldType.min, fieldType.max));
+            } else if (part.min != -1 && part.max != -1 && part.min > part.max) {
                 throw new IllegalArgumentException(String
-                        .format("Invalid interval [%s-%s].  Rolling periods are not supported (ex. 5-1, only 1-5) since this won't give a deterministic result. Must be %s<=_<=%s", part.from, part.to, fieldType.min, fieldType.max));
+                        .format("Invalid interval [%s-%s].  Rolling periods are not supported (ex. 5-1, only 1-5) since this won't give a deterministic result. Must be %s<=_<=%s", part.min, part.max, fieldType.min, fieldType.max));
             }
         }
 
@@ -433,45 +412,34 @@ public class Cron {
             return Integer.parseInt(value);
         }
 
-        protected boolean matches(int val, FieldPart part) {
-            if (val >= part.from && val <= part.to && (val - part.from) % part.increment == 0) {
+        protected boolean matches(int value, FieldPart part) {
+            if (value >= part.min && value <= part.max && (value - part.min) % part.increment == 0) {
                 return true;
             }
             return false;
         }
 
-        protected int nextMatch(int val, FieldPart part) {
-            if (val > part.to) {
+        protected int nextMatch(int value, FieldPart part) {
+            if (value > part.max) {
                 return -1;
             }
-            int nextPotential = Math.max(val, part.from);
-            if (part.increment == 1 || nextPotential == part.from) {
+            int nextPotential = Math.max(value, part.min);
+            if (part.increment == 1 || nextPotential == part.min) {
                 return nextPotential;
             }
 
-            int remainder = ((nextPotential - part.from) % part.increment);
+            int remainder = ((nextPotential - part.min) % part.increment);
             if (remainder != 0) {
                 nextPotential += part.increment - remainder;
             }
 
-            return nextPotential <= part.to ? nextPotential : -1;
+            return nextPotential <= part.max ? nextPotential : -1;
         }
     }
 
     static class SimpleField extends BasicField {
         SimpleField(FieldType fieldType, String fieldExpr) {
             super(fieldType, fieldExpr);
-        }
-
-        public boolean matches(int val) {
-            if (val >= fieldType.min && val <= fieldType.max) {
-                for (FieldPart part : parts) {
-                    if (matches(val, part)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         /**
@@ -511,9 +479,9 @@ public class Cron {
             for (FieldPart part : parts) {
                 if ("L".equals(part.modifier)) {
                     YearMonth ym = YearMonth.of(dato.getYear(), dato.getMonth().getValue());
-                    return dato.getDayOfWeek() == DayOfWeek.of(part.from) && dato.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                    return dato.getDayOfWeek() == DayOfWeek.of(part.min) && dato.getDayOfMonth() > (ym.lengthOfMonth() - 7);
                 } else if ("#".equals(part.incrementModifier)) {
-                    if (dato.getDayOfWeek() == DayOfWeek.of(part.from)) {
+                    if (dato.getDayOfWeek() == DayOfWeek.of(part.min)) {
                         int num = dato.getDayOfMonth() / 7;
                         return part.increment == (dato.getDayOfMonth() % 7 == 0 ? num : num + 1);
                     }
@@ -555,15 +523,15 @@ public class Cron {
             for (FieldPart part : parts) {
                 if ("L".equals(part.modifier)) {
                     YearMonth ym = YearMonth.of(dato.getYear(), dato.getMonth().getValue());
-                    return dato.getDayOfMonth() == (ym.lengthOfMonth() - (part.from == -1 ? 0 : part.from));
+                    return dato.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
                 } else if ("W".equals(part.modifier)) {
                     if (dato.getDayOfWeek().getValue() <= 5) {
-                        if (dato.getDayOfMonth() == part.from) {
+                        if (dato.getDayOfMonth() == part.min) {
                             return true;
                         } else if (dato.getDayOfWeek().getValue() == 5) {
-                            return dato.plusDays(1).getDayOfMonth() == part.from;
+                            return dato.plusDays(1).getDayOfMonth() == part.min;
                         } else if (dato.getDayOfWeek().getValue() == 1) {
-                            return dato.minusDays(1).getDayOfMonth() == part.from;
+                            return dato.minusDays(1).getDayOfMonth() == part.min;
                         }
                     }
                 } else if (matches(dato.getDayOfMonth(), part)) {
