@@ -277,7 +277,7 @@ public class Cron {
                 }
 
                 if (inc != null) {
-                    part.incrementModifier = incmod;
+                    part.incModifier = incmod;
                     part.increment = Integer.parseInt(inc);
                 }
 
@@ -289,8 +289,8 @@ public class Cron {
                 // validate part
                 if (part.modifier != null && !type.modifier.contains(part.modifier)) {
                     throw error(part.modifier);
-                } else if (part.incrementModifier != null && !type.increment.contains(part.incrementModifier)) {
-                    throw error(part.incrementModifier);
+                } else if (part.incModifier != null && !type.increment.contains(part.incModifier)) {
+                    throw error(part.incModifier);
                 }
                 parts.add(part);
             }
@@ -358,7 +358,7 @@ public class Cron {
                 if ("L".equals(part.modifier)) {
                     YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                     return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
-                } else if ("#".equals(part.incrementModifier)) {
+                } else if ("#".equals(part.incModifier)) {
                     if (date.getDayOfWeek() == DayOfWeek.of(part.min)) {
                         int num = date.getDayOfMonth() / 7;
                         return part.increment == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
@@ -423,9 +423,15 @@ public class Cron {
      * Represents a single part of a cron field expression.
      */
     static class Part implements Comparable<Part> {
-        private int min = -1, max = -1, increment = -1;
+        private int min = -1;
 
-        private String modifier, incrementModifier;
+        private int max = -1;
+
+        private int increment = -1;
+
+        private String modifier;
+
+        private String incModifier;
 
         /**
          * {@inheritDoc}
