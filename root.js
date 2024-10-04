@@ -17,7 +17,7 @@ const root = {
 				"#": "java.util.Collections$UnmodifiableSet",},
 			"name": "Cron.BasicField",
 			"packageName": "belldandy",
-			"type": "AbstractClass"
+			"type": "Class"
 		},
 		{
 			"modifiers": {
