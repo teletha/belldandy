@@ -17,9 +17,9 @@ public class Project extends bee.api.Project {
         product("com.github.teletha", "belldandy", ref("version.txt"));
         license(MIT);
         describe("""
-                Beldandy offers various functions specifically for virtual threads.
+                Beldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
 
-                - ScheduledExecutorService
+                - VIrtual thread based Scheduler
                 - Cron Expression
                 """);
 

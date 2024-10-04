@@ -11,6 +11,7 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 
 import kiss.I;
 
@@ -75,8 +76,8 @@ public class TestableScheduler extends Scheduler {
      * {@inheritDoc}
      */
     @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(initialDelay, unit), old -> old + unit.toMillis(period));
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
+        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> old.plus(interval, unit.toChronoUnit()));
         executeTask(task);
 
         futures.put(command, task);
@@ -87,9 +88,8 @@ public class TestableScheduler extends Scheduler {
      * {@inheritDoc}
      */
     @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(initialDelay, unit), old -> System.currentTimeMillis() + unit
-                .toMillis(delay));
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
+        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> Instant.now().plus(interval, unit.toChronoUnit()));
         executeTask(task);
 
         futures.put(command, task);
@@ -99,11 +99,11 @@ public class TestableScheduler extends Scheduler {
     @Override
     public ScheduledFuture<?> scheduleAt(Runnable command, String fromat) {
         Cron cron = new Cron(fromat);
-        ToLongFunction<Long> next = prev -> {
-            return cron.next(ZonedDateTime.now()).toEpochSecond() * 1000;
+        UnaryOperator<Instant> next = prev -> {
+            return cron.next(ZonedDateTime.now()).toInstant();
         };
 
-        Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
+        Task task = new Task(callable(command), next.apply(Instant.EPOCH), old -> next.apply(Instant.EPOCH));
         executeTask(task);
 
         futures.put(command, task);

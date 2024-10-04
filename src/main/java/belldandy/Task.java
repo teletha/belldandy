@@ -9,26 +9,27 @@
  */
 package belldandy;
 
+import java.time.Instant;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.ToLongFunction;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.UnaryOperator;
 
 class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
 
     /** The next trigger time. */
-    final AtomicLong time;
+    final AtomicReference<Instant> time;
 
     /** The interval calculator. */
-    final ToLongFunction<Long> interval;
+    final UnaryOperator<Instant> interval;
 
-    Task(Callable<V> task, long next, ToLongFunction<Long> interval) {
+    Task(Callable<V> task, Instant next, UnaryOperator<Instant> interval) {
         super(task);
 
-        this.time = new AtomicLong(next);
+        this.time = new AtomicReference(next);
         this.interval = interval;
     }
 
@@ -51,7 +52,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public long getDelay(TimeUnit unit) {
-        return unit.convert(time.get() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        return unit.convert(time.get().toEpochMilli() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -63,15 +64,9 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
             return 0;
         }
         if (other instanceof Task task) {
-            long diff = time.get() - task.time.get();
-            if (diff < 0) {
-                return -1;
-            } else if (diff > 0) {
-                return 1;
-            } else {
-                return 1;
-            }
+            return time.get().compareTo((Instant) task.time.get());
         }
+
         long d = (getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS));
         return (d == 0) ? 0 : ((d < 0) ? -1 : 1);
     }

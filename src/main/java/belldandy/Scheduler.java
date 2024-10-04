@@ -11,6 +11,8 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 
 /**
  * A custom implementation of {@link ScheduledExecutorService} that provides
@@ -77,10 +79,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
 
             factory.apply(() -> {
                 try {
-                    long delay = task.getDelay(TimeUnit.MILLISECONDS);
-                    if (0 < delay) {
-                        Thread.sleep(delay);
-                    }
+                    Thread.sleep(Duration.between(Instant.now(), task.time.get()));
 
                     if (!task.isCancelled()) {
                         task.run();
@@ -89,7 +88,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                             // one shot
                         } else {
                             // reschedule task
-                            long next = task.interval.applyAsLong(task.time.get());
+                            Instant next = task.interval.apply(task.time.get());
                             task.time.set(next);
                             executeTask(task);
                         }
@@ -129,7 +128,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> old + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> old.plus(interval, unit.toChronoUnit()));
         executeTask(task);
         return task;
     }
@@ -139,7 +138,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> Instant.now().plus(interval, unit.toChronoUnit()));
         executeTask(task);
         return task;
     }
@@ -165,18 +164,17 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     public ScheduledFuture<?> scheduleAt(Runnable command, String format) {
         Cron cron = new Cron(format);
-        ToLongFunction<Long> next = prev -> {
-            // effective conversion
-            return cron.next(ZonedDateTime.now()).toEpochSecond() * 1000;
+        UnaryOperator<Instant> next = prev -> {
+            return cron.next(ZonedDateTime.now()).toInstant();
         };
 
-        Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
+        Task task = new Task(callable(command), next.apply(Instant.EPOCH), old -> next.apply(Instant.EPOCH));
         executeTask(task);
         return task;
     }
 
-    long calculateNext(long delay, TimeUnit unit) {
-        return System.currentTimeMillis() + unit.toMillis(delay);
+    Instant calculateNext(long delay, TimeUnit unit) {
+        return Instant.now().plus(delay, unit.toChronoUnit());
     }
 
     /**
@@ -243,7 +241,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
-        return new Task(callable, 0, null);
+        return new Task(callable, Instant.EPOCH, null);
     }
 
     /**
