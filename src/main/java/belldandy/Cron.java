@@ -18,7 +18,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -148,19 +147,19 @@ import java.util.regex.Pattern;
 public class Cron {
 
     static class FieldType {
-        static final FieldType SECOND = new FieldType(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, null);
+        static final FieldType SECOND = new FieldType(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, null, "", "/");
 
-        static final FieldType MINUTE = new FieldType(ChronoField.MINUTE_OF_HOUR, HOURS, 0, 59, null);
+        static final FieldType MINUTE = new FieldType(ChronoField.MINUTE_OF_HOUR, HOURS, 0, 59, null, "", "/");
 
-        static final FieldType HOUR = new FieldType(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, null);
+        static final FieldType HOUR = new FieldType(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, null, "", "/");
 
-        static final FieldType DAY_OF_MONTH = new FieldType(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null);
+        static final FieldType DAY_OF_MONTH = new FieldType(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null, "LW?", "/");
 
         static final FieldType MONTH = new FieldType(ChronoField.MONTH_OF_YEAR, YEARS, 1, 12, List
-                .of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"));
+                .of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), "", "/");
 
         static final FieldType DAY_OF_WEEK = new FieldType(ChronoField.DAY_OF_WEEK, null, 1, 7, List
-                .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"));
+                .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"), "L?", "/#");
 
         private final ChronoField field;
 
@@ -170,12 +169,18 @@ public class Cron {
 
         private final List<String> names;
 
-        private FieldType(ChronoField field, ChronoUnit upper, int min, int max, List<String> names) {
+        private final List<String> modifier;
+
+        private final List<String> increment;
+
+        private FieldType(ChronoField field, ChronoUnit upper, int min, int max, List<String> names, String modifier, String increment) {
             this.field = field;
             this.upper = upper;
             this.min = min;
             this.max = max;
             this.names = names;
+            this.modifier = List.of(modifier.split(""));
+            this.increment = List.of(increment.split(""));
         }
 
         /**
@@ -395,10 +400,10 @@ public class Cron {
             Collections.sort(parts);
         }
 
-        protected void validatePart(FieldPart part) {
-            if (part.modifier != null) {
+        private void validatePart(FieldPart part) {
+            if (part.modifier != null && !fieldType.modifier.contains(part.modifier)) {
                 throw new IllegalArgumentException(String.format("Invalid modifier [%s]", part.modifier));
-            } else if (part.incrementModifier != null && !"/".equals(part.incrementModifier)) {
+            } else if (part.incrementModifier != null && !fieldType.increment.contains(part.incrementModifier)) {
                 throw new IllegalArgumentException(String.format("Invalid increment modifier [%s]", part.incrementModifier));
             }
         }
@@ -498,15 +503,6 @@ public class Cron {
         protected boolean matches(int val, FieldPart part) {
             return "?".equals(part.modifier) || super.matches(val, part);
         }
-
-        @Override
-        protected void validatePart(FieldPart part) {
-            if (part.modifier != null && Arrays.asList("L", "?").indexOf(part.modifier) == -1) {
-                throw new IllegalArgumentException(String.format("Invalid modifier [%s]", part.modifier));
-            } else if (part.incrementModifier != null && Arrays.asList("/", "#").indexOf(part.incrementModifier) == -1) {
-                throw new IllegalArgumentException(String.format("Invalid increment modifier [%s]", part.incrementModifier));
-            }
-        }
     }
 
     static class DayOfMonthField extends BasicField {
@@ -534,15 +530,6 @@ public class Cron {
                 }
             }
             return false;
-        }
-
-        @Override
-        protected void validatePart(FieldPart part) {
-            if (part.modifier != null && Arrays.asList("L", "W", "?").indexOf(part.modifier) == -1) {
-                throw new IllegalArgumentException(String.format("Invalid modifier [%s]", part.modifier));
-            } else if (part.incrementModifier != null && !"/".equals(part.incrementModifier)) {
-                throw new IllegalArgumentException(String.format("Invalid increment modifier [%s]", part.incrementModifier));
-            }
         }
 
         @Override
