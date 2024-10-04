@@ -25,8 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import belldandy.Cron.BasicField;
-import belldandy.Cron.DayOfMonthField;
-import belldandy.Cron.DayOfWeekField;
 import belldandy.Cron.FieldPart;
 import belldandy.Cron.FieldType;
 import belldandy.Cron.SimpleField;
@@ -68,7 +66,7 @@ public class CronTest {
     private boolean matches(BasicField field, int value) {
         if (value >= field.fieldType.min && value <= field.fieldType.max) {
             for (FieldPart part : field.parts) {
-                if (field.matches(value, part)) {
+                if (BasicField.matches(value, part)) {
                     return true;
                 }
             }
@@ -108,14 +106,14 @@ public class CronTest {
 
     @Test
     public void shall_ignore_field_in_day_of_week() throws Exception {
-        DayOfWeekField field = new DayOfWeekField("?");
-        assert field.matches(ZonedDateTime.now().toLocalDate());
+        BasicField field = new BasicField(FieldType.DAY_OF_WEEK, "?");
+        assert BasicField.matchesDay(ZonedDateTime.now().toLocalDate(), field);
     }
 
     @Test
     public void shall_ignore_field_in_day_of_month() throws Exception {
-        DayOfMonthField field = new DayOfMonthField("?");
-        assert field.matches(ZonedDateTime.now().toLocalDate());
+        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "?");
+        assert BasicField.matchesDay(ZonedDateTime.now().toLocalDate(), field);
     }
 
     @Test
@@ -146,15 +144,15 @@ public class CronTest {
 
     @Test
     public void shall_give_last_day_of_month_in_leapyear() throws Exception {
-        Cron.DayOfMonthField field = new DayOfMonthField("L");
-        assert field.matches(LocalDate.of(2012, 02, 29));
+        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "L");
+        assert BasicField.matchesDay(LocalDate.of(2012, 02, 29), field);
     }
 
     @Test
     public void shall_give_last_day_of_month() throws Exception {
-        Cron.DayOfMonthField field = new DayOfMonthField("L");
+        BasicField field = new BasicField(FieldType.DAY_OF_MONTH, "L");
         YearMonth now = YearMonth.now();
-        assert field.matches(LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        assert BasicField.matchesDay(LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()), field);
     }
 
     @Test

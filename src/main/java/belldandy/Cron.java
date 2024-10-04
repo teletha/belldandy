@@ -240,11 +240,11 @@ public class Cron {
 
     private final SimpleField hour;
 
-    private final DayOfWeekField dow;
+    private final BasicField dow;
 
     private final SimpleField month;
 
-    private final DayOfMonthField day;
+    private final BasicField day;
 
     public Cron(String expr) {
         this.expr = expr;
@@ -259,9 +259,9 @@ public class Cron {
         this.second = new SimpleField(FieldType.SECOND, withSeconds ? parts[0] : "0");
         this.minute = new SimpleField(FieldType.MINUTE, parts[i++]);
         this.hour = new SimpleField(FieldType.HOUR, parts[i++]);
-        this.day = new DayOfMonthField(parts[i++]);
+        this.day = new BasicField(FieldType.DAY_OF_MONTH, parts[i++]);
         this.month = new SimpleField(FieldType.MONTH, parts[i++]);
-        this.dow = new DayOfWeekField(parts[i++]);
+        this.dow = new BasicField(FieldType.DAY_OF_WEEK, parts[i++]);
     }
 
     public ZonedDateTime nextTimeAfter(ZonedDateTime base) {
@@ -311,7 +311,7 @@ public class Cron {
     private boolean findDay(ZonedDateTime[] dateTime, ZonedDateTime dateTimeBarrier) {
         int month = dateTime[0].getMonthValue();
 
-        while (!(day.matches(dateTime[0].toLocalDate()) && dow.matches(dateTime[0].toLocalDate()))) {
+        while (!(BasicField.matchesDay(dateTime[0].toLocalDate(), day) && BasicField.matchesDoW(dateTime[0].toLocalDate(), dow))) {
             dateTime[0] = dateTime[0].plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
             if (dateTime[0].getMonthValue() != month) {
                 return false;
@@ -336,7 +336,7 @@ public class Cron {
         }
     }
 
-    protected static abstract class BasicField {
+    protected static class BasicField {
         private static final Pattern CRON_FIELD_REGEXP = Pattern
                 .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
@@ -344,7 +344,7 @@ public class Cron {
 
         final List<FieldPart> parts = new ArrayList<>();
 
-        private BasicField(FieldType fieldType, String fieldExpr) {
+        BasicField(FieldType fieldType, String fieldExpr) {
             this.fieldType = fieldType;
             parse(fieldExpr);
         }
@@ -418,8 +418,48 @@ public class Cron {
             }
         }
 
-        boolean matches(int value, FieldPart part) {
+        static boolean matches(int value, FieldPart part) {
             return part.min <= value && value <= part.max && (value - part.min) % part.increment == 0;
+        }
+
+        static boolean matchesDay(LocalDate date, BasicField field) {
+            for (FieldPart part : field.parts) {
+                if ("L".equals(part.modifier)) {
+                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
+                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
+                } else if ("W".equals(part.modifier)) {
+                    if (date.getDayOfWeek().getValue() <= 5) {
+                        if (date.getDayOfMonth() == part.min) {
+                            return true;
+                        } else if (date.getDayOfWeek().getValue() == 5) {
+                            return date.plusDays(1).getDayOfMonth() == part.min;
+                        } else if (date.getDayOfWeek().getValue() == 1) {
+                            return date.minusDays(1).getDayOfMonth() == part.min;
+                        }
+                    }
+                } else if ("?".equals(part.modifier) || matches(date.getDayOfMonth(), part)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static boolean matchesDoW(LocalDate date, BasicField field) {
+            for (FieldPart part : field.parts) {
+                if ("L".equals(part.modifier)) {
+                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
+                    return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                } else if ("#".equals(part.incrementModifier)) {
+                    if (date.getDayOfWeek() == DayOfWeek.of(part.min)) {
+                        int num = date.getDayOfMonth() / 7;
+                        return part.increment == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
+                    }
+                    return false;
+                } else if ("?".equals(part.modifier) || matches(date.getDayOfWeek().getValue(), part)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected int nextMatch(int value, FieldPart part) {
@@ -468,59 +508,6 @@ public class Cron {
             }
 
             dateTime[0] = fieldType.overflow(dateTime[0]);
-            return false;
-        }
-    }
-
-    static class DayOfWeekField extends BasicField {
-
-        DayOfWeekField(String fieldExpr) {
-            super(FieldType.DAY_OF_WEEK, fieldExpr);
-        }
-
-        boolean matches(LocalDate date) {
-            for (FieldPart part : parts) {
-                if ("L".equals(part.modifier)) {
-                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                    return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
-                } else if ("#".equals(part.incrementModifier)) {
-                    if (date.getDayOfWeek() == DayOfWeek.of(part.min)) {
-                        int num = date.getDayOfMonth() / 7;
-                        return part.increment == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
-                    }
-                    return false;
-                } else if ("?".equals(part.modifier) || matches(date.getDayOfWeek().getValue(), part)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    static class DayOfMonthField extends BasicField {
-        DayOfMonthField(String fieldExpr) {
-            super(FieldType.DAY_OF_MONTH, fieldExpr);
-        }
-
-        boolean matches(LocalDate date) {
-            for (FieldPart part : parts) {
-                if ("L".equals(part.modifier)) {
-                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
-                } else if ("W".equals(part.modifier)) {
-                    if (date.getDayOfWeek().getValue() <= 5) {
-                        if (date.getDayOfMonth() == part.min) {
-                            return true;
-                        } else if (date.getDayOfWeek().getValue() == 5) {
-                            return date.plusDays(1).getDayOfMonth() == part.min;
-                        } else if (date.getDayOfWeek().getValue() == 1) {
-                            return date.minusDays(1).getDayOfMonth() == part.min;
-                        }
-                    }
-                } else if ("?".equals(part.modifier) || matches(date.getDayOfMonth(), part)) {
-                    return true;
-                }
-            }
             return false;
         }
     }
