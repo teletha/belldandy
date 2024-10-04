@@ -268,7 +268,7 @@ public class Cron {
 
         final Type type;
 
-        final List<Part> parts = new ArrayList<>();
+        final List<Part> parts = new ArrayList();
 
         /**
          * Constructs a new Field instance based on the given type and expression.
@@ -280,27 +280,24 @@ public class Cron {
         Field(Type type, String expr) {
             this.type = type;
 
-            String[] rangeParts = expr.split(",");
-            for (String rangePart : rangeParts) {
-                Matcher m = CRON_FIELD_REGEXP.matcher(rangePart);
-                if (!m.matches()) {
-                    throw new IllegalArgumentException("Invalid cron field '" + rangePart + "' for field [" + type + "]");
-                }
-                String startNummer = m.group("start");
-                String modifier = m.group("mod");
-                String sluttNummer = m.group("end");
-                String incrementModifier = m.group("incmod");
-                String increment = m.group("inc");
+            for (String range : expr.split(",")) {
+                Matcher m = CRON_FIELD_REGEXP.matcher(range);
+                if (!m.matches()) throw error(range);
+
+                String start = m.group("start");
+                String mod = m.group("mod");
+                String end = m.group("end");
+                String incmod = m.group("incmod");
+                String inc = m.group("inc");
 
                 Part part = new Part();
-                part.increment = 999;
-                if (startNummer != null) {
-                    part.min = type.map(startNummer);
-                    part.modifier = modifier;
-                    if (sluttNummer != null) {
-                        part.max = type.map(sluttNummer);
+                if (start != null) {
+                    part.min = type.map(start);
+                    part.modifier = mod;
+                    if (end != null) {
+                        part.max = type.map(end);
                         part.increment = 1;
-                    } else if (increment != null) {
+                    } else if (inc != null) {
                         part.max = type.max;
                     } else {
                         part.max = part.min;
@@ -314,33 +311,39 @@ public class Cron {
                 } else if (m.group("last") != null) {
                     part.modifier = m.group("last");
                 } else {
-                    throw new IllegalArgumentException("Invalid cron part: " + rangePart);
+                    throw new IllegalArgumentException("Fix '" + range + "'");
                 }
 
-                if (increment != null) {
-                    part.incrementModifier = incrementModifier;
-                    part.increment = Integer.parseInt(increment);
+                if (inc != null) {
+                    part.incrementModifier = incmod;
+                    part.increment = Integer.parseInt(inc);
                 }
 
                 // validate range
-                if ((part.min != -1 && part.min < type.min) || (part.max != -1 && part.max > type.max)) {
-                    throw new IllegalArgumentException(String
-                            .format("Invalid interval [%s-%s], must be %s<=_<=%s", part.min, part.max, type.min, type.max));
-                } else if (part.min != -1 && part.max != -1 && part.min > part.max) {
-                    throw new IllegalArgumentException(String
-                            .format("Invalid interval [%s-%s].  Rolling periods are not supported (ex. 5-1, only 1-5) since this won't give a deterministic result. Must be %s<=_<=%s", part.min, part.max, type.min, type.max));
+                if ((part.min != -1 && part.min < type.min) || (part.max != -1 && part.max > type.max) || (part.min != -1 && part.max != -1 && part.min > part.max)) {
+                    throw error(range);
                 }
 
                 // validate part
                 if (part.modifier != null && !type.modifier.contains(part.modifier)) {
-                    throw new IllegalArgumentException(String.format("Invalid modifier [%s]", part.modifier));
+                    throw error(part.modifier);
                 } else if (part.incrementModifier != null && !type.increment.contains(part.incrementModifier)) {
-                    throw new IllegalArgumentException(String.format("Invalid increment modifier [%s]", part.incrementModifier));
+                    throw error(part.incrementModifier);
                 }
                 parts.add(part);
             }
 
             Collections.sort(parts);
+        }
+
+        /**
+         * Build error message.
+         * 
+         * @param cron
+         * @return
+         */
+        private IllegalArgumentException error(String cron) {
+            return new IllegalArgumentException("Invalid format '" + cron + "'");
         }
 
         /**
