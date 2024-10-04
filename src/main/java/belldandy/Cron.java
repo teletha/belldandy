@@ -418,11 +418,8 @@ public class Cron {
             }
         }
 
-        protected boolean matches(int value, FieldPart part) {
-            if (value >= part.min && value <= part.max && (value - part.min) % part.increment == 0) {
-                return true;
-            }
-            return false;
+        boolean matches(int value, FieldPart part) {
+            return part.min <= value && value <= part.max && (value - part.min) % part.increment == 0;
         }
 
         protected int nextMatch(int value, FieldPart part) {
@@ -481,27 +478,22 @@ public class Cron {
             super(FieldType.DAY_OF_WEEK, fieldExpr);
         }
 
-        boolean matches(LocalDate dato) {
+        boolean matches(LocalDate date) {
             for (FieldPart part : parts) {
                 if ("L".equals(part.modifier)) {
-                    YearMonth ym = YearMonth.of(dato.getYear(), dato.getMonth().getValue());
-                    return dato.getDayOfWeek() == DayOfWeek.of(part.min) && dato.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
+                    return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
                 } else if ("#".equals(part.incrementModifier)) {
-                    if (dato.getDayOfWeek() == DayOfWeek.of(part.min)) {
-                        int num = dato.getDayOfMonth() / 7;
-                        return part.increment == (dato.getDayOfMonth() % 7 == 0 ? num : num + 1);
+                    if (date.getDayOfWeek() == DayOfWeek.of(part.min)) {
+                        int num = date.getDayOfMonth() / 7;
+                        return part.increment == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
                     }
                     return false;
-                } else if (matches(dato.getDayOfWeek().getValue(), part)) {
+                } else if ("?".equals(part.modifier) || matches(date.getDayOfWeek().getValue(), part)) {
                     return true;
                 }
             }
             return false;
-        }
-
-        @Override
-        protected boolean matches(int val, FieldPart part) {
-            return "?".equals(part.modifier) || super.matches(val, part);
         }
     }
 
@@ -510,31 +502,26 @@ public class Cron {
             super(FieldType.DAY_OF_MONTH, fieldExpr);
         }
 
-        boolean matches(LocalDate dato) {
+        boolean matches(LocalDate date) {
             for (FieldPart part : parts) {
                 if ("L".equals(part.modifier)) {
-                    YearMonth ym = YearMonth.of(dato.getYear(), dato.getMonth().getValue());
-                    return dato.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
+                    YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
+                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
                 } else if ("W".equals(part.modifier)) {
-                    if (dato.getDayOfWeek().getValue() <= 5) {
-                        if (dato.getDayOfMonth() == part.min) {
+                    if (date.getDayOfWeek().getValue() <= 5) {
+                        if (date.getDayOfMonth() == part.min) {
                             return true;
-                        } else if (dato.getDayOfWeek().getValue() == 5) {
-                            return dato.plusDays(1).getDayOfMonth() == part.min;
-                        } else if (dato.getDayOfWeek().getValue() == 1) {
-                            return dato.minusDays(1).getDayOfMonth() == part.min;
+                        } else if (date.getDayOfWeek().getValue() == 5) {
+                            return date.plusDays(1).getDayOfMonth() == part.min;
+                        } else if (date.getDayOfWeek().getValue() == 1) {
+                            return date.minusDays(1).getDayOfMonth() == part.min;
                         }
                     }
-                } else if (matches(dato.getDayOfMonth(), part)) {
+                } else if ("?".equals(part.modifier) || matches(date.getDayOfMonth(), part)) {
                     return true;
                 }
             }
             return false;
-        }
-
-        @Override
-        protected boolean matches(int val, FieldPart part) {
-            return "?".equals(part.modifier) || super.matches(val, part);
         }
     }
 }
