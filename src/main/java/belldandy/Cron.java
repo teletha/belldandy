@@ -30,9 +30,6 @@ import java.util.regex.Pattern;
  */
 public class Cron {
 
-    /** The original cron expression string. */
-    private final String expr;
-
     /** Field representing seconds in the cron expression. */
     private final Field second;
 
@@ -59,16 +56,15 @@ public class Cron {
      *             fields.
      */
     public Cron(String expr) {
-        this.expr = expr;
         String[] parts = expr.split("\\s+");
-        boolean withSeconds = switch (parts.length) {
+        boolean hasSec = switch (parts.length) {
         case 5 -> false;
         case 6 -> true;
         default -> throw new IllegalArgumentException(expr);
         };
 
-        int i = withSeconds ? 1 : 0;
-        this.second = new Field(Type.SECOND, withSeconds ? parts[0] : "0");
+        int i = hasSec ? 1 : 0;
+        this.second = new Field(Type.SECOND, hasSec ? parts[0] : "0");
         this.minute = new Field(Type.MINUTE, parts[i++]);
         this.hour = new Field(Type.HOUR, parts[i++]);
         this.day = new Field(Type.DAY_OF_MONTH, parts[i++]);
@@ -100,55 +96,21 @@ public class Cron {
     public ZonedDateTime next(ZonedDateTime base, ZonedDateTime limit) {
         ZonedDateTime[] next = {base.plusSeconds(1)};
 
-        while (true) {
-            if (next[0].isAfter(limit)) {
-                throw new IllegalArgumentException("No next execution time could be determined that is before the limit of " + limit);
+        root: while (true) {
+            if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);
+            if (!month.nextMatch(next)) continue;
+
+            int month = next[0].getMonthValue();
+            while (!(day.matchesDay(next[0].toLocalDate()) && dow.matchesDoW(next[0].toLocalDate()))) {
+                next[0] = next[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
+                if (next[0].getMonthValue() != month) continue root;
             }
 
-            if (!month.nextMatch(next)) {
-                continue;
-            }
-            if (!findDay(next, limit)) {
-                continue;
-            }
-            if (!hour.nextMatch(next)) {
-                continue;
-            }
-            if (!minute.nextMatch(next)) {
-                continue;
-            }
-            if (!second.nextMatch(next)) {
-                continue;
-            }
+            if (!hour.nextMatch(next)) continue;
+            if (!minute.nextMatch(next)) continue;
+            if (!second.nextMatch(next)) continue;
             return next[0];
         }
-    }
-
-    /**
-     * Finds the next matching day based on both day of month and day of week fields.
-     *
-     * @param base Array containing a single ZonedDateTime to be updated.
-     * @param limit The upper limit for the search.
-     * @return true if a matching day was found, false otherwise.
-     */
-    private boolean findDay(ZonedDateTime[] base, ZonedDateTime limit) {
-        int month = base[0].getMonthValue();
-
-        while (!(day.matchesDay(base[0].toLocalDate()) && dow.matchesDoW(base[0].toLocalDate()))) {
-            base[0] = base[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
-            if (base[0].getMonthValue() != month) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "<" + expr + ">";
     }
 
     /**
@@ -208,7 +170,7 @@ public class Cron {
          * @param dateTime The ZonedDateTime to extract the value from.
          * @return The value of this field in the given dateTime.
          */
-        int getValue(ZonedDateTime dateTime) {
+        private int get(ZonedDateTime dateTime) {
             return dateTime.get(field);
         }
 
@@ -219,7 +181,7 @@ public class Cron {
          * @param value The new value to set.
          * @return A new ZonedDateTime with the updated field value.
          */
-        ZonedDateTime setValue(ZonedDateTime dateTime, int value) {
+        private ZonedDateTime set(ZonedDateTime dateTime, int value) {
             return switch (field) {
             case DAY_OF_WEEK -> throw new UnsupportedOperationException();
             case MONTH_OF_YEAR -> dateTime.withMonth(value).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
@@ -233,7 +195,7 @@ public class Cron {
          * @param dateTime The ZonedDateTime to modify.
          * @return A new ZonedDateTime with the next higher field incremented.
          */
-        ZonedDateTime overflow(ZonedDateTime dateTime) {
+        private ZonedDateTime overflow(ZonedDateTime dateTime) {
             return switch (field) {
             case DAY_OF_WEEK -> throw new UnsupportedOperationException();
             case MONTH_OF_YEAR -> dateTime.plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
@@ -247,7 +209,7 @@ public class Cron {
          * @param name The string representation to map.
          * @return The corresponding numeric value.
          */
-        int map(String name) {
+        private int map(String name) {
             if (names != null) {
                 int index = names.indexOf(name.toUpperCase());
                 if (index != -1) {
@@ -416,13 +378,13 @@ public class Cron {
          * @return true if a match was found, false if the field overflowed.
          */
         private boolean nextMatch(ZonedDateTime[] dateTime) {
-            int value = type.getValue(dateTime[0]);
+            int value = type.get(dateTime[0]);
 
             for (Part part : parts) {
                 int nextMatch = nextMatch(value, part);
                 if (nextMatch > -1) {
                     if (nextMatch != value) {
-                        dateTime[0] = type.setValue(dateTime[0], nextMatch);
+                        dateTime[0] = type.set(dateTime[0], nextMatch);
                     }
                     return true;
                 }
