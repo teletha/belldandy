@@ -62,7 +62,7 @@ public class TestableScheduler extends Scheduler {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
 
-        while (count++ == 0 || runningTask.getAcquire() != 0) {
+        while (count++ == 0 || !queue.isEmpty() || runningTask.getAcquire() != 0) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {

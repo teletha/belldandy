@@ -25,6 +25,9 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     /** The interval calculator. */
     final UnaryOperator<Instant> interval;
 
+    /** The executing thread. */
+    Thread thread;
+
     Task(Callable<V> task, Instant next, UnaryOperator<Instant> interval) {
         super(task);
 

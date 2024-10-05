@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
+import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,7 +26,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 /**
@@ -65,8 +65,20 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     /** The counter for the executed tasks. */
     protected final AtomicLong executedTask = new AtomicLong();
 
-    /** The thread factory. */
-    protected Function<Runnable, Thread> factory = Thread::startVirtualThread;
+    /** The task queue. */
+    protected final DelayQueue<Task> queue = new DelayQueue();
+
+    public Scheduler() {
+        Thread.ofVirtual().start(() -> {
+            try {
+                while (running.get()) {
+                    queue.take().thread.start();
+                }
+            } catch (InterruptedException e) {
+                // stop
+            }
+        });
+    }
 
     /**
      * Execute the task.
@@ -77,7 +89,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         if (!task.isCancelled()) {
             runningTask.incrementAndGet();
 
-            factory.apply(() -> {
+            task.thread = Thread.ofVirtual().unstarted(() -> {
                 try {
                     while (true) {
                         Thread.sleep(Duration.between(Instant.now(), task.time));
@@ -96,11 +108,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                         }
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    // stop
                 } finally {
                     runningTask.decrementAndGet();
                 }
             });
+            queue.add(task);
         }
     }
 

@@ -12,36 +12,26 @@ package belldandy;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class Bench {
-    private static class Task implements Runnable {
+public class StressBench {
 
-        private int c;
-
-        /**
-         * @param counter
-         */
-        public Task(int counter) {
-            c = counter;
-        }
-
-        @Override
-        public void run() {
-            try {
-                System.out.println(c);
-            } catch (Exception e) {
-            }
-        }
-    }
-
+    @SuppressWarnings("resource")
     public static void main(String args[]) throws Exception {
         Random random = new Random();
         Scheduler scheduler = new Scheduler();
 
-        // Create 10, 000 platform threads
         for (int counter = 0; counter < 1000_000; ++counter) {
-            scheduler.schedule(new Task(counter), random.nextLong(5000, 1000 * 90), TimeUnit.MILLISECONDS);
+            scheduler.schedule(new Job(counter), random.nextLong(5000, 1000 * 90), TimeUnit.MILLISECONDS);
         }
 
+        scheduler.scheduleAtFixedRate(System::gc, 30, 20, TimeUnit.SECONDS);
+
         Thread.sleep(1000 * 90);
+    }
+
+    record Job(int id) implements Runnable {
+        @Override
+        public void run() {
+            System.out.println(id);
+        }
     }
 }
