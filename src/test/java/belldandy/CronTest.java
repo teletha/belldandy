@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import belldandy.Cron.Field;
-import belldandy.Cron.Part;
 import belldandy.Cron.Type;
 
 class CronTest {
@@ -59,7 +58,7 @@ class CronTest {
 
     private boolean matches(Field field, int value) {
         if (value >= field.type.min && value <= field.type.max) {
-            for (Part part : field.parts) {
+            for (int[] part : field.parts) {
                 if (field.matches(value, part)) {
                     return true;
                 }

@@ -18,6 +18,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -55,7 +56,7 @@ class Cron {
      * @throws IllegalArgumentException if the expression is invalid or has an incorrect number of
      *             fields.
      */
-     Cron(String expr) {
+    Cron(String expr) {
         String[] parts = expr.split("\\s+");
         boolean hasSec = switch (parts.length) {
         case 5 -> false;
@@ -123,13 +124,13 @@ class Cron {
 
         static final Type HOUR = new Type(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, null, "", "/");
 
-        static final Type DAY_OF_MONTH = new Type(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null, "LW?", "/");
+        static final Type DAY_OF_MONTH = new Type(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null, "?LW", "/");
 
         static final Type MONTH = new Type(ChronoField.MONTH_OF_YEAR, YEARS, 1, 12, List
                 .of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), "", "/");
 
         static final Type DAY_OF_WEEK = new Type(ChronoField.DAY_OF_WEEK, null, 1, 7, List
-                .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"), "L?", "/#");
+                .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"), "?L", "#/");
 
         private final ChronoField field;
 
@@ -139,9 +140,9 @@ class Cron {
 
         private final List<String> names;
 
-        private final List<String> modifier;
+        private final int[] modifier;
 
-        private final List<String> increment;
+        private final int[] increment;
 
         /**
          * Constructs a new Type instance.
@@ -160,8 +161,8 @@ class Cron {
             this.min = min;
             this.max = max;
             this.names = names;
-            this.modifier = List.of(modifier.split(""));
-            this.increment = List.of(increment.split(""));
+            this.modifier = modifier.chars().toArray();
+            this.increment = increment.chars().toArray();
         }
 
         /**
@@ -230,7 +231,7 @@ class Cron {
 
         final Type type;
 
-        final List<Part> parts = new ArrayList();
+        final List<int[]> parts = new ArrayList();
 
         /**
          * Constructs a new Field instance based on the given type and expression.
@@ -252,50 +253,50 @@ class Cron {
                 String incmod = m.group("incmod");
                 String inc = m.group("inc");
 
-                Part part = new Part();
+                int[] part = {-1, -1, -1, 0, 0};
                 if (start != null) {
-                    part.min = type.map(start);
-                    part.modifier = mod;
+                    part[0] = type.map(start);
+                    part[3] = mod == null ? 0 : mod.charAt(0);
                     if (end != null) {
-                        part.max = type.map(end);
-                        part.increment = 1;
+                        part[1] = type.map(end);
+                        part[2] = 1;
                     } else if (inc != null) {
-                        part.max = type.max;
+                        part[1] = type.max;
                     } else {
-                        part.max = part.min;
+                        part[1] = part[0];
                     }
                 } else if (m.group("all") != null) {
-                    part.min = type.min;
-                    part.max = type.max;
-                    part.increment = 1;
+                    part[0] = type.min;
+                    part[1] = type.max;
+                    part[2] = 1;
                 } else if (m.group("ignore") != null) {
-                    part.modifier = m.group("ignore");
+                    part[3] = m.group("ignore").charAt(0);
                 } else if (m.group("last") != null) {
-                    part.modifier = m.group("last");
+                    part[3] = m.group("last").charAt(0);
                 } else {
                     throw new IllegalArgumentException("Fix '" + range + "'");
                 }
 
                 if (inc != null) {
-                    part.incModifier = incmod;
-                    part.increment = Integer.parseInt(inc);
+                    part[4] = incmod.charAt(0);
+                    part[2] = Integer.parseInt(inc);
                 }
 
                 // validate range
-                if ((part.min != -1 && part.min < type.min) || (part.max != -1 && part.max > type.max) || (part.min != -1 && part.max != -1 && part.min > part.max)) {
+                if ((part[0] != -1 && part[0] < type.min) || (part[1] != -1 && part[1] > type.max) || (part[0] != -1 && part[1] != -1 && part[0] > part[1])) {
                     throw error(range);
                 }
 
                 // validate part
-                if (part.modifier != null && !type.modifier.contains(part.modifier)) {
-                    throw error(part.modifier);
-                } else if (part.incModifier != null && !type.increment.contains(part.incModifier)) {
-                    throw error(part.incModifier);
+                if (part[3] != 0 && Arrays.binarySearch(type.modifier, part[3]) < 0) {
+                    throw error(String.valueOf((char) part[3]));
+                } else if (part[4] != 0 && Arrays.binarySearch(type.increment, part[4]) < 0) {
+                    throw error(String.valueOf((char) part[4]));
                 }
                 parts.add(part);
             }
 
-            Collections.sort(parts);
+            Collections.sort(parts, (x, y) -> Integer.compare(x[0], y[0]));
         }
 
         /**
@@ -315,8 +316,8 @@ class Cron {
          * @param part The Part to match against.
          * @return true if the value matches, false otherwise.
          */
-        boolean matches(int value, Part part) {
-            return "?".equals(part.modifier) || (part.min <= value && value <= part.max && (value - part.min) % part.increment == 0);
+        boolean matches(int value, int[] part) {
+            return part[3] == '?' || (part[0] <= value && value <= part[1] && (value - part[0]) % part[2] == 0);
         }
 
         /**
@@ -326,18 +327,18 @@ class Cron {
          * @return true if the date matches, false otherwise.
          */
         boolean matchesDay(LocalDate date) {
-            for (Part part : parts) {
-                if ("L".equals(part.modifier)) {
+            for (int[] part : parts) {
+                if (part[3] == 'L') {
                     YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part.min == -1 ? 0 : part.min));
-                } else if ("W".equals(part.modifier)) {
+                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
+                } else if (part[3] == 'W') {
                     if (date.getDayOfWeek().getValue() <= 5) {
-                        if (date.getDayOfMonth() == part.min) {
+                        if (date.getDayOfMonth() == part[0]) {
                             return true;
                         } else if (date.getDayOfWeek().getValue() == 5) {
-                            return date.plusDays(1).getDayOfMonth() == part.min;
+                            return date.plusDays(1).getDayOfMonth() == part[0];
                         } else if (date.getDayOfWeek().getValue() == 1) {
-                            return date.minusDays(1).getDayOfMonth() == part.min;
+                            return date.minusDays(1).getDayOfMonth() == part[0];
                         }
                     }
                 } else if (matches(date.getDayOfMonth(), part)) {
@@ -354,14 +355,14 @@ class Cron {
          * @return true if the date matches, false otherwise.
          */
         boolean matchesDoW(LocalDate date) {
-            for (Part part : parts) {
-                if ("L".equals(part.modifier)) {
+            for (int[] part : parts) {
+                if (part[3] == 'L') {
                     YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                    return date.getDayOfWeek() == DayOfWeek.of(part.min) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
-                } else if ("#".equals(part.incModifier)) {
-                    if (date.getDayOfWeek() == DayOfWeek.of(part.min)) {
+                    return date.getDayOfWeek() == DayOfWeek.of(part[0]) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                } else if (part[4] == '#') {
+                    if (date.getDayOfWeek() == DayOfWeek.of(part[0])) {
                         int num = date.getDayOfMonth() / 7;
-                        return part.increment == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
+                        return part[2] == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
                     }
                     return false;
                 } else if (matches(date.getDayOfWeek().getValue(), part)) {
@@ -380,7 +381,7 @@ class Cron {
         private boolean nextMatch(ZonedDateTime[] dateTime) {
             int value = type.get(dateTime[0]);
 
-            for (Part part : parts) {
+            for (int[] part : parts) {
                 int nextMatch = nextMatch(value, part);
                 if (nextMatch > -1) {
                     if (nextMatch != value) {
@@ -401,44 +402,21 @@ class Cron {
          * @param part The Part to match against.
          * @return The next matching value, or -1 if no match is found.
          */
-        private int nextMatch(int value, Part part) {
-            if (value > part.max) {
+        private int nextMatch(int value, int[] part) {
+            if (value > part[1]) {
                 return -1;
             }
-            int nextPotential = Math.max(value, part.min);
-            if (part.increment == 1 || nextPotential == part.min) {
+            int nextPotential = Math.max(value, part[0]);
+            if (part[2] == 1 || nextPotential == part[0]) {
                 return nextPotential;
             }
 
-            int remainder = ((nextPotential - part.min) % part.increment);
+            int remainder = ((nextPotential - part[0]) % part[2]);
             if (remainder != 0) {
-                nextPotential += part.increment - remainder;
+                nextPotential += part[2] - remainder;
             }
 
-            return nextPotential <= part.max ? nextPotential : -1;
-        }
-    }
-
-    /**
-     * Represents a single part of a cron field expression.
-     */
-    static class Part implements Comparable<Part> {
-        private int min = -1;
-
-        private int max = -1;
-
-        private int increment = -1;
-
-        private String modifier;
-
-        private String incModifier;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compareTo(Part o) {
-            return Integer.compare(min, o.min);
+            return nextPotential <= part[1] ? nextPotential : -1;
         }
     }
 }
