@@ -79,7 +79,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
 
             factory.apply(() -> {
                 try {
-                    Thread.sleep(Duration.between(Instant.now(), task.time.get()));
+                    Thread.sleep(Duration.between(Instant.now(), task.time));
 
                     if (!task.isCancelled()) {
                         task.run();
@@ -88,8 +88,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                             // one shot
                         } else {
                             // reschedule task
-                            Instant next = task.interval.apply(task.time.get());
-                            task.time.set(next);
+                            task.time = task.interval.apply(task.time);
                             executeTask(task);
                         }
                     }

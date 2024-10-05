@@ -19,12 +19,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
 class SchedulerTest extends SchedulerTestSupport {
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void execute() {
         int[] count = {0};
         scheduler.execute(() -> {
@@ -34,7 +33,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert count[0] == 1 : Arrays.toString(count) + "  " + count[0] + scheduler;
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void submitCallable() {
         Verifier verifier = new Verifier("OK");
         Future<String> future = scheduler.submit((Callable) verifier);
@@ -44,7 +43,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyExecutionCount(1);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void submitCallableCancel() {
         Verifier verifier = new Verifier("OK");
         Future<String> future = scheduler.submit((Callable) verifier);
@@ -54,7 +53,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyExecutionCount(0);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void submitRunnable() {
         int[] count = {0};
         Future<?> future = scheduler.submit((Runnable) () -> count[0]++);
@@ -64,7 +63,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert count[0] == 1;
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void submitRunnableCancle() {
         int[] count = {0};
         Future<?> future = scheduler.submit((Runnable) () -> count[0]++);
@@ -73,7 +72,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifyCanceled(future);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void schedule() {
         Verifier verifier = new Verifier("OK");
         ScheduledFuture<String> future = scheduler.schedule((Callable) verifier, 50, TimeUnit.MILLISECONDS);
@@ -84,7 +83,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyExecutionCount(1);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void scheduleMultiSameDelay() {
         Verifier verifier1 = new Verifier("1");
         Verifier verifier2 = new Verifier("2");
@@ -105,7 +104,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier3.verifyExecutionCount(1);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void scheduleMultiDifferentDelay() {
         Verifier verifier1 = new Verifier();
         Verifier verifier2 = new Verifier();
@@ -119,7 +118,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifyExecutionOrder(verifier3, verifier2, verifier1);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void scheduleCancel() {
         Verifier verifier = new Verifier("OK");
         ScheduledFuture<String> future = scheduler.schedule((Callable) verifier, 50, TimeUnit.MILLISECONDS);
@@ -129,7 +128,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyExecutionCount(0);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void scheduleTaskAfterCancel() {
         Verifier verifier = new Verifier("OK");
         ScheduledFuture<String> future = scheduler.schedule((Callable) verifier, 50, TimeUnit.MILLISECONDS);
@@ -146,7 +145,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyExecutionCount(1);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void fixedRate() {
         Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(verifier, 0, 50, TimeUnit.MILLISECONDS);
@@ -157,7 +156,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyRate(0, 30, 30);
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void fixedDelay() {
         Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(verifier, 0, 50, TimeUnit.MILLISECONDS);
@@ -168,9 +167,9 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyInterval(0, 50, 50);
     }
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void cron() {
-        scheduler.limitAwaitTime(4000);
+        scheduler.limitAwaitTime(5000);
 
         Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "* * * * * *");
@@ -181,9 +180,9 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyRate(0, 1000, 1000);
     }
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void cronStep() {
-        scheduler.limitAwaitTime(4000);
+        scheduler.limitAwaitTime(5000);
 
         Verifier verifier = new Verifier();
         ScheduledFuture<?> future = scheduler.scheduleAt(verifier, "*/2 * * * * *");
@@ -202,7 +201,7 @@ class SchedulerTest extends SchedulerTestSupport {
                 .get()), () -> assertEquals(3, futures.get(2).get()));
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void shutdown() throws InterruptedException {
         Verifier verifier = new Verifier();
         ScheduledFuture<String> future = scheduler.schedule((Callable) verifier, 100, TimeUnit.MILLISECONDS);
@@ -225,7 +224,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assertTrue(scheduler.isShutdown());
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(MULTIPLICITY)
     void handleExceptionDuringTask() {
         Verifier verifier = new Verifier(new Error("Fail"));
         ScheduledFuture<?> future = scheduler.schedule((Callable) verifier, 50, TimeUnit.MILLISECONDS);

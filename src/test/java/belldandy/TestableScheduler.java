@@ -28,7 +28,6 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     protected void executeTask(Task task) {
-
         if (starting.get()) {
             super.executeTask(task);
         } else {

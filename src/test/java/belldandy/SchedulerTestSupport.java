@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Future.State;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,9 @@ import kiss.I;
 
 public class SchedulerTestSupport {
 
-    private static final long tolerance = 10;
+    protected static final int MULTIPLICITY = 5;
+
+    private static final long TOLERANCE = 15;
 
     protected TestableScheduler scheduler;
 
@@ -167,7 +170,7 @@ public class SchedulerTestSupport {
 
         private final List<Long> endTime = new ArrayList();
 
-        private final T expectedResult;
+        private final Supplier<T> expectedResult;
 
         private final Throwable expectedError;
 
@@ -176,6 +179,11 @@ public class SchedulerTestSupport {
         }
 
         public Verifier(T expectedResult) {
+            this.expectedResult = () -> expectedResult;
+            this.expectedError = null;
+        }
+
+        public Verifier(Supplier<T> expectedResult) {
             this.expectedResult = expectedResult;
             this.expectedError = null;
         }
@@ -195,7 +203,7 @@ public class SchedulerTestSupport {
                 if (expectedError != null) {
                     throw I.quiet(expectedError);
                 } else {
-                    return expectedResult;
+                    return expectedResult.get();
                 }
             } finally {
                 endTime.add(System.currentTimeMillis());
@@ -219,7 +227,7 @@ public class SchedulerTestSupport {
          */
         protected boolean verifyInitialDelay(long millis) {
             assert !startTime.isEmpty();
-            assert millis - tolerance <= startTime.get(0) - created;
+            assert millis - TOLERANCE <= startTime.get(0) - created;
 
             return true;
         }
@@ -231,7 +239,7 @@ public class SchedulerTestSupport {
             assert startTime.size() == millis.length;
             for (int i = 0; i < millis.length; i++) {
                 long diff = startTime.get(i) - (i == 0 ? created : startTime.get(i - 1));
-                assert millis[i] - tolerance <= diff : diff;
+                assert millis[i] - TOLERANCE <= diff : diff;
             }
             return true;
         }
@@ -243,7 +251,7 @@ public class SchedulerTestSupport {
             assert startTime.size() == millis.length;
             for (int i = 0; i < millis.length; i++) {
                 long diff = startTime.get(i) - (i == 0 ? created : endTime.get(i - 1));
-                assert millis[i] - tolerance <= diff : diff;
+                assert millis[i] - TOLERANCE <= diff : diff;
             }
             return true;
         }

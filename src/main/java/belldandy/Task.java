@@ -15,13 +15,12 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
 
 class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
 
     /** The next trigger time. */
-    final AtomicReference<Instant> time;
+    volatile Instant time;
 
     /** The interval calculator. */
     final UnaryOperator<Instant> interval;
@@ -29,7 +28,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     Task(Callable<V> task, Instant next, UnaryOperator<Instant> interval) {
         super(task);
 
-        this.time = new AtomicReference(next);
+        this.time = next;
         this.interval = interval;
     }
 
@@ -52,7 +51,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public long getDelay(TimeUnit unit) {
-        return unit.convert(time.get().toEpochMilli() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        return unit.convert(time.toEpochMilli() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -61,7 +60,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     @Override
     public int compareTo(Delayed other) {
         if (other instanceof Task task) {
-            return time.get().compareTo((Instant) task.time.get());
+            return time.compareTo(task.time);
         } else {
             return 0;
         }
