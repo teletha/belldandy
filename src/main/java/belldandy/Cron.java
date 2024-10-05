@@ -188,7 +188,7 @@ class Cron {
      */
     static class Field {
         private static final Pattern FORMAT = Pattern
-                .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
+                .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
         private final Type type;
 
@@ -208,11 +208,11 @@ class Cron {
                 Matcher m = FORMAT.matcher(range);
                 if (!m.matches()) throw error(range);
 
-                String start = m.group("start");
-                String mod = m.group("mod");
-                String end = m.group("end");
-                String incmod = m.group("incmod");
-                String inc = m.group("inc");
+                String start = m.group(3);
+                String mod = m.group(4);
+                String end = m.group(5);
+                String incmod = m.group(6);
+                String inc = m.group(7);
 
                 int[] part = {-1, -1, -1, 0, 0};
                 if (start != null) {
@@ -226,14 +226,12 @@ class Cron {
                     } else {
                         part[1] = part[0];
                     }
-                } else if (m.group("all") != null) {
+                } else if (m.group(1) != null) {
                     part[0] = type.min;
                     part[1] = type.max;
                     part[2] = 1;
-                } else if (m.group("ignore") != null) {
-                    part[3] = m.group("ignore").charAt(0);
-                } else if (m.group("last") != null) {
-                    part[3] = m.group("last").charAt(0);
+                } else if (m.group(2) != null) {
+                    part[3] = m.group(2).charAt(0);
                 } else {
                     throw new IllegalArgumentException("Fix '" + range + "'");
                 }
