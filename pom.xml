@@ -5,7 +5,7 @@
 	<version>0.1</version>
 	<packaging>jar</packaging>
 	<name>belldandy</name>
-	<description>Beldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
+	<description>Belldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
 
 - VIrtual thread based Scheduler
 - Cron Expression</description>
