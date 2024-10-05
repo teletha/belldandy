@@ -11,7 +11,6 @@ package belldandy;
 
 import static java.util.concurrent.Executors.*;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -91,24 +90,18 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
 
             task.thread = Thread.ofVirtual().unstarted(() -> {
                 try {
-                    while (true) {
-                        Thread.sleep(Duration.between(Instant.now(), task.time));
+                    if (!task.isCancelled()) {
+                        task.run();
+                        executedTask.incrementAndGet();
 
-                        if (!task.isCancelled()) {
-                            task.run();
-                            executedTask.incrementAndGet();
-
-                            if (task.interval == null) {
-                                // one shot
-                                break;
-                            } else {
-                                // reschedule task
-                                task.time = task.interval.apply(task.time);
-                            }
+                        if (task.interval == null) {
+                            // one shot
+                        } else {
+                            // reschedule task
+                            task.time = task.interval.apply(task.time);
+                            executeTask(task);
                         }
                     }
-                } catch (InterruptedException e) {
-                    // stop
                 } finally {
                     runningTask.decrementAndGet();
                 }
