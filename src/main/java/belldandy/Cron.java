@@ -166,45 +166,6 @@ class Cron {
         }
 
         /**
-         * Gets the value of this field from the given ZonedDateTime.
-         *
-         * @param dateTime The ZonedDateTime to extract the value from.
-         * @return The value of this field in the given dateTime.
-         */
-        private int get(ZonedDateTime dateTime) {
-            return dateTime.get(field);
-        }
-
-        /**
-         * Sets the value of this field in the given ZonedDateTime.
-         *
-         * @param dateTime The ZonedDateTime to modify.
-         * @param value The new value to set.
-         * @return A new ZonedDateTime with the updated field value.
-         */
-        private ZonedDateTime set(ZonedDateTime dateTime, int value) {
-            return switch (field) {
-            case DAY_OF_WEEK -> throw new UnsupportedOperationException();
-            case MONTH_OF_YEAR -> dateTime.withMonth(value).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
-            default -> dateTime.with(field, value).truncatedTo(field.getBaseUnit());
-            };
-        }
-
-        /**
-         * Handles overflow of this field by incrementing the next higher field.
-         *
-         * @param dateTime The ZonedDateTime to modify.
-         * @return A new ZonedDateTime with the next higher field incremented.
-         */
-        private ZonedDateTime overflow(ZonedDateTime dateTime) {
-            return switch (field) {
-            case DAY_OF_WEEK -> throw new UnsupportedOperationException();
-            case MONTH_OF_YEAR -> dateTime.plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
-            default -> dateTime.plus(1, upper).with(field, min).truncatedTo(field.getBaseUnit());
-            };
-        }
-
-        /**
          * Maps a string representation to its corresponding numeric value for this field.
          *
          * @param name The string representation to map.
@@ -379,19 +340,27 @@ class Cron {
          * @return true if a match was found, false if the field overflowed.
          */
         private boolean nextMatch(ZonedDateTime[] dateTime) {
-            int value = type.get(dateTime[0]);
+            int value = dateTime[0].get(type.field);
 
             for (int[] part : parts) {
                 int nextMatch = nextMatch(value, part);
                 if (nextMatch > -1) {
                     if (nextMatch != value) {
-                        dateTime[0] = type.set(dateTime[0], nextMatch);
+                        dateTime[0] = switch (type.field) {
+                        case DAY_OF_WEEK -> throw new UnsupportedOperationException();
+                        case MONTH_OF_YEAR -> dateTime[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                        default -> dateTime[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
+                        };
                     }
                     return true;
                 }
             }
 
-            dateTime[0] = type.overflow(dateTime[0]);
+            dateTime[0] = switch (type.field) {
+            case DAY_OF_WEEK -> throw new UnsupportedOperationException();
+            case MONTH_OF_YEAR -> dateTime[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            default -> dateTime[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
+            };
             return false;
         }
 
