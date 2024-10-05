@@ -88,6 +88,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         if (!task.isCancelled()) {
             runningTask.incrementAndGet();
 
+            // Threads are created when a task is registered, but execution is delayed until the
+            // scheduled time. Although it would be simpler to immediately schedule the task using
+            // Thread#sleep after execution, this implementation method is used to reduce memory
+            // usage as much as possible. Note that only the creation of the thread is done first,
+            // since the information is not inherited by InheritableThreadLocal if the thread is
+            // simply placed in the task queue.
             task.thread = Thread.ofVirtual().unstarted(() -> {
                 try {
                     if (!task.isCancelled()) {
