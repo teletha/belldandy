@@ -7,7 +7,7 @@
 </p>
 
 ## Summary
-Beldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
+Belldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
 
 - VIrtual thread based Scheduler
 - Cron Expression
