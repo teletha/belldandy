@@ -136,7 +136,7 @@ class Cron {
 
         private final ChronoUnit upper;
 
-        final int min, max;
+        private final int min, max;
 
         private final List<String> names;
 
@@ -226,7 +226,7 @@ class Cron {
      * Represents a single field in a cron expression.
      */
     static class Field {
-        private static final Pattern CRON_FIELD_REGEXP = Pattern
+        private static final Pattern FORMAT = Pattern
                 .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
         final Type type;
@@ -244,7 +244,7 @@ class Cron {
             this.type = type;
 
             for (String range : expr.split(",")) {
-                Matcher m = CRON_FIELD_REGEXP.matcher(range);
+                Matcher m = FORMAT.matcher(range);
                 if (!m.matches()) throw error(range);
 
                 String start = m.group("start");

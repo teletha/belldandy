@@ -45,62 +45,69 @@ class CronTest {
         TimeZone.setDefault(original);
     }
 
-    private void assertPossibleValues(Field field, Integer... values) {
-        Set<Integer> valid = values == null ? new HashSet<Integer>() : new HashSet<>(Arrays.asList(values));
-        for (int i = field.type.min; i <= field.type.max; i++) {
-            if (valid.contains(i)) {
-                assert matches(field, i);
-            } else {
-                assert matches(field, i) == false;
-            }
-        }
-    }
-
     private boolean matches(Field field, int value) {
-        if (value >= field.type.min && value <= field.type.max) {
-            for (int[] part : field.parts) {
-                if (field.matches(value, part)) {
-                    return true;
-                }
+        for (int[] part : field.parts) {
+            if (field.matches(value, part)) {
+                return true;
             }
         }
         return false;
     }
 
+    private boolean matcheAll(Field field, int... values) {
+        for (int value : values) {
+            assert matches(field, value);
+        }
+        return true;
+    }
+
+    private boolean unmatcheAll(Field field, int... values) {
+        for (int value : values) {
+            assert matches(field, value) == false;
+        }
+        return true;
+    }
+
     @Test
     public void parseNumber() {
         Field field = new Field(Type.MINUTE, "5");
-        assertPossibleValues(field, 5);
+        assert matches(field, 5);
+        assert unmatcheAll(field, 2, 4, 6, 8, 10, 30, 60);
     }
 
     @Test
     public void parseNumberWithIncrement() {
         Field field = new Field(Type.MINUTE, "0/15");
-        assertPossibleValues(field, 0, 15, 30, 45);
+        assert matcheAll(field, 0, 15, 30, 45);
+        assert unmatcheAll(field, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 20, 33, 60);
     }
 
     @Test
     public void parseRange() {
         Field field = new Field(Type.MINUTE, "5-10");
-        assertPossibleValues(field, 5, 6, 7, 8, 9, 10);
+        assert matcheAll(field, 5, 6, 7, 8, 9, 10);
+        assert unmatcheAll(field, 1, 2, 3, 4, 11, 12, 30, 60);
     }
 
     @Test
     public void parseRangeWithIncrement() {
         Field field = new Field(Type.MINUTE, "20-30/2");
-        assertPossibleValues(field, 20, 22, 24, 26, 28, 30);
+        assert matcheAll(field, 20, 22, 24, 26, 28, 30);
+        assert unmatcheAll(field, 18, 19, 21, 23, 25, 27, 29, 31, 32, 60);
     }
 
     @Test
     public void parseAsterisk() {
         Field field = new Field(Type.DAY_OF_WEEK, "*");
-        assertPossibleValues(field, 1, 2, 3, 4, 5, 6, 7);
+        assert matcheAll(field, 1, 2, 3, 4, 5, 6, 7);
+        assert unmatcheAll(field, 0, 8, 9, 10);
     }
 
     @Test
     public void parseAsteriskWithIncrement() {
         Field field = new Field(Type.DAY_OF_WEEK, "*/2");
-        assertPossibleValues(field, 1, 3, 5, 7);
+        assert matcheAll(field, 1, 3, 5, 7);
+        assert unmatcheAll(field, 0, 2, 4, 6, 8);
     }
 
     @Test
