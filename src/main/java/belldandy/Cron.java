@@ -229,7 +229,7 @@ class Cron {
         private static final Pattern FORMAT = Pattern
                 .compile("(?:(?:(?<all>\\*)|(?<ignore>\\?)|(?<last>L)) | (?<start>[0-9]{1,2}|[a-z]{3,3})(?:(?<mod>L|W) | -(?<end>[0-9]{1,2}|[a-z]{3,3}))?)(?:(?<incmod>/|\\#)(?<inc>[0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
-        final Type type;
+        private final Type type;
 
         final List<int[]> parts = new ArrayList();
 
