@@ -79,24 +79,26 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
 
             factory.apply(() -> {
                 try {
-                    Thread.sleep(Duration.between(Instant.now(), task.time));
+                    while (true) {
+                        Thread.sleep(Duration.between(Instant.now(), task.time));
 
-                    if (!task.isCancelled()) {
-                        task.run();
+                        if (!task.isCancelled()) {
+                            task.run();
+                            executedTask.incrementAndGet();
 
-                        if (task.interval == null) {
-                            // one shot
-                        } else {
-                            // reschedule task
-                            task.time = task.interval.apply(task.time);
-                            executeTask(task);
+                            if (task.interval == null) {
+                                // one shot
+                                break;
+                            } else {
+                                // reschedule task
+                                task.time = task.interval.apply(task.time);
+                            }
                         }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
                     runningTask.decrementAndGet();
-                    executedTask.incrementAndGet();
                 }
             });
         }
