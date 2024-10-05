@@ -115,6 +115,16 @@ class Cron {
     }
 
     /**
+     * Build error message.
+     * 
+     * @param cron
+     * @return
+     */
+    private static IllegalArgumentException error(String cron) {
+        return new IllegalArgumentException("Invalid format '" + cron + "'");
+    }
+
+    /**
      * Represents a type of cron field (e.g., second, minute, hour, etc.).
      */
     static class Type {
@@ -233,7 +243,7 @@ class Cron {
                 } else if (m.group(2) != null) {
                     part[3] = m.group(2).charAt(0);
                 } else {
-                    throw new IllegalArgumentException("Fix '" + range + "'");
+                    throw error(range);
                 }
 
                 if (inc != null) {
@@ -256,16 +266,6 @@ class Cron {
             }
 
             Collections.sort(parts, (x, y) -> Integer.compare(x[0], y[0]));
-        }
-
-        /**
-         * Build error message.
-         * 
-         * @param cron
-         * @return
-         */
-        private IllegalArgumentException error(String cron) {
-            return new IllegalArgumentException("Invalid format '" + cron + "'");
         }
 
         /**
