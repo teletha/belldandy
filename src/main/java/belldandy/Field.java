@@ -13,6 +13,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ class Field {
 
         for (String range : expr.split(",")) {
             Matcher m = FORMAT.matcher(range);
-            if (!m.matches()) throw error(range);
+            if (!m.matches()) error(range);
 
             String start = m.group(3);
             String mod = m.group(4);
@@ -71,7 +72,7 @@ class Field {
             } else if (m.group(2) != null) {
                 part[3] = m.group(2).charAt(0);
             } else {
-                throw error(range);
+                error(range);
             }
 
             if (inc != null) {
@@ -81,14 +82,14 @@ class Field {
 
             // validate range
             if ((part[0] != -1 && part[0] < type.min) || (part[1] != -1 && part[1] > type.max) || (part[0] != -1 && part[1] != -1 && part[0] > part[1])) {
-                throw error(range);
+                error(range);
             }
 
             // validate part
             if (part[3] != 0 && Arrays.binarySearch(type.modifier, part[3]) < 0) {
-                throw error(String.valueOf((char) part[3]));
+                error(String.valueOf((char) part[3]));
             } else if (part[4] != 0 && Arrays.binarySearch(type.increment, part[4]) < 0) {
-                throw error(String.valueOf((char) part[4]));
+                error(String.valueOf((char) part[4]));
             }
             parts.add(part);
         }
@@ -172,19 +173,21 @@ class Field {
             int nextMatch = nextMatch(value, part);
             if (nextMatch > -1) {
                 if (nextMatch != value) {
-                    dateTime[0] = switch (type.field) {
-                    case MONTH_OF_YEAR -> dateTime[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
-                    default -> dateTime[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
-                    };
+                    if (type.field == ChronoField.MONTH_OF_YEAR) {
+                        dateTime[0] = dateTime[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                    } else {
+                        dateTime[0] = dateTime[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
+                    }
                 }
                 return true;
             }
         }
 
-        dateTime[0] = switch (type.field) {
-        case MONTH_OF_YEAR -> dateTime[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
-        default -> dateTime[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
-        };
+        if (type.field == ChronoField.MONTH_OF_YEAR) {
+            dateTime[0] = dateTime[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+        } else {
+            dateTime[0] = dateTime[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
+        }
         return false;
     }
 
@@ -213,12 +216,12 @@ class Field {
     }
 
     /**
-     * Build error message.
+     * Throw the invalid format error.
      * 
      * @param cron
      * @return
      */
-    static IllegalArgumentException error(String cron) {
-        return new IllegalArgumentException("Invalid format '" + cron + "'");
+    static int error(String cron) {
+        throw new IllegalArgumentException("Invalid format '" + cron + "'");
     }
 }

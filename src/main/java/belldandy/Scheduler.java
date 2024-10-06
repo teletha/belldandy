@@ -226,11 +226,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     static Field[] parse(String cron) {
         String[] parts = cron.split("\\s+");
-        int i = switch (parts.length) {
-        case 5 -> 0;
-        case 6 -> 1;
-        default -> throw new IllegalArgumentException(cron);
-        };
+        int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Field.error(cron);
 
         return new Field[] { //
                 new Field(Type.SECOND, i == 1 ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
