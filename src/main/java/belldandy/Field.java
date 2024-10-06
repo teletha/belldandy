@@ -173,7 +173,6 @@ class Field {
             if (nextMatch > -1) {
                 if (nextMatch != value) {
                     dateTime[0] = switch (type.field) {
-                    case DAY_OF_WEEK -> throw new UnsupportedOperationException();
                     case MONTH_OF_YEAR -> dateTime[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
                     default -> dateTime[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
                     };
@@ -183,7 +182,6 @@ class Field {
         }
 
         dateTime[0] = switch (type.field) {
-        case DAY_OF_WEEK -> throw new UnsupportedOperationException();
         case MONTH_OF_YEAR -> dateTime[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         default -> dateTime[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
         };
