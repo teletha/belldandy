@@ -90,10 +90,8 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     /** The running state of task queue. */
     protected volatile boolean running = true;
 
+    /** The the running task manager. */
     protected final Set<Task> runnings = ConcurrentHashMap.newKeySet();
-
-    /** The counter for the running tasks. */
-    protected final AtomicLong runningTask = new AtomicLong();
 
     /** The counter for the executed tasks. */
     protected final AtomicLong executedTask = new AtomicLong();
@@ -109,7 +107,6 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                     // Task execution state management is performed before thread execution because
                     // it is too slow if the task execution state management is performed within the
                     // task's execution thread.
-                    runningTask.incrementAndGet();
                     runnings.add(task);
 
                     // execute task actually
@@ -153,7 +150,6 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                     }
                 } finally {
                     executedTask.incrementAndGet();
-                    runningTask.decrementAndGet();
                     runnings.remove(task);
                 }
             });

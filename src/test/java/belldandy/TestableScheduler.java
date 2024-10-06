@@ -56,7 +56,7 @@ public class TestableScheduler extends Scheduler {
     protected boolean awaitRunning() {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
-        while (count++ == 0 || runningTask.getAcquire() == 0) {
+        while (count++ == 0 || runnings.isEmpty()) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("No task is active. RunningTask:" + runningTask.get() + "  ExecutedTask:" + executedTask);
+                throw new Error("No task is active. RunningTask:" + runnings.size() + "  ExecutedTask:" + executedTask);
             }
         }
         return true;
@@ -82,7 +82,7 @@ public class TestableScheduler extends Scheduler {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
 
-        while (count++ == 0 || !queue.isEmpty() || runningTask.getAcquire() != 0) {
+        while (count++ == 0 || !queue.isEmpty() || !runnings.isEmpty()) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {
@@ -90,8 +90,8 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("Too long task is active. RunningTask:" + runningTask
-                        .get() + "  ExecutedTask:" + executedTask + " Queuing:" + queue);
+                throw new Error("Too long task is active. RunningTask:" + runnings
+                        .size() + "  ExecutedTask:" + executedTask + " Queuing:" + queue);
             }
         }
         return true;
@@ -125,6 +125,6 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public String toString() {
-        return "Executor [running: " + runningTask + "(" + runnings.size() + ")" + " executed: " + executedTask + "]";
+        return "Executor [running: " + runnings.size() + " executed: " + executedTask + "]";
     }
 }
