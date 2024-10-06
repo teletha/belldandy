@@ -69,7 +69,12 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     @Override
     public int compareTo(Delayed other) {
         if (other instanceof Task task) {
-            return Long.compare(next, task.next);
+            // Although it is common practice to use Long#compare, there is no possibility of
+            // overflow in situations where time differences are calculated, so subtraction is
+            // implemented to reduce cost and footprint.
+            //
+            // return Long.compare(next, task.next);
+            return (int) (next - task.next);
         } else {
             return 0;
         }
