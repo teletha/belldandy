@@ -11,7 +11,6 @@ package belldandy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -107,13 +106,13 @@ class CronTest {
     @Test
     public void ignoreFieldInDayOfWeek() {
         Field field = new Field(Type.DAY_OF_WEEK, "?");
-        assert field.matchesDay(ZonedDateTime.now().toLocalDate());
+        assert field.matchesDay(ZonedDateTime.now());
     }
 
     @Test
     public void ignoreFieldInDayOfMonth() {
         Field field = new Field(Type.DAY_OF_MONTH, "?");
-        assert field.matchesDay(ZonedDateTime.now().toLocalDate());
+        assert field.matchesDay(ZonedDateTime.now());
     }
 
     @Test
@@ -145,14 +144,15 @@ class CronTest {
     @Test
     public void giveLastDayOfMonthInLeapYear() {
         Field field = new Field(Type.DAY_OF_MONTH, "L");
-        assert field.matchesDay(LocalDate.of(2012, 02, 29));
+        assert field.matchesDay(ZonedDateTime.of(2012, 02, 29, 0, 0, 0, 0, ZoneId.systemDefault()));
     }
 
     @Test
     public void giveLastDayOfMonth() {
         Field field = new Field(Type.DAY_OF_MONTH, "L");
         YearMonth now = YearMonth.now();
-        assert field.matchesDay(LocalDate.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth()));
+        assert field
+                .matchesDay(ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()));
     }
 
     @Test

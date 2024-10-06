@@ -10,7 +10,6 @@
 package belldandy;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -114,7 +113,7 @@ class Field {
      * @param date The LocalDate to check.
      * @return true if the date matches, false otherwise.
      */
-    boolean matchesDay(LocalDate date) {
+    boolean matchesDay(ZonedDateTime date) {
         for (int[] part : parts) {
             if (part[3] == 'L') {
                 YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
@@ -142,7 +141,7 @@ class Field {
      * @param date The LocalDate to check.
      * @return true if the date matches, false otherwise.
      */
-    boolean matchesDoW(LocalDate date) {
+    boolean matchesDoW(ZonedDateTime date) {
         for (int[] part : parts) {
             if (part[3] == 'L') {
                 YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());

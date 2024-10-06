@@ -255,7 +255,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
             if (!cron[4].nextMatch(next)) continue;
 
             int month = next[0].getMonthValue();
-            while (!(cron[3].matchesDay(next[0].toLocalDate()) && cron[5].matchesDoW(next[0].toLocalDate()))) {
+            while (!(cron[3].matchesDay(next[0]) && cron[5].matchesDoW(next[0]))) {
                 next[0] = next[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
                 if (next[0].getMonthValue() != month) continue root;
             }
