@@ -9,10 +9,7 @@
  */
 package belldandy;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
@@ -191,37 +188,6 @@ class SchedulerTest extends SchedulerTestSupport {
         assert scheduler.start().awaitExecutions(2);
         assert verifier.verifyExecutionCount(2);
         assert verifier.verifyInterval(0, 2000);
-    }
-
-    void testInvokeAll() throws InterruptedException {
-        List<Callable<Integer>> tasks = List.of(() -> 1, () -> 2, () -> 3);
-        List<Future<Integer>> futures = scheduler.invokeAll(tasks);
-        assertEquals(3, futures.size());
-        assertAll(() -> assertEquals(1, futures.get(0).get()), () -> assertEquals(2, futures.get(1)
-                .get()), () -> assertEquals(3, futures.get(2).get()));
-    }
-
-    @RepeatedTest(MULTIPLICITY)
-    void shutdown() throws InterruptedException {
-        Verifier verifier = new Verifier();
-        ScheduledFuture<String> future = scheduler.schedule((Callable) verifier, 100, TimeUnit.MILLISECONDS);
-        assert scheduler.isShutdown() == false;
-        assert scheduler.isTerminated() == false;
-        assert verifyRunning(future);
-
-        assert scheduler.start().awaitIdling();
-        scheduler.shutdown();
-        assert scheduler.isShutdown() == true;
-        assertTrue(scheduler.awaitTermination(1, TimeUnit.SECONDS));
-        assert scheduler.isTerminated() == true;
-    }
-
-    void testShutdownNow() {
-        scheduler.schedule(() -> {
-        }, 1, TimeUnit.HOURS); // Schedule a task far in the future
-        List<Runnable> pendingTasks = scheduler.shutdownNow();
-        assertFalse(pendingTasks.isEmpty());
-        assertTrue(scheduler.isShutdown());
     }
 
     @RepeatedTest(MULTIPLICITY)

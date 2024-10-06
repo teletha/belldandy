@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import kiss.I;
+import kiss.WiseSupplier;
 
 public class SchedulerTestSupport {
 
@@ -183,7 +184,7 @@ public class SchedulerTestSupport {
             this.expectedError = null;
         }
 
-        public Verifier(Supplier<T> expectedResult) {
+        public Verifier(WiseSupplier<T> expectedResult) {
             this.expectedResult = expectedResult;
             this.expectedError = null;
         }
@@ -191,6 +192,14 @@ public class SchedulerTestSupport {
         public Verifier(Throwable error) {
             this.expectedResult = null;
             this.expectedError = error;
+        }
+
+        public Runnable asRunnable() {
+            return this;
+        }
+
+        public Callable<T> asCallable() {
+            return this;
         }
 
         /**
