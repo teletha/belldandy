@@ -9,29 +9,35 @@
  */
 package belldandy;
 
-import java.time.Instant;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.UnaryOperator;
+import java.util.function.LongUnaryOperator;
 
 class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
 
-    /** The next trigger time. */
-    volatile Instant time;
+    /** The next trigger time. (epoch ms) */
+    volatile long next;
 
     /** The interval calculator. */
-    final UnaryOperator<Instant> interval;
+    final LongUnaryOperator interval;
 
     /** The executing thread. */
     Thread thread;
 
-    Task(Callable<V> task, Instant next, UnaryOperator<Instant> interval) {
+    /**
+     * Create new task.
+     * 
+     * @param task
+     * @param next
+     * @param interval
+     */
+    Task(Callable<V> task, long next, LongUnaryOperator interval) {
         super(task);
 
-        this.time = next;
+        this.next = next;
         this.interval = interval;
     }
 
@@ -54,7 +60,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
      */
     @Override
     public long getDelay(TimeUnit unit) {
-        return unit.convert(time.toEpochMilli() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        return unit.convert(next - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -63,7 +69,7 @@ class Task<V> extends FutureTask<V> implements ScheduledFuture<V> {
     @Override
     public int compareTo(Delayed other) {
         if (other instanceof Task task) {
-            return time.compareTo(task.time);
+            return Long.compare(next, task.next);
         } else {
             return 0;
         }
