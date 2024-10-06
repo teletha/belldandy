@@ -82,4 +82,29 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         assert scheduler.isTerminated();
         assert verifyRunning(future);
     }
+
+    @RepeatedTest(MULTIPLICITY)
+    void awaitTermination() throws InterruptedException {
+        Verifier<String> verifier = new Verifier(() -> {
+            try {
+                Thread.sleep(150);
+                return "Long Task";
+            } catch (InterruptedException e) {
+                Thread.sleep(100);
+                return "Long Stop";
+            }
+        });
+
+        Future<?> future = scheduler.submit(verifier.asCallable());
+        assert scheduler.start().awaitRunning();
+
+        List<Runnable> remains = scheduler.shutdownNow();
+        assert scheduler.isShutdown();
+        assert scheduler.isTerminated() == false;
+        assert remains.isEmpty();
+
+        assert scheduler.awaitTermination(300, TimeUnit.MILLISECONDS);
+        assert scheduler.isTerminated();
+        assert verifySuccessed(future);
+    }
 }

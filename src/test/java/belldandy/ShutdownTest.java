@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.RepeatedTest;
 
+@SuppressWarnings("resource")
 public class ShutdownTest extends SchedulerTestSupport {
 
     @RepeatedTest(MULTIPLICITY)
@@ -72,6 +73,44 @@ public class ShutdownTest extends SchedulerTestSupport {
         assert scheduler.isTerminated() == false;
 
         assert scheduler.awaitIdling();
+        assert scheduler.isTerminated();
+        assert verifySuccessed(future);
+    }
+
+    @RepeatedTest(MULTIPLICITY)
+    void awaitTermination() throws InterruptedException {
+        Verifier<?> verifier = new Verifier("Queued");
+
+        Future<?> future = scheduler.schedule(verifier.asCallable(), 150, TimeUnit.MILLISECONDS);
+        scheduler.start().shutdown();
+        assert scheduler.isShutdown();
+        assert scheduler.isTerminated() == false;
+
+        assert scheduler.awaitTermination(300, TimeUnit.MILLISECONDS);
+        assert scheduler.isTerminated();
+        assert verifySuccessed(future);
+    }
+
+    @RepeatedTest(MULTIPLICITY)
+    void awaitTerminationLongTask() throws InterruptedException {
+        Verifier<String> verifier = new Verifier(() -> {
+            try {
+                Thread.sleep(150);
+                return "Long Task";
+            } catch (InterruptedException e) {
+                Thread.sleep(100);
+                return "Long Stop";
+            }
+        });
+
+        Future<?> future = scheduler.submit(verifier.asCallable());
+        assert scheduler.start().awaitRunning();
+
+        scheduler.shutdown();
+        assert scheduler.isShutdown();
+        assert scheduler.isTerminated() == false;
+
+        assert scheduler.awaitTermination(300, TimeUnit.MILLISECONDS);
         assert scheduler.isTerminated();
         assert verifySuccessed(future);
     }
