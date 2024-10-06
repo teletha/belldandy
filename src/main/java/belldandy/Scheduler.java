@@ -12,6 +12,7 @@ package belldandy;
 import static java.util.concurrent.Executors.*;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
@@ -128,7 +129,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        Task<V> task = new Task(command, calculateNext(delay, unit), null);
+        Task<V> task = new Task(command, nextMilli(delay, unit), null);
         executeTask(task);
         return task;
     }
@@ -138,7 +139,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> old + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), nextMilli(delay, unit), old -> old + unit.toMillis(interval));
         executeTask(task);
         return task;
     }
@@ -148,7 +149,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), calculateNext(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), nextMilli(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
         executeTask(task);
         return task;
     }
@@ -173,17 +174,74 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * @throws IllegalArgumentException If the cron format is invalid or cannot be parsed correctly.
      */
     public ScheduledFuture<?> scheduleAt(Runnable command, String format) {
-        Cron cron = new Cron(format);
-        LongUnaryOperator next = prev -> {
-            return cron.next(ZonedDateTime.now()).toInstant().toEpochMilli();
-        };
+        Field[] fields = parse(format);
+        LongUnaryOperator next = old -> next(fields, ZonedDateTime.now()).toInstant().toEpochMilli();
 
         Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
         executeTask(task);
         return task;
     }
 
-    long calculateNext(long delay, TimeUnit unit) {
+    /**
+     * Parses a cron expression into an array of {@link Field} objects.
+     * The cron expression is expected to have 5 or 6 parts:
+     * - For a standard cron expression with 5 parts (minute, hour, day of month, month, day of
+     * week), the seconds field will be assumed to be "0".
+     * - For a cron expression with 6 parts (second, minute, hour, day of month, month, day of
+     * week), all fields are used directly from the cron expression.
+     *
+     * @param cron the cron expression to parse
+     * @return an array of {@link Field} objects representing the parsed cron fields.
+     * @throws IllegalArgumentException if the cron expression does not have 5 or 6 parts
+     */
+    static Field[] parse(String cron) {
+        String[] parts = cron.split("\\s+");
+        int i = switch (parts.length) {
+        case 5 -> 0;
+        case 6 -> 1;
+        default -> throw new IllegalArgumentException(cron);
+        };
+
+        return new Field[] { //
+                new Field(Type.SECOND, i == 1 ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
+                new Field(Type.DAY_OF_MONTH, parts[i++]), new Field(Type.MONTH, parts[i++]), new Field(Type.DAY_OF_WEEK, parts[i++])};
+    }
+
+    /**
+     * Calculates the next execution time based on the provided cron fields and a base time.
+     * 
+     * The search for the next execution time will start from the base time and continue until
+     * a matching time is found. The search will stop if no matching time is found within four
+     * years.
+     * 
+     * @param cron an array of {@link Field} objects representing the parsed cron fields
+     * @param base the {@link ZonedDateTime} representing the base time to start the search from
+     * @return the next execution time as a {@link ZonedDateTime}
+     * @throws IllegalArgumentException if no matching execution time is found within four years
+     */
+    static ZonedDateTime next(Field[] cron, ZonedDateTime base) {
+        // The range is four years, taking into account leap years.
+        ZonedDateTime limit = base.plusYears(4);
+
+        ZonedDateTime[] next = {base.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS)};
+        root: while (true) {
+            if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);
+            if (!cron[4].nextMatch(next)) continue;
+
+            int month = next[0].getMonthValue();
+            while (!(cron[3].matchesDay(next[0].toLocalDate()) && cron[5].matchesDoW(next[0].toLocalDate()))) {
+                next[0] = next[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
+                if (next[0].getMonthValue() != month) continue root;
+            }
+
+            if (!cron[2].nextMatch(next)) continue;
+            if (!cron[1].nextMatch(next)) continue;
+            if (!cron[0].nextMatch(next)) continue;
+            return next[0];
+        }
+    }
+
+    static long nextMilli(long delay, TimeUnit unit) {
         return System.currentTimeMillis() + unit.toMillis(delay);
     }
 

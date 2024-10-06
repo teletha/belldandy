@@ -865,4 +865,16 @@ class CronTest {
         assertEquals(ZonedDateTime.parse("2020-01-01T00:50:00Z"), new Cron("00 50 * * * *")
                 .next(ZonedDateTime.parse("2019-12-31T23:50:00Z")));
     }
+
+    private static class Cron {
+        Field[] fields;
+
+        Cron(String format) {
+            fields = Scheduler.parse(format);
+        }
+
+        ZonedDateTime next(ZonedDateTime base) {
+            return Scheduler.next(fields, base);
+        }
+    }
 }
