@@ -129,7 +129,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        Task<V> task = new Task(command, nextMilli(delay, unit), null);
+        Task<V> task = new Task(command, next(delay, unit), null);
         executeTask(task);
         return task;
     }
@@ -139,7 +139,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), nextMilli(delay, unit), old -> old + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), next(delay, unit), old -> old + unit.toMillis(interval));
         executeTask(task);
         return task;
     }
@@ -149,7 +149,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), nextMilli(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
+        Task task = new Task<>(callable(command), next(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
         executeTask(task);
         return task;
     }
@@ -241,7 +241,19 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         }
     }
 
-    static long nextMilli(long delay, TimeUnit unit) {
+    /**
+     * Calculates the next time point by adding the specified delay to the current system time.
+     * 
+     * This method takes the current system time (in milliseconds) and adds the provided delay,
+     * which is converted to milliseconds based on the provided {@link TimeUnit}. The result is the
+     * time point (in milliseconds since the Unix epoch) that corresponds to the current time plus
+     * the delay.
+     * 
+     * @param delay the delay to add to the current time
+     * @param unit the {@link TimeUnit} representing the unit of the delay (e.g., seconds, minutes)
+     * @return the next time point in milliseconds since the Unix epoch
+     */
+    static long next(long delay, TimeUnit unit) {
         return System.currentTimeMillis() + unit.toMillis(delay);
     }
 
