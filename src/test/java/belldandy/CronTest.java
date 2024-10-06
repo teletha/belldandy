@@ -21,9 +21,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import belldandy.Cron.Field;
-import belldandy.Cron.Type;
-
 class CronTest {
 
     TimeZone original;
