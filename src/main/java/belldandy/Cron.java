@@ -43,15 +43,14 @@ class Cron {
      */
     Cron(String expr) {
         String[] parts = expr.split("\\s+");
-        boolean hasSec = switch (parts.length) {
-        case 5 -> false;
-        case 6 -> true;
+        int i = switch (parts.length) {
+        case 5 -> 0;
+        case 6 -> 1;
         default -> throw new IllegalArgumentException(expr);
         };
 
-        int i = hasSec ? 1 : 0;
         fields = new Field[] { //
-                new Field(Type.SECOND, hasSec ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
+                new Field(Type.SECOND, i == 1 ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
                 new Field(Type.DAY_OF_MONTH, parts[i++]), new Field(Type.MONTH, parts[i++]), new Field(Type.DAY_OF_WEEK, parts[i++])};
     }
 
