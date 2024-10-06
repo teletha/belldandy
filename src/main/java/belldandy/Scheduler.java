@@ -100,7 +100,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     protected final AtomicLong executedTask = new AtomicLong();
 
     /** The task queue. */
-    protected final DelayQueue<Task> queue = new DelayQueue();
+    protected DelayQueue<Task> queue = new DelayQueue();
 
     public Scheduler() {
         Thread.ofVirtual().start(() -> {
@@ -348,8 +348,10 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         for (Task run : runnings) {
             run.thread.interrupt();
         }
-        List<Runnable> remainingTasks = new ArrayList<>();
-        return remainingTasks;
+
+        DelayQueue temp = queue;
+        queue = new DelayQueue();
+        return new ArrayList(temp);
     }
 
     /**

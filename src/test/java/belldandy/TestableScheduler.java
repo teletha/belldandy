@@ -50,6 +50,26 @@ public class TestableScheduler extends Scheduler {
         return this;
     }
 
+    /**
+     * Await any task is running.
+     */
+    protected boolean awaitRunning() {
+        int count = 0; // await at least once
+        long start = System.currentTimeMillis();
+        while (count++ == 0 || runningTask.getAcquire() == 0) {
+            try {
+                Thread.sleep(3);
+            } catch (InterruptedException e) {
+                throw I.quiet(e);
+            }
+
+            if (awaitingLimit <= System.currentTimeMillis() - start) {
+                throw new Error("No task is active. RunningTask:" + runningTask.get() + "  ExecutedTask:" + executedTask);
+            }
+        }
+        return true;
+    }
+
     protected TestableScheduler limitAwaitTime(long millis) {
         awaitingLimit = millis;
         return this;

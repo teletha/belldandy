@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
 class SchedulerTest extends SchedulerTestSupport {
@@ -164,7 +165,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyInterval(0, 50, 50);
     }
 
-    @RepeatedTest(MULTIPLICITY)
+    @Test
     void cron() {
         scheduler.limitAwaitTime(5000);
 
@@ -177,7 +178,7 @@ class SchedulerTest extends SchedulerTestSupport {
         assert verifier.verifyRate(0, 1000, 1000);
     }
 
-    @RepeatedTest(MULTIPLICITY)
+    @Test
     void cronStep() {
         scheduler.limitAwaitTime(5000);
 

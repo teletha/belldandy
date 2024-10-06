@@ -16,13 +16,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
-import antibug.powerassert.PowerAssertOff;
-
+@SuppressWarnings("resource")
 public class ShutdownNowTest extends SchedulerTestSupport {
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void rejectNewTask() {
         assert scheduler.isShutdown() == false;
         assert scheduler.isTerminated() == false;
@@ -42,8 +41,7 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         assertThrows(RejectedExecutionException.class, () -> scheduler.scheduleAt(new Verifier(), "* * * * *"));
     }
 
-    @Test
-    @PowerAssertOff
+    @RepeatedTest(MULTIPLICITY)
     void processExecutingTask() {
         Verifier<String> verifier = new Verifier(() -> {
             try {
@@ -55,7 +53,9 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         });
 
         Future<String> future = scheduler.submit(verifier.asCallable());
-        List<Runnable> remains = scheduler.start().shutdownNow();
+        assert scheduler.start().awaitRunning();
+
+        List<Runnable> remains = scheduler.shutdownNow();
         assert scheduler.isShutdown();
         assert scheduler.isTerminated() == false;
         assert remains.isEmpty();
@@ -65,14 +65,16 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         assert verifySuccessed(future, "Stop");
     }
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void processQueuedTask() {
         Verifier<?> verifier = new Verifier("Queued");
 
         Future<?> future = scheduler.schedule(verifier.asCallable(), 250, TimeUnit.MILLISECONDS);
-        scheduler.start().shutdown();
+        List<Runnable> remains = scheduler.start().shutdownNow();
         assert scheduler.isShutdown();
         assert scheduler.isTerminated() == false;
+        assert remains.size() == 1;
+        assert remains.get(0) == future;
 
         assert scheduler.awaitIdling();
         assert scheduler.isTerminated();

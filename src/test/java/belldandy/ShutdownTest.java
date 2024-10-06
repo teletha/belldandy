@@ -15,11 +15,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 public class ShutdownTest extends SchedulerTestSupport {
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void rejectNewTask() {
         assert scheduler.isShutdown() == false;
         assert scheduler.isTerminated() == false;
@@ -38,7 +38,7 @@ public class ShutdownTest extends SchedulerTestSupport {
         assertThrows(RejectedExecutionException.class, () -> scheduler.scheduleAt(new Verifier(), "* * * * *"));
     }
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void processExecutingTask() {
         Verifier<String> verifier = new Verifier(() -> {
             try {
@@ -59,7 +59,7 @@ public class ShutdownTest extends SchedulerTestSupport {
         assert verifySuccessed(future, "Long Task");
     }
 
-    @Test
+    @RepeatedTest(MULTIPLICITY)
     void processQueuedTask() {
         Verifier<?> verifier = new Verifier("Queued");
 
