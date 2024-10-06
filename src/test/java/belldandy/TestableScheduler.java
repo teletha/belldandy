@@ -27,12 +27,13 @@ public class TestableScheduler extends Scheduler {
      * {@inheritDoc}
      */
     @Override
-    protected void executeTask(Task task) {
+    protected Task executeTask(Task task) {
         if (starting.get()) {
             super.executeTask(task);
         } else {
             startingBuffer.add(task);
         }
+        return task;
     }
 
     /**
@@ -56,7 +57,7 @@ public class TestableScheduler extends Scheduler {
     protected boolean awaitRunning() {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
-        while (count++ == 0 || runnings.isEmpty()) {
+        while (count++ == 0 || runs.isEmpty()) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {
@@ -82,7 +83,7 @@ public class TestableScheduler extends Scheduler {
         int count = 0; // await at least once
         long start = System.currentTimeMillis();
 
-        while (count++ == 0 || !queue.isEmpty() || !runnings.isEmpty()) {
+        while (count++ == 0 || !queue.isEmpty() || !runs.isEmpty()) {
             try {
                 Thread.sleep(3);
             } catch (InterruptedException e) {
@@ -124,6 +125,6 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public String toString() {
-        return "Executor [running: " + runnings.size() + " executed: " + executed + " queue: " + queue + "]";
+        return "Executor [running: " + runs.size() + " executed: " + executed + " queue: " + queue + "]";
     }
 }

@@ -88,7 +88,7 @@ import java.util.function.LongUnaryOperator;
 public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
     /** The the running task manager. */
-    protected final Set<Task> runnings = ConcurrentHashMap.newKeySet();
+    protected final Set<Task> runs = ConcurrentHashMap.newKeySet();
 
     /** The counter for the executed tasks. */
     protected final AtomicLong executed = new AtomicLong();
@@ -97,17 +97,17 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     protected DelayQueue<Task> queue = new DelayQueue();
 
     /** The running state of task queue. */
-    private volatile boolean running = true;
+    private volatile boolean run = true;
 
     public Scheduler() {
         Thread.ofVirtual().start(() -> {
             try {
-                while (running || !queue.isEmpty()) {
+                while (run || !queue.isEmpty()) {
                     Task task = queue.take();
                     // Task execution state management is performed before thread execution because
                     // it is too slow if the task execution state management is performed within the
                     // task's execution thread.
-                    runnings.add(task);
+                    runs.add(task);
 
                     // execute task actually
                     task.thread.start();
@@ -123,8 +123,8 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * 
      * @param task
      */
-    protected void executeTask(Task<?> task) {
-        if (!running) {
+    protected Task executeTask(Task<?> task) {
+        if (!run) {
             throw new RejectedExecutionException();
         }
 
@@ -140,7 +140,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                     if (!task.isCancelled()) {
                         task.run();
 
-                        if (task.interval == null || !running) {
+                        if (task.interval == null || !run) {
                             // one shot or scheduler is already stopped
                         } else {
                             // reschedule task
@@ -150,11 +150,13 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                     }
                 } finally {
                     executed.incrementAndGet();
-                    runnings.remove(task);
+                    runs.remove(task);
                 }
             });
             queue.add(task);
         }
+
+        return task;
     }
 
     /**
@@ -170,9 +172,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
-        Task<V> task = new Task(command, next(delay, unit), null);
-        executeTask(task);
-        return task;
+        return executeTask(new Task(command, next(delay, unit), null));
     }
 
     /**
@@ -180,9 +180,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), next(delay, unit), old -> old + unit.toMillis(interval));
-        executeTask(task);
-        return task;
+        return executeTask(new Task<>(callable(command), next(delay, unit), old -> old + unit.toMillis(interval)));
     }
 
     /**
@@ -190,9 +188,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        Task task = new Task<>(callable(command), next(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval));
-        executeTask(task);
-        return task;
+        return executeTask(new Task<>(callable(command), next(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval)));
     }
 
     /**
@@ -218,9 +214,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         Field[] fields = parse(format);
         LongUnaryOperator next = old -> next(fields, ZonedDateTime.now()).toInstant().toEpochMilli();
 
-        Task task = new Task(callable(command), next.applyAsLong(0L), old -> next.applyAsLong(0L));
-        executeTask(task);
-        return task;
+        return executeTask(new Task(callable(command), next.applyAsLong(0L), next::applyAsLong));
     }
 
     /**
@@ -295,57 +289,20 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     }
 
     /**
-     * Initiates an orderly shutdown in which previously submitted
-     * tasks are executed, but no new tasks will be accepted.
-     * Invocation has no additional effect if already shut down.
-     *
-     * <p>
-     * This method does not wait for previously submitted tasks to
-     * complete execution. Use {@link #awaitTermination awaitTermination}
-     * to do that.
-     *
-     * @throws SecurityException if a security manager exists and
-     *             shutting down this ExecutorService may manipulate
-     *             threads that the caller is not permitted to modify
-     *             because it does not hold {@link
-     *             java.lang.RuntimePermission}{@code ("modifyThread")},
-     *             or the security manager's {@code checkAccess} method
-     *             denies access.
+     * {@inheritDoc}
      */
     @Override
     public void shutdown() {
-        running = false;
+        run = false;
     }
 
     /**
-     * Attempts to stop all actively executing tasks, halts the
-     * processing of waiting tasks, and returns a list of the tasks
-     * that were awaiting execution.
-     *
-     * <p>
-     * This method does not wait for actively executing tasks to
-     * terminate. Use {@link #awaitTermination awaitTermination} to
-     * do that.
-     *
-     * <p>
-     * There are no guarantees beyond best-effort attempts to stop
-     * processing actively executing tasks. For example, typical
-     * implementations will cancel via {@link Thread#interrupt}, so any
-     * task that fails to respond to interrupts may never terminate.
-     *
-     * @return list of tasks that never commenced execution
-     * @throws SecurityException if a security manager exists and
-     *             shutting down this ExecutorService may manipulate
-     *             threads that the caller is not permitted to modify
-     *             because it does not hold {@link
-     *             java.lang.RuntimePermission}{@code ("modifyThread")},
-     *             or the security manager's {@code checkAccess} method
-     *             denies access.
+     * {@inheritDoc}
      */
     @Override
     public List<Runnable> shutdownNow() {
-        running = false;
-        for (Task run : runnings) {
+        run = false;
+        for (Task run : runs) {
             run.thread.interrupt();
         }
 
@@ -355,15 +312,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     }
 
     /**
-     * Blocks until all tasks have completed execution after a shutdown
-     * request, or the timeout occurs, or the current thread is
-     * interrupted, whichever happens first.
-     *
-     * @param timeout the maximum time to wait
-     * @param unit the time unit of the timeout argument
-     * @return {@code true} if this executor terminated and
-     *         {@code false} if the timeout elapsed before termination
-     * @throws InterruptedException if interrupted while waiting
+     * {@inheritDoc}
      */
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
@@ -384,7 +333,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public boolean isShutdown() {
-        return !running;
+        return !run;
     }
 
     /**
@@ -392,7 +341,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public boolean isTerminated() {
-        return !running && queue.isEmpty() && runnings.isEmpty();
+        return !run && queue.isEmpty() && runs.isEmpty();
     }
 
     /**
