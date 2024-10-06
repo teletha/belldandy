@@ -125,9 +125,6 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         }
 
         if (!task.isCancelled()) {
-            runningTask.incrementAndGet();
-            runnings.add(task);
-
             // Threads are created when a task is registered, but execution is delayed until the
             // scheduled time. Although it would be simpler to immediately schedule the task using
             // Thread#sleep after execution, this implementation method is used to reduce memory
@@ -135,10 +132,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
             // since the information is not inherited by InheritableThreadLocal if the thread is
             // simply placed in the task queue.
             task.thread = Thread.ofVirtual().unstarted(() -> {
+                runningTask.incrementAndGet();
+                runnings.add(task);
+
                 try {
                     if (!task.isCancelled()) {
                         task.run();
-                        executedTask.incrementAndGet();
 
                         if (task.interval == null || !running.get()) {
                             // one shot or scheduler is already stopped
@@ -149,6 +148,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                         }
                     }
                 } finally {
+                    executedTask.incrementAndGet();
                     runningTask.decrementAndGet();
                     runnings.remove(task);
                 }

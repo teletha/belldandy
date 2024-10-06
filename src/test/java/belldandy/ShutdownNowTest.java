@@ -72,12 +72,12 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         Future<?> future = scheduler.schedule(verifier.asCallable(), 250, TimeUnit.MILLISECONDS);
         List<Runnable> remains = scheduler.start().shutdownNow();
         assert scheduler.isShutdown();
-        assert scheduler.isTerminated() == false;
+        assert scheduler.isTerminated();
         assert remains.size() == 1;
         assert remains.get(0) == future;
 
         assert scheduler.awaitIdling();
         assert scheduler.isTerminated();
-        assert verifySuccessed(future);
+        assert verifyRunning(future);
     }
 }
