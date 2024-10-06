@@ -809,21 +809,6 @@ class CronTest {
     }
 
     @Test
-    public void oneYearBarrier() {
-        ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        ZonedDateTime barrier = ZonedDateTime.of(2013, 3, 1, 0, 0, 0, 0, zoneId);
-        // The next leap year is 2016, so an IllegalArgumentException is expected.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").next(after, barrier));
-    }
-
-    @Test
-    public void twoYearBarrier() {
-        ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        // The next leap year is 2016, so an IllegalArgumentException is expected.
-        assertThrows(IllegalArgumentException.class, () -> new Cron("* * * 29 2 *").next(after, after.plusYears(2)));
-    }
-
-    @Test
     public void withoutSeconds() {
         ZonedDateTime after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2016, 2, 29, 0, 0, 0, 0, zoneId);

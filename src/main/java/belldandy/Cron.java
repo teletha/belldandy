@@ -64,20 +64,9 @@ class Cron {
      */
     public ZonedDateTime next(ZonedDateTime base) {
         // The range is four years, taking into account leap years.
-        return next(base, base.plusYears(4));
-    }
+        ZonedDateTime limit = base.plusYears(4);
 
-    /**
-     * Calculates the next execution time after the given base time and before the given limit.
-     *
-     * @param base The base time to start the search from.
-     * @param limit The upper limit for the search.
-     * @return The next execution time as a ZonedDateTime.
-     * @throws IllegalArgumentException if no execution time can be found before the limit.
-     */
-    public ZonedDateTime next(ZonedDateTime base, ZonedDateTime limit) {
         ZonedDateTime[] next = {base.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS)};
-
         root: while (true) {
             if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);
             if (!fields[4].nextMatch(next)) continue;
