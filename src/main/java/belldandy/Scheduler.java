@@ -48,10 +48,9 @@ import java.util.function.LongUnaryOperator;
  * <h2>Thread Management</h2>
  * <p>
  * Virtual threads are created in an "unstarted" state when tasks are registered. Execution is
- * delayed
- * until the scheduled time, reducing memory usage. Once the scheduled time arrives, the virtual
- * threads are started and the tasks are executed. If the task is periodic, it is rescheduled after
- * completion.
+ * delayed until the scheduled time, reducing memory usage. Once the scheduled time arrives, the
+ * virtual threads are started and the tasks are executed. If the task is periodic, it is
+ * rescheduled after completion.
  * </p>
  * 
  * <h2>Usage</h2>
@@ -79,8 +78,7 @@ import java.util.function.LongUnaryOperator;
  * <p>
  * The scheduler can be shut down using the {@link #shutdown()} or {@link #shutdownNow()} methods,
  * which stops the execution of any further tasks. The {@link #awaitTermination(long, TimeUnit)}
- * method
- * can be used to block until all tasks are finished executing after a shutdown request.
+ * method can be used to block until all tasks are finished executing after a shutdown request.
  * </p>
  * 
  * @see ScheduledExecutorService
