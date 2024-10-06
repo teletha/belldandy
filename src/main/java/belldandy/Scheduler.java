@@ -180,7 +180,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
-        return executeTask(new Task<>(callable(command), next(delay, unit), old -> old + unit.toMillis(interval)));
+        return executeTask(new Task(callable(command), next(delay, unit), old -> old + unit.toMillis(interval)));
     }
 
     /**
@@ -188,7 +188,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
-        return executeTask(new Task<>(callable(command), next(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval)));
+        return executeTask(new Task(callable(command), next(delay, unit), old -> System.currentTimeMillis() + unit.toMillis(interval)));
     }
 
     /**
@@ -214,7 +214,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         Field[] fields = parse(format);
         LongUnaryOperator next = old -> next(fields, ZonedDateTime.now()).toInstant().toEpochMilli();
 
-        return executeTask(new Task(callable(command), next.applyAsLong(0L), next::applyAsLong));
+        return executeTask(new Task(callable(command), next.applyAsLong(0L), next));
     }
 
     /**
