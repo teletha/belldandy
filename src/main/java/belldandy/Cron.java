@@ -32,22 +32,7 @@ import java.util.regex.Pattern;
 class Cron {
 
     /** Field representing seconds in the cron expression. */
-    private final Field second;
-
-    /** Field representing minutes in the cron expression. */
-    private final Field minute;
-
-    /** Field representing hours in the cron expression. */
-    private final Field hour;
-
-    /** Field representing days of the week in the cron expression. */
-    private final Field dow;
-
-    /** Field representing months in the cron expression. */
-    private final Field month;
-
-    /** Field representing days of the month in the cron expression. */
-    private final Field day;
+    private final Field[] fields;
 
     /**
      * Constructs a new Cron instance based on the given cron expression.
@@ -65,12 +50,9 @@ class Cron {
         };
 
         int i = hasSec ? 1 : 0;
-        this.second = new Field(Type.SECOND, hasSec ? parts[0] : "0");
-        this.minute = new Field(Type.MINUTE, parts[i++]);
-        this.hour = new Field(Type.HOUR, parts[i++]);
-        this.day = new Field(Type.DAY_OF_MONTH, parts[i++]);
-        this.month = new Field(Type.MONTH, parts[i++]);
-        this.dow = new Field(Type.DAY_OF_WEEK, parts[i++]);
+        fields = new Field[] { //
+                new Field(Type.SECOND, hasSec ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
+                new Field(Type.DAY_OF_MONTH, parts[i++]), new Field(Type.MONTH, parts[i++]), new Field(Type.DAY_OF_WEEK, parts[i++])};
     }
 
     /**
@@ -99,17 +81,17 @@ class Cron {
 
         root: while (true) {
             if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);
-            if (!month.nextMatch(next)) continue;
+            if (!fields[4].nextMatch(next)) continue;
 
             int month = next[0].getMonthValue();
-            while (!(day.matchesDay(next[0].toLocalDate()) && dow.matchesDoW(next[0].toLocalDate()))) {
+            while (!(fields[3].matchesDay(next[0].toLocalDate()) && fields[5].matchesDoW(next[0].toLocalDate()))) {
                 next[0] = next[0].plusDays(1).truncatedTo(ChronoUnit.DAYS);
                 if (next[0].getMonthValue() != month) continue root;
             }
 
-            if (!hour.nextMatch(next)) continue;
-            if (!minute.nextMatch(next)) continue;
-            if (!second.nextMatch(next)) continue;
+            if (!fields[2].nextMatch(next)) continue;
+            if (!fields[1].nextMatch(next)) continue;
+            if (!fields[0].nextMatch(next)) continue;
             return next[0];
         }
     }
