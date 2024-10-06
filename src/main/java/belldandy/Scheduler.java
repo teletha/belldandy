@@ -315,17 +315,16 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * {@inheritDoc}
      */
     @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-        long remaining = unit.toMillis(timeout);
-        long end = System.currentTimeMillis() + remaining;
-        while (remaining > 0) {
-            if (isTerminated()) {
-                return true;
+    public boolean awaitTermination(long time, TimeUnit unit) throws InterruptedException {
+        long end = next(time, unit);
+        while (!isTerminated()) {
+            long rem = end - System.currentTimeMillis();
+            if (rem < 0) {
+                return false;
             }
-            Thread.sleep(Math.min(remaining + 1, 100));
-            remaining = end - System.currentTimeMillis();
+            Thread.sleep(Math.min(rem + 1, 100));
         }
-        return isTerminated();
+        return true;
     }
 
     /**
