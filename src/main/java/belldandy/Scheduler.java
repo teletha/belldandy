@@ -26,7 +26,6 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongUnaryOperator;
 
@@ -89,7 +88,7 @@ import java.util.function.LongUnaryOperator;
 public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
     /** The running state of task queue. */
-    protected final AtomicBoolean running = new AtomicBoolean(true);
+    protected volatile boolean running = true;
 
     protected final Set<Task> runnings = ConcurrentHashMap.newKeySet();
 
@@ -105,8 +104,16 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     public Scheduler() {
         Thread.ofVirtual().start(() -> {
             try {
-                while (running.get()) {
-                    queue.take().thread.start();
+                while (running || !queue.isEmpty()) {
+                    Task task = queue.take();
+                    // Task execution state management is performed before thread execution because
+                    // it is too slow if the task execution state management is performed within the
+                    // task's execution thread.
+                    runningTask.incrementAndGet();
+                    runnings.add(task);
+
+                    // execute task actually
+                    task.thread.start();
                 }
             } catch (InterruptedException e) {
                 // stop
@@ -120,7 +127,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * @param task
      */
     protected void executeTask(Task<?> task) {
-        if (!running.get()) {
+        if (!running) {
             throw new RejectedExecutionException();
         }
 
@@ -132,14 +139,11 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
             // since the information is not inherited by InheritableThreadLocal if the thread is
             // simply placed in the task queue.
             task.thread = Thread.ofVirtual().unstarted(() -> {
-                runningTask.incrementAndGet();
-                runnings.add(task);
-
                 try {
                     if (!task.isCancelled()) {
                         task.run();
 
-                        if (task.interval == null || !running.get()) {
+                        if (task.interval == null || !running) {
                             // one shot or scheduler is already stopped
                         } else {
                             // reschedule task
@@ -314,7 +318,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public void shutdown() {
-        running.set(false);
+        running = false;
     }
 
     /**
@@ -344,7 +348,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public List<Runnable> shutdownNow() {
-        running.set(false);
+        running = false;
         for (Task run : runnings) {
             run.thread.interrupt();
         }
@@ -384,7 +388,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public boolean isShutdown() {
-        return !running.get();
+        return !running;
     }
 
     /**
@@ -392,7 +396,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      */
     @Override
     public boolean isTerminated() {
-        return !running.get() && queue.isEmpty() && runnings.isEmpty();
+        return !running && queue.isEmpty() && runnings.isEmpty();
     }
 
     /**

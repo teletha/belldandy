@@ -52,7 +52,10 @@ public class ShutdownTest extends SchedulerTestSupport {
         Future<String> future = scheduler.submit(verifier.asCallable());
         scheduler.start().shutdown();
         assert scheduler.isShutdown();
-        assert scheduler.isTerminated() == false;
+        // The result of isTerminated is undefined here because it is not necessarily retrieved from
+        // the queue at this time, although the queued task will certainly be executed in the
+        // future.
+        // assert scheduler.isTerminated() == false;
 
         assert scheduler.awaitIdling();
         assert scheduler.isTerminated();
@@ -63,7 +66,7 @@ public class ShutdownTest extends SchedulerTestSupport {
     void processQueuedTask() {
         Verifier<?> verifier = new Verifier("Queued");
 
-        Future<?> future = scheduler.schedule(verifier.asCallable(), 250, TimeUnit.MILLISECONDS);
+        Future<?> future = scheduler.schedule(verifier.asCallable(), 150, TimeUnit.MILLISECONDS);
         scheduler.start().shutdown();
         assert scheduler.isShutdown();
         assert scheduler.isTerminated() == false;

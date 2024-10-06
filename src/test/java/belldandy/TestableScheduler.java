@@ -90,7 +90,8 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("Too long task is active. RunningTask:" + runningTask.get() + "  ExecutedTask:" + executedTask);
+                throw new Error("Too long task is active. RunningTask:" + runningTask
+                        .get() + "  ExecutedTask:" + executedTask + " Queuing:" + queue);
             }
         }
         return true;
