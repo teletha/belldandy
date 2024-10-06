@@ -28,30 +28,62 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongUnaryOperator;
 
 /**
- * A custom implementation of {@link ScheduledExecutorService} that provides
- * advanced scheduling capabilities including cron-based scheduling.
+ * A custom scheduler implementation based on the {@link ScheduledExecutorService} interface,
+ * using virtual threads to schedule tasks with specified delays or intervals.
+ * 
  * <p>
  * This class extends {@link AbstractExecutorService} and implements
- * {@link ScheduledExecutorService}, offering methods to schedule tasks
- * for one-time execution, fixed-rate execution, fixed-delay execution,
- * and cron-based execution.
- * </p>
- * <p>
- * Key features:
- * <ul>
- * <li>Uses virtual threads for task execution, improving scalability.</li>
- * <li>Supports standard scheduling methods like {@code schedule},
- * {@code scheduleAtFixedRate}, and {@code scheduleWithFixedDelay}.</li>
- * <li>Provides a custom {@code scheduleAt} method for cron-based scheduling.</li>
- * <li>Allows customization of the thread factory.</li>
- * </ul>
- * </p>
- * <p>
- * This scheduler is designed to be flexible and efficient, suitable for
- * applications requiring complex scheduling patterns or high concurrency.
+ * {@link ScheduledExecutorService} to provide scheduling capabilities with a task queue and delay
+ * mechanisms. It leverages {@link DelayQueue} to manage task execution times, and uses virtual
+ * threads to run tasks in a lightweight and efficient manner.
  * </p>
  * 
- * @see java.util.concurrent.ScheduledExecutorService
+ * <h2>Core Functionality</h2>
+ * <ul>
+ * <li>Allows scheduling of tasks with delays or fixed intervals.</li>
+ * <li>Supports scheduling based on cron expressions for periodic execution.</li>
+ * <li>Uses virtual threads to minimize memory consumption and resource overhead.</li>
+ * </ul>
+ * 
+ * <h2>Thread Management</h2>
+ * <p>
+ * Virtual threads are created in an "unstarted" state when tasks are registered. Execution is
+ * delayed
+ * until the scheduled time, reducing memory usage. Once the scheduled time arrives, the virtual
+ * threads are started and the tasks are executed. If the task is periodic, it is rescheduled after
+ * completion.
+ * </p>
+ * 
+ * <h2>Usage</h2>
+ * <p>
+ * You can use the following methods to schedule tasks:
+ * <ul>
+ * <li>{@link #schedule(Runnable, long, TimeUnit)}: Schedule a task with a delay.</li>
+ * <li>{@link #scheduleAtFixedRate(Runnable, long, long, TimeUnit)}: Schedule a task at fixed
+ * intervals.</li>
+ * <li>{@link #scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}: Schedule a task with a fixed
+ * delay between executions.</li>
+ * <li>{@link #scheduleAt(Runnable, String)}: Schedule a task based on a cron expression.</li>
+ * </ul>
+ * </p>
+ * 
+ * <h2>Task Lifecycle</h2>
+ * <p>
+ * The scheduler maintains internal counters to track running tasks and completed tasks using
+ * {@link AtomicLong}. The task queue is managed through {@link DelayQueue}, which ensures tasks
+ * are executed at the correct time. Each task is wrapped in a custom {@link Task} class that
+ * handles execution, cancellation, and rescheduling (for periodic tasks).
+ * </p>
+ * 
+ * <h2>Shutdown and Termination</h2>
+ * <p>
+ * The scheduler can be shut down using the {@link #shutdown()} or {@link #shutdownNow()} methods,
+ * which stops the execution of any further tasks. The {@link #awaitTermination(long, TimeUnit)}
+ * method
+ * can be used to block until all tasks are finished executing after a shutdown request.
+ * </p>
+ * 
+ * @see ScheduledExecutorService
  */
 public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
