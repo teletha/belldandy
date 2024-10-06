@@ -87,17 +87,17 @@ import java.util.function.LongUnaryOperator;
  */
 public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
-    /** The running state of task queue. */
-    protected volatile boolean running = true;
-
     /** The the running task manager. */
     protected final Set<Task> runnings = ConcurrentHashMap.newKeySet();
 
     /** The counter for the executed tasks. */
-    protected final AtomicLong executedTask = new AtomicLong();
+    protected final AtomicLong executed = new AtomicLong();
 
     /** The task queue. */
     protected DelayQueue<Task> queue = new DelayQueue();
+
+    /** The running state of task queue. */
+    private volatile boolean running = true;
 
     public Scheduler() {
         Thread.ofVirtual().start(() -> {
@@ -149,7 +149,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                         }
                     }
                 } finally {
-                    executedTask.incrementAndGet();
+                    executed.incrementAndGet();
                     runnings.remove(task);
                 }
             });

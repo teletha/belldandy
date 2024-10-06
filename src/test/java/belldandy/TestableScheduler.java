@@ -64,7 +64,7 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("No task is active. RunningTask:" + runnings.size() + "  ExecutedTask:" + executedTask);
+                throw new Error("No task is active. " + this);
             }
         }
         return true;
@@ -90,8 +90,7 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("Too long task is active. RunningTask:" + runnings
-                        .size() + "  ExecutedTask:" + executedTask + " Queuing:" + queue);
+                throw new Error("Too long task is active. " + this);
             }
         }
         return true;
@@ -106,7 +105,7 @@ public class TestableScheduler extends Scheduler {
     protected boolean awaitExecutions(long required) {
         long start = System.currentTimeMillis();
 
-        while (executedTask.get() < required) {
+        while (executed.get() < required) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -114,7 +113,7 @@ public class TestableScheduler extends Scheduler {
             }
 
             if (awaitingLimit <= System.currentTimeMillis() - start) {
-                throw new Error("Too long task is active.");
+                throw new Error("Too long task is active. " + this);
             }
         }
         return true;
@@ -125,6 +124,6 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public String toString() {
-        return "Executor [running: " + runnings.size() + " executed: " + executedTask + "]";
+        return "Executor [running: " + runnings.size() + " executed: " + executed + " queue: " + queue + "]";
     }
 }

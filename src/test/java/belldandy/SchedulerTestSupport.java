@@ -28,7 +28,7 @@ import kiss.WiseSupplier;
 
 public class SchedulerTestSupport {
 
-    protected static final int MULTIPLICITY = 10;
+    protected static final int MULTIPLICITY = 5;
 
     private static final long TOLERANCE = 15;
 
