@@ -89,9 +89,9 @@ import java.util.function.LongUnaryOperator;
 public class Scheduler extends AbstractExecutorService implements ScheduledExecutorService {
 
     /** The running state of task queue. */
-    private final AtomicBoolean running = new AtomicBoolean(true);
+    protected final AtomicBoolean running = new AtomicBoolean(true);
 
-    private final Set<Task> runnings = ConcurrentHashMap.newKeySet();
+    protected final Set<Task> runnings = ConcurrentHashMap.newKeySet();
 
     /** The counter for the running tasks. */
     protected final AtomicLong runningTask = new AtomicLong();

@@ -124,6 +124,6 @@ public class TestableScheduler extends Scheduler {
      */
     @Override
     public String toString() {
-        return "Executor [running: " + runningTask + " executed: " + executedTask + "]";
+        return "Executor [running: " + runningTask + "(" + runnings.size() + ")" + " executed: " + executedTask + "]";
     }
 }

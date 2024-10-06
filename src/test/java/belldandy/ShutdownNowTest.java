@@ -56,9 +56,12 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         assert scheduler.start().awaitRunning();
 
         List<Runnable> remains = scheduler.shutdownNow();
-        assert scheduler.isShutdown();
-        assert scheduler.isTerminated() == false;
         assert remains.isEmpty();
+        assert scheduler.isShutdown();
+        // Although the running task is interrupted and starts moving, the checking #isTerminated
+        // is not performed because it is still uncertain at this moment whether the task is running
+        // to the end or not.
+        // assert scheduler.isTerminated() == false;
 
         assert scheduler.awaitIdling();
         assert scheduler.isTerminated();
@@ -76,7 +79,6 @@ public class ShutdownNowTest extends SchedulerTestSupport {
         assert remains.size() == 1;
         assert remains.get(0) == future;
 
-        assert scheduler.awaitIdling();
         assert scheduler.isTerminated();
         assert verifyRunning(future);
     }
