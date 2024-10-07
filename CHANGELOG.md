@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/teletha/belldandy/compare/v1.0.0...v1.1.0) (2024-10-07)
+
+
+### Features
+
+* control the size of concurrent executions ([761b184](https://github.com/teletha/belldandy/commit/761b184df3b2ec45a5c2cb355d348262d8aad1bc))
+
+
+### Bug Fixes
+
+* remove code for test ([3350f90](https://github.com/teletha/belldandy/commit/3350f90bdd8f3942ddeaac9235cddf5b5759a312))
+
 ## 1.0.0 (2024-10-07)
 
 
