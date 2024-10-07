@@ -13,25 +13,24 @@ import static java.time.temporal.ChronoUnit.*;
 
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Represents a type of cron field (e.g., second, minute, hour, etc.).
  */
 class Type {
-    static final Type SECOND = new Type(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, null, "", "/");
+    static final Type SECOND = new Type(ChronoField.SECOND_OF_MINUTE, MINUTES, 0, 59, "", "", "/");
 
-    static final Type MINUTE = new Type(ChronoField.MINUTE_OF_HOUR, HOURS, 0, 59, null, "", "/");
+    static final Type MINUTE = new Type(ChronoField.MINUTE_OF_HOUR, HOURS, 0, 59, "", "", "/");
 
-    static final Type HOUR = new Type(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, null, "", "/");
+    static final Type HOUR = new Type(ChronoField.HOUR_OF_DAY, DAYS, 0, 23, "", "", "/");
 
-    static final Type DAY_OF_MONTH = new Type(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, null, "?LW", "/");
+    static final Type DAY_OF_MONTH = new Type(ChronoField.DAY_OF_MONTH, MONTHS, 1, 31, "", "?LW", "/");
 
-    static final Type MONTH = new Type(ChronoField.MONTH_OF_YEAR, YEARS, 1, 12, List
-            .of("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), "", "/");
+    static final Type MONTH = new Type(ChronoField.MONTH_OF_YEAR, YEARS, 1, 12, "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC", "", "/");
 
-    static final Type DAY_OF_WEEK = new Type(ChronoField.DAY_OF_WEEK, null, 1, 7, List
-            .of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"), "?L", "#/");
+    static final Type DAY_OF_WEEK = new Type(ChronoField.DAY_OF_WEEK, null, 1, 7, "MONTUEWEDTHUFRISATSUN", "?L", "#/");
 
     final ChronoField field;
 
@@ -58,12 +57,12 @@ class Type {
      * @param modifier Allowed modifiers for this type.
      * @param increment Allowed increment modifiers for this type.
      */
-    private Type(ChronoField field, ChronoUnit upper, int min, int max, List<String> names, String modifier, String increment) {
+    private Type(ChronoField field, ChronoUnit upper, int min, int max, String names, String modifier, String increment) {
         this.field = field;
         this.upper = upper;
         this.min = min;
         this.max = max;
-        this.names = names;
+        this.names = Arrays.asList(names.split("(?<=\\G...)"));
         this.modifier = modifier.chars().toArray();
         this.increment = increment.chars().toArray();
     }
