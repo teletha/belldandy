@@ -74,11 +74,9 @@ class Type {
      * @return The corresponding numeric value.
      */
     int map(String name) {
-        if (names != null) {
-            int index = names.indexOf(name.toUpperCase());
-            if (index != -1) {
-                return index + min;
-            }
+        int index = names.indexOf(name.toUpperCase());
+        if (index != -1) {
+            return index + min;
         }
         int value = Integer.parseInt(name);
         return value == 0 && field == ChronoField.DAY_OF_WEEK ? 7 : value;
