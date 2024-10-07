@@ -39,12 +39,7 @@ class CronTest {
     }
 
     private boolean matches(Field field, int value) {
-        for (int[] part : field.parts) {
-            if (field.matches(value, part)) {
-                return true;
-            }
-        }
-        return false;
+        return field.matches(ZonedDateTime.now().with(field.type.field, value));
     }
 
     private boolean matcheAll(Field field, int... values) {
@@ -65,42 +60,41 @@ class CronTest {
     public void parseNumber() {
         Field field = new Field(Type.MINUTE, "5");
         assert matches(field, 5);
-        assert unmatcheAll(field, 2, 4, 6, 8, 10, 30, 60);
+        assert unmatcheAll(field, 2, 4, 6, 8, 10, 30, 59);
     }
 
     @Test
     public void parseNumberWithIncrement() {
         Field field = new Field(Type.MINUTE, "0/15");
         assert matcheAll(field, 0, 15, 30, 45);
-        assert unmatcheAll(field, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 20, 33, 60);
+        assert unmatcheAll(field, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 20, 33, 59);
     }
 
     @Test
     public void parseRange() {
         Field field = new Field(Type.MINUTE, "5-10");
         assert matcheAll(field, 5, 6, 7, 8, 9, 10);
-        assert unmatcheAll(field, 1, 2, 3, 4, 11, 12, 30, 60);
+        assert unmatcheAll(field, 1, 2, 3, 4, 11, 12, 30, 59);
     }
 
     @Test
     public void parseRangeWithIncrement() {
         Field field = new Field(Type.MINUTE, "20-30/2");
         assert matcheAll(field, 20, 22, 24, 26, 28, 30);
-        assert unmatcheAll(field, 18, 19, 21, 23, 25, 27, 29, 31, 32, 60);
+        assert unmatcheAll(field, 18, 19, 21, 23, 25, 27, 29, 31, 32, 59);
     }
 
     @Test
     public void parseAsterisk() {
         Field field = new Field(Type.DAY_OF_WEEK, "*");
         assert matcheAll(field, 1, 2, 3, 4, 5, 6, 7);
-        assert unmatcheAll(field, 0, 8, 9, 10);
     }
 
     @Test
     public void parseAsteriskWithIncrement() {
         Field field = new Field(Type.DAY_OF_WEEK, "*/2");
         assert matcheAll(field, 1, 3, 5, 7);
-        assert unmatcheAll(field, 0, 2, 4, 6, 8);
+        assert unmatcheAll(field, 2, 4, 6);
     }
 
     @Test

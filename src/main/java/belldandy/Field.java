@@ -28,7 +28,7 @@ class Field {
     private static final Pattern FORMAT = Pattern
             .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
-    private final Type type;
+    final Type type;
 
     /**
      * [0] - start
@@ -104,17 +104,6 @@ class Field {
     }
 
     /**
-     * Checks if the given value matches the given Part.
-     *
-     * @param value The value to check.
-     * @param part The Part to match against.
-     * @return true if the value matches, false otherwise.
-     */
-    boolean matches(int value, int[] part) {
-        return part[3] == '?' || (part[0] <= value && value <= part[1] && (value - part[0]) % part[2] == 0);
-    }
-
-    /**
      * Checks if the given date matches this field's constraints.
      *
      * @param date The LocalDate to check.
@@ -145,8 +134,11 @@ class Field {
                     return part[2] == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
                 }
                 return false;
-            } else if (matches(date.get(type.field), part)) {
-                return true;
+            } else {
+                int value = date.get(type.field);
+                if (part[3] == '?' || (part[0] <= value && value <= part[1] && (value - part[0]) % part[2] == 0)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -155,20 +147,20 @@ class Field {
     /**
      * Finds the next matching value for this field.
      *
-     * @param dateTime Array containing a single ZonedDateTime to be updated.
+     * @param date Array containing a single ZonedDateTime to be updated.
      * @return true if a match was found, false if the field overflowed.
      */
-    boolean nextMatch(ZonedDateTime[] dateTime) {
-        int value = dateTime[0].get(type.field);
+    boolean nextMatch(ZonedDateTime[] date) {
+        int value = date[0].get(type.field);
 
         for (int[] part : parts) {
             int nextMatch = nextMatch(value, part);
             if (nextMatch > -1) {
                 if (nextMatch != value) {
                     if (type.field == ChronoField.MONTH_OF_YEAR) {
-                        dateTime[0] = dateTime[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                        date[0] = date[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
                     } else {
-                        dateTime[0] = dateTime[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
+                        date[0] = date[0].with(type.field, nextMatch).truncatedTo(type.field.getBaseUnit());
                     }
                 }
                 return true;
@@ -176,9 +168,9 @@ class Field {
         }
 
         if (type.field == ChronoField.MONTH_OF_YEAR) {
-            dateTime[0] = dateTime[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            date[0] = date[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         } else {
-            dateTime[0] = dateTime[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
+            date[0] = date[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
         }
         return false;
     }
