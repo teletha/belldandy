@@ -29,6 +29,20 @@ public class TestableScheduler extends Scheduler {
 
     private AtomicLong executed = new AtomicLong();
 
+    /**
+     * 
+     */
+    TestableScheduler() {
+        super();
+    }
+
+    /**
+     * @param limit
+     */
+    TestableScheduler(int limit) {
+        super(limit);
+    }
+
     private Runnable wrap(Runnable task) {
         return () -> {
             try {

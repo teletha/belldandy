@@ -25,6 +25,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongUnaryOperator;
@@ -96,10 +97,23 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     /** The running state of task queue. */
     private volatile boolean run = true;
 
+    /** Controls the number of tasks that can be executed concurrently. */
+    private final Semaphore max;
+
     public Scheduler() {
+        this(Integer.MAX_VALUE);
+    }
+
+    /**
+     * @param limit Controls the number of tasks that can be executed concurrently.
+     */
+    public Scheduler(int limit) {
+        max = new Semaphore(limit);
+
         Thread.ofVirtual().start(() -> {
             try {
                 while (run || !queue.isEmpty()) {
+                    max.acquire();
                     Task task = queue.take();
                     // Task execution state management is performed before thread execution because
                     // it is too slow if the task execution state management is performed within the
@@ -147,6 +161,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                     }
                 } finally {
                     runs.remove(task);
+                    max.release();
                 }
             });
             queue.add(task);
