@@ -90,9 +90,6 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
     /** The the running task manager. */
     protected final Set<Task> runs = ConcurrentHashMap.newKeySet();
 
-    /** The counter for the executed tasks. */
-    protected final AtomicLong executed = new AtomicLong();
-
     /** The task queue. */
     protected DelayQueue<Task> queue = new DelayQueue();
 
@@ -149,7 +146,6 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                         }
                     }
                 } finally {
-                    executed.incrementAndGet();
                     runs.remove(task);
                 }
             });

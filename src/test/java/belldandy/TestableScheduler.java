@@ -11,7 +11,11 @@ package belldandy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import kiss.I;
 
@@ -22,6 +26,68 @@ public class TestableScheduler extends Scheduler {
     private final AtomicBoolean starting = new AtomicBoolean();
 
     private List<Task> startingBuffer = new ArrayList();
+
+    private AtomicLong executed = new AtomicLong();
+
+    private Runnable wrap(Runnable task) {
+        return () -> {
+            try {
+                task.run();
+            } finally {
+                executed.incrementAndGet();
+            }
+        };
+    }
+
+    private <V> Callable<V> wrap(Callable<V> task) {
+        return () -> {
+            try {
+                return task.call();
+            } finally {
+                executed.incrementAndGet();
+            }
+        };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        return super.schedule(wrap(command), delay, unit);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <V> ScheduledFuture<V> schedule(Callable<V> command, long delay, TimeUnit unit) {
+        return super.schedule(wrap(command), delay, unit);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long delay, long interval, TimeUnit unit) {
+        return super.scheduleAtFixedRate(wrap(command), delay, interval, unit);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long delay, long interval, TimeUnit unit) {
+        return super.scheduleWithFixedDelay(wrap(command), delay, interval, unit);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ScheduledFuture<?> scheduleAt(Runnable command, String format) {
+        return super.scheduleAt(wrap(command), format);
+    }
 
     /**
      * {@inheritDoc}
