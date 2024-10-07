@@ -30,6 +30,13 @@ class Field {
 
     private final Type type;
 
+    /**
+     * [0] - start
+     * [1] - end
+     * [2] - increment
+     * [3] - modifier
+     * [4] - modifierForIncrement
+     */
     final List<int[]> parts = new ArrayList();
 
     /**
@@ -108,16 +115,20 @@ class Field {
     }
 
     /**
-     * Checks if the given date matches this field's day of month constraints.
+     * Checks if the given date matches this field's constraints.
      *
      * @param date The LocalDate to check.
      * @return true if the date matches, false otherwise.
      */
-    boolean matchesDay(ZonedDateTime date) {
+    boolean matches(ZonedDateTime date) {
         for (int[] part : parts) {
             if (part[3] == 'L') {
                 YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                return date.getDayOfMonth() == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
+                if (type.max == 7) {
+                    return date.getDayOfWeek() == DayOfWeek.of(part[0]) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                } else {
+                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
+                }
             } else if (part[3] == 'W') {
                 if (date.getDayOfWeek().getValue() <= 5) {
                     if (date.getDayOfMonth() == part[0]) {
@@ -128,31 +139,13 @@ class Field {
                         return date.minusDays(1).getDayOfMonth() == part[0];
                     }
                 }
-            } else if (matches(date.getDayOfMonth(), part)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks if the given date matches this field's day of week constraints.
-     *
-     * @param date The LocalDate to check.
-     * @return true if the date matches, false otherwise.
-     */
-    boolean matchesDoW(ZonedDateTime date) {
-        for (int[] part : parts) {
-            if (part[3] == 'L') {
-                YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
-                return date.getDayOfWeek() == DayOfWeek.of(part[0]) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
             } else if (part[4] == '#') {
                 if (date.getDayOfWeek() == DayOfWeek.of(part[0])) {
                     int num = date.getDayOfMonth() / 7;
                     return part[2] == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
                 }
                 return false;
-            } else if (matches(date.getDayOfWeek().getValue(), part)) {
+            } else if (matches(date.get(type.field), part)) {
                 return true;
             }
         }

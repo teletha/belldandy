@@ -106,13 +106,13 @@ class CronTest {
     @Test
     public void ignoreFieldInDayOfWeek() {
         Field field = new Field(Type.DAY_OF_WEEK, "?");
-        assert field.matchesDay(ZonedDateTime.now());
+        assert field.matches(ZonedDateTime.now());
     }
 
     @Test
     public void ignoreFieldInDayOfMonth() {
         Field field = new Field(Type.DAY_OF_MONTH, "?");
-        assert field.matchesDay(ZonedDateTime.now());
+        assert field.matches(ZonedDateTime.now());
     }
 
     @Test
@@ -144,15 +144,14 @@ class CronTest {
     @Test
     public void giveLastDayOfMonthInLeapYear() {
         Field field = new Field(Type.DAY_OF_MONTH, "L");
-        assert field.matchesDay(ZonedDateTime.of(2012, 02, 29, 0, 0, 0, 0, ZoneId.systemDefault()));
+        assert field.matches(ZonedDateTime.of(2012, 02, 29, 0, 0, 0, 0, ZoneId.systemDefault()));
     }
 
     @Test
     public void giveLastDayOfMonth() {
         Field field = new Field(Type.DAY_OF_MONTH, "L");
         YearMonth now = YearMonth.now();
-        assert field
-                .matchesDay(ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()));
+        assert field.matches(ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()));
     }
 
     @Test

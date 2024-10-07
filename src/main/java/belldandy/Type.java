@@ -62,7 +62,7 @@ class Type {
         this.upper = upper;
         this.min = min;
         this.max = max;
-        this.names = Arrays.asList(names.split("(?<=\\G...)"));
+        this.names = Arrays.asList(names.split("(?<=\\G...)")); // split every three letters
         this.modifier = modifier.chars().toArray();
         this.increment = increment.chars().toArray();
     }
