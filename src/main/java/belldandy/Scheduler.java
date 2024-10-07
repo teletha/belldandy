@@ -207,14 +207,14 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * @throws IllegalArgumentException If the cron format is invalid or cannot be parsed correctly.
      */
     public ScheduledFuture<?> scheduleAt(Runnable command, String format) {
-        Field[] fields = parse(format);
+        Cron[] fields = parse(format);
         LongUnaryOperator next = old -> next(fields, ZonedDateTime.now()).toInstant().toEpochMilli();
 
         return executeTask(new Task(callable(command), next.applyAsLong(0L), next));
     }
 
     /**
-     * Parses a cron expression into an array of {@link Field} objects.
+     * Parses a cron expression into an array of {@link Cron} objects.
      * The cron expression is expected to have 5 or 6 parts:
      * - For a standard cron expression with 5 parts (minute, hour, day of month, month, day of
      * week), the seconds field will be assumed to be "0".
@@ -222,16 +222,16 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * week), all fields are used directly from the cron expression.
      *
      * @param cron the cron expression to parse
-     * @return an array of {@link Field} objects representing the parsed cron fields.
+     * @return an array of {@link Cron} objects representing the parsed cron fields.
      * @throws IllegalArgumentException if the cron expression does not have 5 or 6 parts
      */
-    static Field[] parse(String cron) {
+    static Cron[] parse(String cron) {
         String[] parts = cron.split("\\s+");
-        int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Field.error(cron);
+        int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Cron.error(cron);
 
-        return new Field[] { //
-                new Field(Type.SECOND, i == 1 ? parts[0] : "0"), new Field(Type.MINUTE, parts[i++]), new Field(Type.HOUR, parts[i++]),
-                new Field(Type.DAY_OF_MONTH, parts[i++]), new Field(Type.MONTH, parts[i++]), new Field(Type.DAY_OF_WEEK, parts[i++])};
+        return new Cron[] { //
+                new Cron(Type.SECOND, i == 1 ? parts[0] : "0"), new Cron(Type.MINUTE, parts[i++]), new Cron(Type.HOUR, parts[i++]),
+                new Cron(Type.DAY_OF_MONTH, parts[i++]), new Cron(Type.MONTH, parts[i++]), new Cron(Type.DAY_OF_WEEK, parts[i++])};
     }
 
     /**
@@ -241,12 +241,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * a matching time is found. The search will stop if no matching time is found within four
      * years.
      * 
-     * @param cron an array of {@link Field} objects representing the parsed cron fields
+     * @param cron an array of {@link Cron} objects representing the parsed cron fields
      * @param base the {@link ZonedDateTime} representing the base time to start the search from
      * @return the next execution time as a {@link ZonedDateTime}
      * @throws IllegalArgumentException if no matching execution time is found within four years
      */
-    static ZonedDateTime next(Field[] cron, ZonedDateTime base) {
+    static ZonedDateTime next(Cron[] cron, ZonedDateTime base) {
         // The range is four years, taking into account leap years.
         ZonedDateTime limit = base.plusYears(4);
 

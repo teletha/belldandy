@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * Represents a single field in a cron expression.
  */
-class Field {
+class Cron {
     private static final Pattern FORMAT = Pattern
             .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
@@ -46,7 +46,7 @@ class Field {
      * @param expr The expression string for this field.
      * @throws IllegalArgumentException if the expression is invalid.
      */
-    Field(Type type, String expr) {
+    Cron(Type type, String expr) {
         this.type = type;
 
         for (String range : expr.split(",")) {
