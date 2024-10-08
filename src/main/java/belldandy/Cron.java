@@ -170,7 +170,7 @@ class Cron {
         if (type.field == ChronoField.MONTH_OF_YEAR) {
             date[0] = date[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         } else {
-            date[0] = date[0].plus(1, type.upper).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
+            date[0] = date[0].plus(1, type.field.getRangeUnit()).with(type.field, type.min).truncatedTo(type.field.getBaseUnit());
         }
         return false;
     }
