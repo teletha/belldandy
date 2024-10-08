@@ -12,6 +12,7 @@ package belldandy;
 import static java.util.concurrent.Executors.*;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -245,8 +246,12 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Cron.error(cron);
 
         return new Cron[] { //
-                new Cron(Cron.SECOND, i == 1 ? parts[0] : "0"), new Cron(Cron.MINUTE, parts[i++]), new Cron(Cron.HOUR, parts[i++]),
-                new Cron(Cron.DAY_OF_MONTH, parts[i++]), new Cron(Cron.MONTH, parts[i++]), new Cron(Cron.DAY_OF_WEEK, parts[i++])};
+                new Cron(ChronoField.SECOND_OF_MINUTE, 0, 59, "", "", "/", i == 1 ? parts[0] : "0"), //
+                new Cron(ChronoField.MINUTE_OF_HOUR, 0, 59, "", "", "/", parts[i++]), //
+                new Cron(ChronoField.HOUR_OF_DAY, 0, 23, "", "", "/", parts[i++]), //
+                new Cron(ChronoField.DAY_OF_MONTH, 1, 31, "", "?LW", "/", parts[i++]), //
+                new Cron(ChronoField.MONTH_OF_YEAR, 1, 12, "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC", "", "/", parts[i++]), //
+                new Cron(ChronoField.DAY_OF_WEEK, 1, 7, "MONTUEWEDTHUFRISATSUN", "?L", "#/", parts[i++])};
     }
 
     /**
