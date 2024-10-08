@@ -245,8 +245,8 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Cron.error(cron);
 
         return new Cron[] { //
-                new Cron(Type.SECOND, i == 1 ? parts[0] : "0"), new Cron(Type.MINUTE, parts[i++]), new Cron(Type.HOUR, parts[i++]),
-                new Cron(Type.DAY_OF_MONTH, parts[i++]), new Cron(Type.MONTH, parts[i++]), new Cron(Type.DAY_OF_WEEK, parts[i++])};
+                new Cron(Cron.SECOND, i == 1 ? parts[0] : "0"), new Cron(Cron.MINUTE, parts[i++]), new Cron(Cron.HOUR, parts[i++]),
+                new Cron(Cron.DAY_OF_MONTH, parts[i++]), new Cron(Cron.MONTH, parts[i++]), new Cron(Cron.DAY_OF_WEEK, parts[i++])};
     }
 
     /**

@@ -58,54 +58,54 @@ class CronTest {
 
     @Test
     public void parseNumber() {
-        Cron field = new Cron(Type.MINUTE, "5");
+        Cron field = new Cron(Cron.MINUTE, "5");
         assert matches(field, 5);
         assert unmatcheAll(field, 2, 4, 6, 8, 10, 30, 59);
     }
 
     @Test
     public void parseNumberWithIncrement() {
-        Cron field = new Cron(Type.MINUTE, "0/15");
+        Cron field = new Cron(Cron.MINUTE, "0/15");
         assert matcheAll(field, 0, 15, 30, 45);
         assert unmatcheAll(field, 1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 20, 33, 59);
     }
 
     @Test
     public void parseRange() {
-        Cron field = new Cron(Type.MINUTE, "5-10");
+        Cron field = new Cron(Cron.MINUTE, "5-10");
         assert matcheAll(field, 5, 6, 7, 8, 9, 10);
         assert unmatcheAll(field, 1, 2, 3, 4, 11, 12, 30, 59);
     }
 
     @Test
     public void parseRangeWithIncrement() {
-        Cron field = new Cron(Type.MINUTE, "20-30/2");
+        Cron field = new Cron(Cron.MINUTE, "20-30/2");
         assert matcheAll(field, 20, 22, 24, 26, 28, 30);
         assert unmatcheAll(field, 18, 19, 21, 23, 25, 27, 29, 31, 32, 59);
     }
 
     @Test
     public void parseAsterisk() {
-        Cron field = new Cron(Type.DAY_OF_WEEK, "*");
+        Cron field = new Cron(Cron.DAY_OF_WEEK, "*");
         assert matcheAll(field, 1, 2, 3, 4, 5, 6, 7);
     }
 
     @Test
     public void parseAsteriskWithIncrement() {
-        Cron field = new Cron(Type.DAY_OF_WEEK, "*/2");
+        Cron field = new Cron(Cron.DAY_OF_WEEK, "*/2");
         assert matcheAll(field, 1, 3, 5, 7);
         assert unmatcheAll(field, 2, 4, 6);
     }
 
     @Test
     public void ignoreFieldInDayOfWeek() {
-        Cron field = new Cron(Type.DAY_OF_WEEK, "?");
+        Cron field = new Cron(Cron.DAY_OF_WEEK, "?");
         assert field.matches(ZonedDateTime.now());
     }
 
     @Test
     public void ignoreFieldInDayOfMonth() {
-        Cron field = new Cron(Type.DAY_OF_MONTH, "?");
+        Cron field = new Cron(Cron.DAY_OF_MONTH, "?");
         assert field.matches(ZonedDateTime.now());
     }
 
@@ -117,33 +117,33 @@ class CronTest {
     @Test
     public void giveErrorIfMinuteFieldIgnored() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Cron(Type.MINUTE, "?");
+            new Cron(Cron.MINUTE, "?");
         });
     }
 
     @Test
     public void giveErrorIfHourFieldIgnored() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Cron(Type.HOUR, "?");
+            new Cron(Cron.HOUR, "?");
         });
     }
 
     @Test
     public void giveErrorIfMonthFieldIgnored() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new Cron(Type.MONTH, "?");
+            new Cron(Cron.MONTH, "?");
         });
     }
 
     @Test
     public void giveLastDayOfMonthInLeapYear() {
-        Cron field = new Cron(Type.DAY_OF_MONTH, "L");
+        Cron field = new Cron(Cron.DAY_OF_MONTH, "L");
         assert field.matches(ZonedDateTime.of(2012, 02, 29, 0, 0, 0, 0, ZoneId.systemDefault()));
     }
 
     @Test
     public void giveLastDayOfMonth() {
-        Cron field = new Cron(Type.DAY_OF_MONTH, "L");
+        Cron field = new Cron(Cron.DAY_OF_MONTH, "L");
         YearMonth now = YearMonth.now();
         assert field.matches(ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.lengthOfMonth(), 0, 0, 0, 0, ZoneId.systemDefault()));
     }

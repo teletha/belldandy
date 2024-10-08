@@ -28,7 +28,7 @@ class Cron {
     private static final Pattern FORMAT = Pattern
             .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
-    final Type type;
+    Cron type;
 
     /**
      * [0] - start
@@ -37,7 +37,7 @@ class Cron {
      * [3] - modifier
      * [4] - modifierForIncrement
      */
-    final List<int[]> parts = new ArrayList();
+    List<int[]> parts = new ArrayList();
 
     /**
      * Constructs a new Field instance based on the given type and expression.
@@ -46,7 +46,7 @@ class Cron {
      * @param expr The expression string for this field.
      * @throws IllegalArgumentException if the expression is invalid.
      */
-    Cron(Type type, String expr) {
+    Cron(Cron type, String expr) {
         this.type = type;
 
         for (String range : expr.split(",")) {
@@ -207,5 +207,64 @@ class Cron {
      */
     static int error(String cron) {
         throw new IllegalArgumentException("Invalid format '" + cron + "'");
+    }
+
+    static final Cron SECOND = new Cron(ChronoField.SECOND_OF_MINUTE, 0, 59, "", "", "/");
+
+    static final Cron MINUTE = new Cron(ChronoField.MINUTE_OF_HOUR, 0, 59, "", "", "/");
+
+    static final Cron HOUR = new Cron(ChronoField.HOUR_OF_DAY, 0, 23, "", "", "/");
+
+    static final Cron DAY_OF_MONTH = new Cron(ChronoField.DAY_OF_MONTH, 1, 31, "", "?LW", "/");
+
+    static final Cron MONTH = new Cron(ChronoField.MONTH_OF_YEAR, 1, 12, "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC", "", "/");
+
+    static final Cron DAY_OF_WEEK = new Cron(ChronoField.DAY_OF_WEEK, 1, 7, "MONTUEWEDTHUFRISATSUN", "?L", "#/");
+
+    ChronoField field;
+
+    int min;
+
+    int max;
+
+    private List<String> names;
+
+    int[] modifier;
+
+    int[] increment;
+
+    /**
+     * Constructs a new Type instance.
+     *
+     * @param field The ChronoField this type represents.
+     * @param upper The upper ChronoUnit for this type.
+     * @param min The minimum allowed value for this type.
+     * @param max The maximum allowed value for this type.
+     * @param names List of string names for this type (e.g., month names).
+     * @param modifier Allowed modifiers for this type.
+     * @param increment Allowed increment modifiers for this type.
+     */
+    private Cron(ChronoField field, int min, int max, String names, String modifier, String increment) {
+        this.field = field;
+        this.min = min;
+        this.max = max;
+        this.names = Arrays.asList(names.split("(?<=\\G...)")); // split every three letters
+        this.modifier = modifier.chars().toArray();
+        this.increment = increment.chars().toArray();
+    }
+
+    /**
+     * Maps a string representation to its corresponding numeric value for this field.
+     *
+     * @param name The string representation to map.
+     * @return The corresponding numeric value.
+     */
+    int map(String name) {
+        int index = names.indexOf(name.toUpperCase());
+        if (index != -1) {
+            return index + min;
+        }
+        int value = Integer.parseInt(name);
+        return value == 0 && field == ChronoField.DAY_OF_WEEK ? 7 : value;
     }
 }
