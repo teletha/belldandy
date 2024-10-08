@@ -28,7 +28,7 @@ class Cron {
     private static final Pattern FORMAT = Pattern
             .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
-    Cron type;
+    private Cron type;
 
     /**
      * [0] - start
@@ -37,7 +37,7 @@ class Cron {
      * [3] - modifier
      * [4] - modifierForIncrement
      */
-    List<int[]> parts = new ArrayList();
+    private List<int[]> parts = new ArrayList();
 
     /**
      * Constructs a new Field instance based on the given type and expression.
@@ -221,17 +221,17 @@ class Cron {
 
     static final Cron DAY_OF_WEEK = new Cron(ChronoField.DAY_OF_WEEK, 1, 7, "MONTUEWEDTHUFRISATSUN", "?L", "#/");
 
-    ChronoField field;
+    private ChronoField field;
 
-    int min;
+    private int min;
 
-    int max;
+    private int max;
 
     private List<String> names;
 
-    int[] modifier;
+    private int[] modifier;
 
-    int[] increment;
+    private int[] increment;
 
     /**
      * Constructs a new Type instance.
@@ -259,7 +259,7 @@ class Cron {
      * @param name The string representation to map.
      * @return The corresponding numeric value.
      */
-    int map(String name) {
+    private int map(String name) {
         int index = names.indexOf(name.toUpperCase());
         if (index != -1) {
             return index + min;

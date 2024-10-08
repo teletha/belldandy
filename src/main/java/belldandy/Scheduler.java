@@ -241,7 +241,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
      * @throws IllegalArgumentException if the cron expression does not have 5 or 6 parts
      */
     static Cron[] parse(String cron) {
-        String[] parts = cron.split("\\s+");
+        String[] parts = cron.strip().split("\\s+");
         int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Cron.error(cron);
 
         return new Cron[] { //
