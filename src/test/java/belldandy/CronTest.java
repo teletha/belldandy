@@ -488,6 +488,45 @@ class CronTest {
     }
 
     @Test
+    void monthName() {
+        Parsed parsed = new Parsed("0 0 0 * JAN *");
+        assert parsed.next("2024-10-10", "2025-01-01");
+
+        parsed = new Parsed("0 0 0 * FEB *");
+        assert parsed.next("2024-10-10", "2025-02-01");
+
+        parsed = new Parsed("0 0 0 * MAR *");
+        assert parsed.next("2024-10-10", "2025-03-01");
+
+        parsed = new Parsed("0 0 0 * APR *");
+        assert parsed.next("2024-10-10", "2025-04-01");
+
+        parsed = new Parsed("0 0 0 * MAY *");
+        assert parsed.next("2024-10-10", "2025-05-01");
+
+        parsed = new Parsed("0 0 0 * JUN *");
+        assert parsed.next("2024-10-10", "2025-06-01");
+
+        parsed = new Parsed("0 0 0 * JUL *");
+        assert parsed.next("2024-10-10", "2025-07-01");
+
+        parsed = new Parsed("0 0 0 * AUG *");
+        assert parsed.next("2024-10-10", "2025-08-01");
+
+        parsed = new Parsed("0 0 0 * SEP *");
+        assert parsed.next("2024-10-10", "2025-09-01");
+
+        parsed = new Parsed("0 0 0 * OCT *");
+        assert parsed.next("2024-10-10", "2024-10-11");
+
+        parsed = new Parsed("0 0 0 * NOV *");
+        assert parsed.next("2024-10-10", "2024-11-01");
+
+        parsed = new Parsed("0 0 0 * DEC *");
+        assert parsed.next("2024-10-10", "2024-12-01");
+    }
+
+    @Test
     void monthNumber() {
         ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
         ZonedDateTime expected = ZonedDateTime.of(2012, 5, 1, 0, 0, 0, 0, zoneId);
@@ -548,6 +587,30 @@ class CronTest {
     @Test
     void monthInvalidModifier() {
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 1 ? *"));
+    }
+
+    @Test
+    void dowName() {
+        Parsed parsed = new Parsed("0 0 0 * * SUN");
+        assert parsed.next("2024-10-10", "2024-10-13");
+
+        parsed = new Parsed("0 0 0 * * MON");
+        assert parsed.next("2024-10-10", "2024-10-14");
+
+        parsed = new Parsed("0 0 0 * * TUE");
+        assert parsed.next("2024-10-10", "2024-10-15");
+
+        parsed = new Parsed("0 0 0 * * WED");
+        assert parsed.next("2024-10-10", "2024-10-16");
+
+        parsed = new Parsed("0 0 0 * * THU");
+        assert parsed.next("2024-10-10", "2024-10-17");
+
+        parsed = new Parsed("0 0 0 * * FRI");
+        assert parsed.next("2024-10-10", "2024-10-11");
+
+        parsed = new Parsed("0 0 0 * * SAT");
+        assert parsed.next("2024-10-10", "2024-10-12");
     }
 
     @Test
