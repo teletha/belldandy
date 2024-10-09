@@ -82,7 +82,7 @@ class Cron {
                 part[2] = 1;
             } else if (m.group(2) != null) {
                 mod = m.group(2);
-                part[3] = mod.length() == 2 ? 'W' : mod.charAt(0);
+                part[3] = mod.charAt(mod.length() - 1);
             } else {
                 error(range);
             }
