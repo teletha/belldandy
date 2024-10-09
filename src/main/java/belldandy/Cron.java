@@ -29,8 +29,6 @@ class Cron {
 
     private ChronoField field;
 
-    private int min;
-
     /**
      * [0] - start
      * [1] - end
@@ -48,7 +46,6 @@ class Cron {
      */
     Cron(ChronoField field, int min, int max, String names, String modifier, String increment, String expr) {
         this.field = field;
-        this.min = min;
 
         for (String range : expr.split(",")) {
             Matcher m = FORMAT.matcher(range);
@@ -115,7 +112,10 @@ class Cron {
     private int map(String name, String names) {
         int index = names.indexOf(name.toUpperCase().concat(" "));
         if (index != -1) {
-            return index / 4 + min;
+            // The minimum value of the field needs to be added, but since this function is only
+            // used for Month and DayOfWeek, there is no problem with always using the constant
+            // value 1 instead of field.range().getMinimum().
+            return index / 4 + 1;
         }
         int value = Integer.parseInt(name);
         return value == 0 && field == ChronoField.DAY_OF_WEEK ? 7 : value;
@@ -200,7 +200,10 @@ class Cron {
         if (field == ChronoField.MONTH_OF_YEAR) {
             date[0] = date[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         } else {
-            date[0] = date[0].plus(1, field.getRangeUnit()).with(field, min).truncatedTo(field.getBaseUnit());
+            // The field must be set to the minimum value, but this method is only used for Second,
+            // Minute, Hour, and Month, and since Month is handled in the above branch, there is no
+            // problem with always using the constant value 0 instead of field.range().getMinimum().
+            date[0] = date[0].plus(1, field.getRangeUnit()).with(field, 0).truncatedTo(field.getBaseUnit());
         }
         return false;
     }
