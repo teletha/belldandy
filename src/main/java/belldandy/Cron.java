@@ -15,7 +15,6 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,8 +30,6 @@ class Cron {
     private ChronoField field;
 
     private int min;
-
-    private List<String> names;
 
     /**
      * [0] - start
@@ -52,7 +49,6 @@ class Cron {
     Cron(ChronoField field, int min, int max, String names, String modifier, String increment, String expr) {
         this.field = field;
         this.min = min;
-        this.names = Arrays.asList(names.split("(?<=\\G...)")); // split every three letters
 
         for (String range : expr.split(",")) {
             Matcher m = FORMAT.matcher(range);
@@ -66,10 +62,10 @@ class Cron {
 
             int[] part = {-1, -1, -1, 0, 0};
             if (start != null) {
-                part[0] = map(start);
+                part[0] = map(start, names);
                 part[3] = mod == null ? 0 : mod.charAt(0);
                 if (end != null) {
-                    part[1] = map(end);
+                    part[1] = map(end, names);
                     part[2] = 1;
                 } else if (inc != null) {
                     part[1] = max;
@@ -116,10 +112,10 @@ class Cron {
      * @param name The string representation to map.
      * @return The corresponding numeric value.
      */
-    private int map(String name) {
-        int index = names.indexOf(name.toUpperCase());
+    private int map(String name, String names) {
+        int index = names.indexOf(name.toUpperCase().concat(" "));
         if (index != -1) {
-            return index + min;
+            return index / 4 + min;
         }
         int value = Integer.parseInt(name);
         return value == 0 && field == ChronoField.DAY_OF_WEEK ? 7 : value;
