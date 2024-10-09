@@ -24,7 +24,7 @@ public class Project extends bee.api.Project {
                 """);
 
         require(SourceVersion.RELEASE_21);
-        require("com.github.teletha", "sinobu").atTest();
+        require("com.github.teletha", "sinobu");
         require("com.github.teletha", "antibug").atTest();
 
         versionControlSystem("https://github.com/teletha/belldandy");

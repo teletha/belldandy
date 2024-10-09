@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.Test;
@@ -353,7 +355,7 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthNumber() {
+    void dayNumber() {
         Parsed cronExpr = new Parsed("0 * * 3 * *");
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
@@ -374,7 +376,7 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthIncrement() {
+    void dayIncrement() {
         Parsed cronExpr = new Parsed("0 0 0 1/15 * *");
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
@@ -394,7 +396,7 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthList() {
+    void dayList() {
         Parsed cronExpr = new Parsed("0 0 0 7,19 * *");
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
@@ -415,7 +417,7 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthLast() {
+    void dayLast() {
         Parsed cronExpr = new Parsed("0 0 0 L * *");
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
@@ -428,7 +430,7 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthNumberLast_L() {
+    void dayNumberLast_L() {
         Parsed cronExpr = new Parsed("0 0 0 3L * *");
 
         ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
@@ -441,36 +443,47 @@ class CronTest {
     }
 
     @Test
-    void dayOfMonthClosestWeekdayW() {
-        Parsed cronExpr = new Parsed("0 0 0 9W * *");
-
-        // 9 - is weekday in may
-        ZonedDateTime after = ZonedDateTime.of(2012, 5, 2, 0, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 5, 9, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        // 9 - is weekday in may
-        after = ZonedDateTime.of(2012, 5, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        // 9 - saturday, friday closest weekday in june
-        after = ZonedDateTime.of(2012, 5, 9, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 6, 8, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        // 9 - sunday, monday closest weekday in september
-        after = ZonedDateTime.of(2012, 9, 1, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 9, 10, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
+    void dayWeekday() {
+        Parsed parsed = new Parsed("0 0 15W * *");
+        assert parsed.next("2024-10-{1~14}", "2024-10-15");
+        assert parsed.next("2024-10-{15~31}", "2024-11-15");
     }
 
     @Test
-    void dayOfMonthInvalidModifier() {
+    void dayFirstWeekday() {
+        Parsed parsed = new Parsed("0 0 1W * *");
+        // 2025-02-01 is SUT, but don't back to January
+        assert parsed.next("2025-01-{01~31}", "2025-02-03");
+        assert parsed.next("2025-02-{01~02}", "2025-02-03");
+        // 2025-03-01 is SUT, but don't back to Feburary
+        assert parsed.next("2025-02-{03~28}", "2025-03-03");
+        // 2025-06-01 is SUN
+        assert parsed.next("2025-05-{01~31}", "2025-06-02");
+        assert parsed.next("2025-06-01", "2025-06-02");
+        // 2025-07-01 is weekday
+        assert parsed.next("2025-06-{02~30}", "2025-07-01");
+    }
+
+    @Test
+    void dayLastWeekday() {
+        Parsed parsed = new Parsed("0 0 LW * *");
+        // 2025-01-31 is weekday
+        assert parsed.next("2025-01-{01~30}", "2025-01-31");
+        // 2025-05-31 is SAT
+        assert parsed.next("2025-05-{01~29}", "2025-05-30");
+        assert parsed.next("2025-05-{30~31}", "2025-06-30");
+        // 2025-08-31 is SUN
+        assert parsed.next("2025-08-{01~28}", "2025-08-29");
+        assert parsed.next("2025-08-{29~31}", "2025-09-30");
+    }
+
+    @Test
+    void dayInvalidModifier() {
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9X * *"));
     }
 
     @Test
-    void dayOfMonthInvalidIncrementModifier() {
+    void dayInvalidIncrementModifier() {
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9#2 * *"));
     }
 
@@ -571,6 +584,13 @@ class CronTest {
         assert parsed.next("2024-10-16", "2024-10-18");
         assert parsed.next("2024-10-17", "2024-10-18");
         assert parsed.next("2024-10-18", "2024-10-25");
+
+        parsed = new Parsed("0 0 0 * * 7");
+        assert parsed.next("2024-10-{10~12}", "2024-10-13");
+        assert parsed.next("2024-10-{13~19}", "2024-10-20");
+        assert parsed.next("2024-10-{20~26}", "2024-10-27");
+        assert parsed.next("2024-10-{27~31}", "2024-11-03");
+        assert parsed.next("2024-11-{01~02}", "2024-11-03");
     }
 
     @Test
@@ -693,76 +713,52 @@ class CronTest {
 
     @Test
     void dowLastFridayInMonth() {
-        Parsed cronExpr = new Parsed("0 0 0 * * 5L");
-
-        ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 1, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 4, 27, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 4, 27, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 5, 25, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 2, 24, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 2, 24, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * FRIL").next(after).equals(expected);
+        Parsed parsed = new Parsed("0 0 0 * * 5L");
+        assert parsed.next("2024-07-{01~25}", "2024-07-26");
+        assert parsed.next("2024-07-{26~30}", "2024-08-30");
+        assert parsed.next("2024-08-{01~29}", "2024-08-30");
+        assert parsed.next("2024-09-{01~26}", "2024-09-27");
     }
 
     @Test
-    void dowInterpret0Sunday() {
-        ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 0").next(after).equals(expected);
-
-        expected = ZonedDateTime.of(2012, 4, 29, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 0L").next(after).equals(expected);
-
-        expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 0#2").next(after).equals(expected);
+    void dowLastFridayInMonthByName() {
+        Parsed parsed = new Parsed("0 0 0 * * FRIL");
+        assert parsed.next("2024-07-{01~25}", "2024-07-26");
+        assert parsed.next("2024-07-{26~30}", "2024-08-30");
+        assert parsed.next("2024-08-{01~29}", "2024-08-30");
+        assert parsed.next("2024-09-{01~26}", "2024-09-27");
     }
 
     @Test
-    void dowInterpret7sunday() {
-        ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 7").next(after).equals(expected);
+    void dowNth() {
+        Parsed parsed = new Parsed("0 0 0 * * 5#3");
+        assert parsed.next("2024-07-{01~18}", "2024-07-19");
+        assert parsed.next("2024-07-{19~31}", "2024-08-16");
+        assert parsed.next("2024-08-{01~15}", "2024-08-16");
+        assert parsed.next("2024-08-{16~31}", "2024-09-20");
 
-        expected = ZonedDateTime.of(2012, 4, 29, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 7L").next(after).equals(expected);
-
-        expected = ZonedDateTime.of(2012, 4, 8, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 7#2").next(after).equals(expected);
+        parsed = new Parsed("0 0 0 * * 1#5");
+        assert parsed.next("2024-07-{01~28}", "2024-07-29");
+        assert parsed.next("2024-07-{29~31}", "2024-09-30");
+        assert parsed.next("2024-08-{01~31}", "2024-09-30");
+        assert parsed.next("2024-09-{01~29}", "2024-09-30");
+        assert parsed.next("2024-10-{01~31}", "2024-12-30");
     }
 
     @Test
-    void dowNthDayInMonth() {
-        ZonedDateTime after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 4, 20, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 5#3").next(after).equals(expected);
+    void dowNthByName() {
+        Parsed parsed = new Parsed("0 0 0 * * FRI#3");
+        assert parsed.next("2024-07-{01~18}", "2024-07-19");
+        assert parsed.next("2024-07-{19~31}", "2024-08-16");
+        assert parsed.next("2024-08-{01~15}", "2024-08-16");
+        assert parsed.next("2024-08-{16~31}", "2024-09-20");
 
-        after = ZonedDateTime.of(2012, 4, 20, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 5, 18, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 5#3").next(after).equals(expected);
-
-        after = ZonedDateTime.of(2012, 3, 30, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 7#1").next(after).equals(expected);
-
-        after = ZonedDateTime.of(2012, 4, 1, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 5, 6, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 7#1").next(after).equals(expected);
-
-        after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 2, 29, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * 3#5").next(after).equals(expected); // leapday
-
-        after = ZonedDateTime.of(2012, 2, 6, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 2, 29, 0, 0, 0, 0, zoneId);
-        assert new Parsed("0 0 0 * * WED#5").next(after).equals(expected); // leapday
+        parsed = new Parsed("0 0 0 * * MON#5");
+        assert parsed.next("2024-07-{01~28}", "2024-07-29");
+        assert parsed.next("2024-07-{29~31}", "2024-09-30");
+        assert parsed.next("2024-08-{01~31}", "2024-09-30");
+        assert parsed.next("2024-09-{01~29}", "2024-09-30");
+        assert parsed.next("2024-10-{01~31}", "2024-12-30");
     }
 
     @Test
@@ -867,10 +863,18 @@ class CronTest {
         }
 
         boolean next(String base, String expectedNext) {
-            ZonedDateTime baseDate = parse(base);
             ZonedDateTime nextDate = parse(expectedNext);
 
-            assert next(baseDate).isEqual(nextDate) : base + "   " + nextDate;
+            if (base.indexOf("{") == -1) {
+                ZonedDateTime baseDate = parse(base);
+                assert next(baseDate).isEqual(nextDate) : base + "   " + nextDate;
+                return true;
+            } else {
+                for (String expand : expandDateRange(base)) {
+                    ZonedDateTime baseDate = parse(expand);
+                    assert next(baseDate).isEqual(nextDate) : base + "   " + nextDate;
+                }
+            }
             return true;
         }
 
@@ -883,6 +887,63 @@ class CronTest {
                 }
             } else {
                 return LocalDateTime.parse(date).atZone(ZoneId.systemDefault());
+            }
+        }
+
+        /**
+         * Expands the given date range string into all possible date combinations
+         * by expanding ranges specified in the format {start~end}.
+         * 
+         * Example: "2024-{10~12}-{1~5}" will produce dates like "2024-10-01",
+         * "2024-10-02", ..., "2024-12-05".
+         * 
+         * @param input The date range string to expand.
+         * @return A list of strings containing all possible date combinations.
+         */
+        private List<String> expandDateRange(String input) {
+            // Extract and expand range parts inside {} using regular expressions
+            List<String> expandedList = new ArrayList<>();
+            expand(input, expandedList);
+
+            return expandedList;
+        }
+
+        /**
+         * Recursively expands the date range by finding and processing the first
+         * range enclosed in curly braces `{}`.
+         * 
+         * For each range, it replaces the placeholder with all values from the start
+         * to the end of the range and calls itself to handle the remaining parts of
+         * the string, if any.
+         * 
+         * @param input The string containing date ranges in `{start~end}` format.
+         * @param results A list that will be populated with the expanded date strings.
+         */
+        private void expand(String input, List<String> results) {
+            int openBrace = input.indexOf('{');
+            int closeBrace = input.indexOf('}');
+
+            // If no more {} is found, or all ranges have been expanded
+            if (openBrace == -1 || closeBrace == -1 || openBrace > closeBrace) {
+                results.add(input);
+                return;
+            }
+
+            // Get the range inside {} and split it to extract the numeric values
+            String prefix = input.substring(0, openBrace);
+            String suffix = input.substring(closeBrace + 1);
+            String rangePart = input.substring(openBrace + 1, closeBrace);
+            String[] range = rangePart.split("~");
+            int start = Integer.parseInt(range[0]);
+            int end = Integer.parseInt(range[1]);
+
+            // Generate values from start to end and recursively expand them
+            for (int i = start; i <= end; i++) {
+                // Format to two digits
+                String formatted = String.format("%02d", i);
+
+                // Recursively process the next {}
+                expand(prefix + formatted + suffix, results);
             }
         }
     }

@@ -14,6 +14,7 @@ import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
  */
 class Cron {
     private static final Pattern FORMAT = Pattern
-            .compile("(?:(?:(\\*)|(\\?|L)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
+            .compile("(?:(?:(\\*)|(\\?|L|LW)) | ([0-9]{1,2}|[a-z]{3,3})(?:(L|W) | -([0-9]{1,2}|[a-z]{3,3}))?)(?:(/|\\#)([0-9]{1,7}))?", Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
 
     private ChronoField field;
 
@@ -81,7 +82,8 @@ class Cron {
                 part[1] = max;
                 part[2] = 1;
             } else if (m.group(2) != null) {
-                part[3] = m.group(2).charAt(0);
+                mod = m.group(2);
+                part[3] = mod.length() == 2 ? 'W' : mod.charAt(0);
             } else {
                 error(range);
             }
@@ -141,12 +143,25 @@ class Cron {
                 }
             } else if (part[3] == 'W') {
                 if (date.getDayOfWeek().getValue() <= 5) {
-                    if (date.getDayOfMonth() == part[0]) {
+                    int last = date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+                    int target = part[0] != -1 ? part[0] : last;
+
+                    if (date.getDayOfMonth() == target) {
                         return true;
                     } else if (date.getDayOfWeek().getValue() == 5) {
-                        return date.plusDays(1).getDayOfMonth() == part[0];
+                        int day = date.getDayOfMonth();
+                        if (1 <= last - day && day + 1 == target) {
+                            return true;
+                        } else if (2 == last - day && day + 2 == target) {
+                            return true;
+                        }
                     } else if (date.getDayOfWeek().getValue() == 1) {
-                        return date.minusDays(1).getDayOfMonth() == part[0];
+                        int day = date.getDayOfMonth();
+                        if (2 <= day && day - 1 == target) {
+                            return true;
+                        } else if (3 == day && day - 2 == target) {
+                            return true;
+                        }
                     }
                 }
             } else if (part[4] == '#') {
