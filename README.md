@@ -103,7 +103,7 @@ If you think something might be a bug, but you're not sure, ask on StackOverflow
 
 ## Dependency
 Belldandy depends on the following products on runtime.
-* No Dependency
+* [sinobu-3.14.1](https://mvnrepository.com/artifact/com.github.teletha/sinobu/3.14.1)
 <p align="right"><a href="#top">back to top</a></p>
 
 
