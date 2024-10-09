@@ -9,7 +9,6 @@
  */
 package belldandy;
 
-import java.time.DayOfWeek;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -133,41 +132,40 @@ class Cron {
      * @return true if the date matches, false otherwise.
      */
     boolean matches(ZonedDateTime date) {
+        int day = date.getDayOfMonth();
+        int dow = date.getDayOfWeek().getValue();
+
         for (int[] part : parts) {
             if (part[3] == 'L') {
                 YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                 if (field == ChronoField.DAY_OF_WEEK) {
-                    return date.getDayOfWeek() == DayOfWeek.of(part[0]) && date.getDayOfMonth() > (ym.lengthOfMonth() - 7);
+                    return dow == part[0] && day > (ym.lengthOfMonth() - 7);
                 } else {
-                    return date.getDayOfMonth() == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
+                    return day == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
                 }
             } else if (part[3] == 'W') {
-                if (date.getDayOfWeek().getValue() <= 5) {
+                if (dow <= 5) {
                     int last = date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-                    int target = part[0] != -1 ? part[0] : last;
+                    int target = part[0] == -1 ? last : part[0];
 
-                    if (date.getDayOfMonth() == target) {
+                    if (day == target) {
                         return true;
-                    } else if (date.getDayOfWeek().getValue() == 5) {
-                        int day = date.getDayOfMonth();
-                        if (1 <= last - day && day + 1 == target) {
-                            return true;
-                        } else if (2 == last - day && day + 2 == target) {
+                    } else if (dow == 5) {
+                        int diff = last - day;
+                        if (2 >= diff && day + diff == target) {
                             return true;
                         }
-                    } else if (date.getDayOfWeek().getValue() == 1) {
-                        int day = date.getDayOfMonth();
-                        if (2 <= day && day - 1 == target) {
-                            return true;
-                        } else if (3 == day && day - 2 == target) {
+                    } else if (dow == 1) {
+                        int diff = 1 - day;
+                        if (-2 <= diff && day + diff == target) {
                             return true;
                         }
                     }
                 }
             } else if (part[4] == '#') {
-                if (date.getDayOfWeek() == DayOfWeek.of(part[0])) {
-                    int num = date.getDayOfMonth() / 7;
-                    return part[2] == (date.getDayOfMonth() % 7 == 0 ? num : num + 1);
+                if (dow == part[0]) {
+                    int num = day / 7;
+                    return part[2] == (day % 7 == 0 ? num : num + 1);
                 }
                 return false;
             } else {
