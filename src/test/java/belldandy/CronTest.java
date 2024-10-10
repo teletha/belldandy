@@ -423,23 +423,20 @@ class CronTest {
 
     @Test
     void dayList() {
-        Parsed cronExpr = new Parsed("0 0 0 7,19 * *");
+        Parsed parsed = new Parsed("0 0 0 10,20,30 * *");
+        assert parsed.next("2024-10-{01~09}", "2024-10-10");
+        assert parsed.next("2024-10-{10~19}", "2024-10-20");
+        assert parsed.next("2024-10-{20~29}", "2024-10-30");
+        assert parsed.next("2024-10-{30~31}", "2024-11-10");
+    }
 
-        ZonedDateTime after = ZonedDateTime.of(2012, 4, 10, 13, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 4, 19, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 4, 19, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 5, 7, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 5, 7, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 5, 19, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 5, 30, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 6, 7, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
+    @Test
+    void dayListUnsorted() {
+        Parsed parsed = new Parsed("0 0 0 30,20,10 * *");
+        assert parsed.next("2024-10-{01~09}", "2024-10-10");
+        assert parsed.next("2024-10-{10~19}", "2024-10-20");
+        assert parsed.next("2024-10-{20~29}", "2024-10-30");
+        assert parsed.next("2024-10-{30~31}", "2024-11-10");
     }
 
     @Test
@@ -584,19 +581,20 @@ class CronTest {
 
     @Test
     void monthList() {
-        Parsed cronExpr = new Parsed("0 0 0 1 3,7,12 *");
+        Parsed parsed = new Parsed("0 0 0 5 3,6,9 *");
+        assert parsed.next("2024-{01~02}-05", "2024-03-05");
+        assert parsed.next("2024-{03~05}-05", "2024-06-05");
+        assert parsed.next("2024-{06~08}-05", "2024-09-05");
+        assert parsed.next("2024-{09~12}-05", "2025-03-05");
+    }
 
-        ZonedDateTime after = ZonedDateTime.of(2012, 2, 12, 0, 0, 0, 0, zoneId);
-        ZonedDateTime expected = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 3, 1, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
-
-        after = ZonedDateTime.of(2012, 7, 1, 0, 0, 0, 0, zoneId);
-        expected = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, zoneId);
-        assertEquals(expected, cronExpr.next(after));
+    @Test
+    void monthListUnsorted() {
+        Parsed parsed = new Parsed("0 0 0 5 9,3,6 *");
+        assert parsed.next("2024-{01~02}-05", "2024-03-05");
+        assert parsed.next("2024-{03~05}-05", "2024-06-05");
+        assert parsed.next("2024-{06~08}-05", "2024-09-05");
+        assert parsed.next("2024-{09~12}-05", "2025-03-05");
     }
 
     @Test
