@@ -862,6 +862,15 @@ class CronTest {
     }
 
     @Test
+    void dowNthList() {
+        Parsed parsed = new Parsed("0 0 0 * * 5#3,4#1,1#2");
+        assert parsed.next("2024-07-{01~03}", "2024-07-04");
+        assert parsed.next("2024-07-{04~07}", "2024-07-08");
+        assert parsed.next("2024-07-{08~18}", "2024-07-19");
+        assert parsed.next("2024-07-{19~31}", "2024-08-01");
+    }
+
+    @Test
     void dowNthByName() {
         Parsed parsed = new Parsed("0 0 0 * * FRI#3");
         assert parsed.next("2024-07-{01~18}", "2024-07-19");

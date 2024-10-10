@@ -151,10 +151,9 @@ class Cron {
                     }
                 }
             } else if (part[4] == '#') {
-                if (dow == part[0]) {
-                    return part[2] == (day % 7 == 0 ? day / 7 : day / 7 + 1);
+                if (dow == part[0] && part[2] == (day % 7 == 0 ? day / 7 : day / 7 + 1)) {
+                    return true;
                 }
-                return false;
             } else {
                 int value = date.get(field);
                 if (part[3] == '?' || (part[0] <= value && value <= part[1] && (value - part[0]) % part[2] == 0)) {
