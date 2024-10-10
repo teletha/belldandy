@@ -59,13 +59,12 @@ class Cron {
             String incmod = m.group(6);
             String inc = m.group(7);
 
-            int[] part = {-1, -1, -1, 0, 0};
+            int[] part = {-1, -1, 1, 0, 0};
             if (start != null) {
                 part[0] = map(start, names);
                 part[3] = mod == null ? 0 : mod.charAt(0);
                 if (end != null) {
                     part[1] = map(end, names);
-                    part[2] = 1;
                 } else if (inc != null) {
                     part[1] = max;
                 } else {
@@ -74,7 +73,6 @@ class Cron {
             } else if (m.group(1) != null) {
                 part[0] = min;
                 part[1] = max;
-                part[2] = 1;
             } else if (m.group(2) != null) {
                 mod = m.group(2);
                 part[3] = mod.charAt(mod.length() - 1);
