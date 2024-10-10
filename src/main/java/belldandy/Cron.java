@@ -56,21 +56,20 @@ class Cron {
             String start = m.group(3);
             String mod = m.group(4);
             String end = m.group(5);
-            String incmod = m.group(6);
             String inc = m.group(7);
 
             int[] part = {-1, -1, 1, 0, 0};
             if (start != null) {
-                part[0] = map(start, names);
+                part[0] = part[1] = map(start, names);
                 part[3] = mod == null ? 0 : mod.charAt(0);
                 if (end != null) {
                     part[1] = map(end, names);
                 } else if (inc != null) {
                     part[1] = max;
-                } else {
-                    part[1] = part[0];
                 }
             }
+
+            // astarisk
             if (m.group(1) != null) {
                 part[0] = min;
                 part[1] = max;
@@ -80,7 +79,7 @@ class Cron {
                 part[3] = mod.charAt(mod.length() - 1);
             }
             if (inc != null) {
-                part[4] = incmod.charAt(0);
+                part[4] = m.group(6).charAt(0);
                 part[2] = Integer.parseInt(inc);
             }
 
