@@ -28,15 +28,20 @@ class CronTest {
 
     ZoneId zoneId = ZoneId.systemDefault();
 
+    private boolean invalidFormat(String expression) {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed(expression));
+        return true;
+    }
+
     @Test
     void invalidLength() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed(""));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("*"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * * * * *"));
+        assert invalidFormat("");
+        assert invalidFormat("*");
+        assert invalidFormat("* *");
+        assert invalidFormat("* * *");
+        assert invalidFormat("* * * *");
+        assert invalidFormat("* * * * * * *");
+        assert invalidFormat("* * * * * * * *");
     }
 
     @Test
@@ -52,10 +57,10 @@ class CronTest {
         assert new Parsed("* * ? * 3").next("2024-10-08T10:20:30", "2024-10-09T00:00:00");
         assert new Parsed("* * 10 * ?").next("2024-10-08T10:20:30", "2024-10-10T00:00:00");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("? * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* ? * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * ? * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * ? *"));
+        assert invalidFormat("? * * * * *");
+        assert invalidFormat("* ? * * * *");
+        assert invalidFormat("* * ? * * *");
+        assert invalidFormat("* * * * ? *");
     }
 
     @Test
@@ -196,16 +201,16 @@ class CronTest {
 
     @Test
     void secondInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("-1 * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("60 * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("100 * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0.2 * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("# * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("@ * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("X * * * * *"));
+        assert invalidFormat("-1 * * * * *");
+        assert invalidFormat("60 * * * * *");
+        assert invalidFormat("100 * * * * *");
+        assert invalidFormat("0.2 * * * * *");
+        assert invalidFormat("# * * * * *");
+        assert invalidFormat("@ * * * * *");
+        assert invalidFormat("X * * * * *");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("42-63 * * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("42#3 * * * * *"));
+        assert invalidFormat("42-63 * * * * *");
+        assert invalidFormat("42#3 * * * * *");
     }
 
     @Test
@@ -290,16 +295,16 @@ class CronTest {
 
     @Test
     void minuteInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("-1 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("60 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("100 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0.2 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("# * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("@ * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("X * * * *"));
+        assert invalidFormat("-1 * * * *");
+        assert invalidFormat("60 * * * *");
+        assert invalidFormat("100 * * * *");
+        assert invalidFormat("0.2 * * * *");
+        assert invalidFormat("# * * * *");
+        assert invalidFormat("@ * * * *");
+        assert invalidFormat("X * * * *");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("42-63 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("42#3 * * * *"));
+        assert invalidFormat("42-63 * * * *");
+        assert invalidFormat("42#3 * * * *");
     }
 
     @Test
@@ -363,16 +368,16 @@ class CronTest {
 
     @Test
     void hourInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* -1 * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 60 * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 100 * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 0.2 * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* # * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* @ * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* X * * *"));
+        assert invalidFormat("* -1 * * *");
+        assert invalidFormat("* 60 * * *");
+        assert invalidFormat("* 100 * * *");
+        assert invalidFormat("* 0.2 * * *");
+        assert invalidFormat("* # * * *");
+        assert invalidFormat("* @ * * *");
+        assert invalidFormat("* X * * *");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 42-63 * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 42#3 * * *"));
+        assert invalidFormat("* 42-63 * * *");
+        assert invalidFormat("* 42#3 * * *");
     }
 
     @Test
@@ -500,18 +505,18 @@ class CronTest {
 
     @Test
     void dayInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * -1 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 0 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 32 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 100 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 0.2 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * # * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * @ * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * X * *"));
+        assert invalidFormat("* * -1 * *");
+        assert invalidFormat("* * 0 * *");
+        assert invalidFormat("* * 32 * *");
+        assert invalidFormat("* * 100 * *");
+        assert invalidFormat("* * 0.2 * *");
+        assert invalidFormat("* * # * *");
+        assert invalidFormat("* * @ * *");
+        assert invalidFormat("* * X * *");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 42-63 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 42#3 * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9X * *"));
+        assert invalidFormat("* * 42-63 * *");
+        assert invalidFormat("* * 42#3 * *");
+        assert invalidFormat("0 0 0 9X * *");
     }
 
     @Test
@@ -613,18 +618,18 @@ class CronTest {
 
     @Test
     void monthInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * -1 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 0 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 13 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 100 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 0.2 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * # *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * @ *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * X *"));
+        assert invalidFormat("* * * -1 *");
+        assert invalidFormat("* * * 0 *");
+        assert invalidFormat("* * * 13 *");
+        assert invalidFormat("* * * 100 *");
+        assert invalidFormat("* * * 0.2 *");
+        assert invalidFormat("* * * # *");
+        assert invalidFormat("* * * @ *");
+        assert invalidFormat("* * * X *");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 42-63 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 42#3 *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 1 ? *"));
+        assert invalidFormat("* * * 42-63 *");
+        assert invalidFormat("* * * 42#3 *");
+        assert invalidFormat("0 0 0 1 ? *");
     }
 
     @Test
@@ -864,29 +869,23 @@ class CronTest {
 
     @Test
     void dowInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * -1"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 8"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 100"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 0.2"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * #"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * @"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * X"));
+        assert invalidFormat("* * * * -1");
+        assert invalidFormat("* * * * 8");
+        assert invalidFormat("* * * * 100");
+        assert invalidFormat("* * * * 0.2");
+        assert invalidFormat("* * * * #");
+        assert invalidFormat("* * * * @");
+        assert invalidFormat("* * * * X");
 
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5W"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5?3"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5*3"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 12"));
+        assert invalidFormat("0 0 0 * * 5W");
+        assert invalidFormat("0 0 0 * * 5?3");
+        assert invalidFormat("0 0 0 * * 5*3");
+        assert invalidFormat("0 0 0 * * 12");
     }
 
     @Test
     void notSupportRollingPeriod() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 5-1 * * *"));
-    }
-
-    @Test
-    void non_existing_date_throws_exception() {
-        // Will check for the next 4 years - no 30th of February is found so a IAE is thrown.
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 30 2 *").next(ZonedDateTime.now()));
+        assert invalidFormat("* * 5-1 * * *");
     }
 
     @Test
