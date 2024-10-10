@@ -493,9 +493,9 @@ class CronTest {
         assert parsed.next("2024-10-{01~30}", "2024-10-31");
         assert parsed.next("2024-10-31", "2024-11-30");
 
-        // parsed = new Parsed("0 0 0 3L * *");
-        // assert parsed.next("2024-10-{01~28}", "2024-10-29");
-        // assert parsed.next("2024-10-{29~31}", "2024-11-28");
+        parsed = new Parsed("0 0 0 2L * *");
+        assert parsed.next("2024-10-{01~28}", "2024-10-29");
+        assert parsed.next("2024-10-{29~31}", "2024-11-28");
     }
 
     @Test
