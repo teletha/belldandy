@@ -15,7 +15,6 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -92,8 +91,6 @@ class Cron {
             // @formatter:on
             parts.add(part);
         }
-
-        Collections.sort(parts, (x, y) -> Integer.compare(x[0] + x[3], y[0] + y[3]));
     }
 
     /**
@@ -128,9 +125,13 @@ class Cron {
             if (part[3] == 'L') {
                 YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                 if (field == ChronoField.DAY_OF_WEEK) {
-                    return dow == part[0] && day > (ym.lengthOfMonth() - 7);
+                    if (dow == part[0] && day > (ym.lengthOfMonth() - 7)) {
+                        return true;
+                    }
                 } else {
-                    return day == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]));
+                    if (day == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]))) {
+                        return true;
+                    }
                 }
             } else if (part[3] == 'W') {
                 if (dow <= 5) {
