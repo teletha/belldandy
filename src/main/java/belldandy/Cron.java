@@ -50,7 +50,7 @@ class Cron {
         for (String range : expr.split(",")) {
             Matcher m = FORMAT.matcher(range);
             if (!m.matches()) {
-                throw new IllegalArgumentException("Invalid cron '" + range + "'");
+                throw new IllegalArgumentException(range);
             }
 
             String start = m.group(3);
@@ -86,10 +86,11 @@ class Cron {
             }
 
             // validate parts
-            if ((part[0] != -1 && part[0] < min) || max < part[1] || part[0] > part[1] || (part[3] != 0 && modifier
-                    .indexOf(part[3]) == -1) || part[4] != 0 && increment.indexOf(part[4]) == -1) {
-                throw new IllegalArgumentException("Invalid cron '" + range + "'");
+            // @formatter:off
+            if ((part[0] != -1 && part[0] < min) || max < part[1] || part[0] > part[1] || (part[3] != 0 && modifier.indexOf(part[3]) == -1) || part[4] != 0 && increment.indexOf(part[4]) == -1) {
+                throw new IllegalArgumentException(range);
             }
+            // @formatter:on
             parts.add(part);
         }
 

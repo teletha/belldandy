@@ -245,7 +245,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         String[] parts = cron.strip().split("\\s+");
         int i = parts.length - 5;
         if (i != 0 && i != 1) {
-            throw new IllegalArgumentException("Invalid cron '" + cron + "'");
+            throw new IllegalArgumentException(cron);
         }
 
         return new Cron[] {new Cron(ChronoField.SECOND_OF_MINUTE, 0, 59, "", "", "/", i == 1 ? parts[0] : "0"),
