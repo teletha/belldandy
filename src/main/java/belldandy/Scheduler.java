@@ -275,7 +275,7 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         ZonedDateTime[] next = {base.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS)};
         root: while (true) {
             if (next[0].isAfter(limit)) throw new IllegalArgumentException("Next time is not found before " + limit);
-            if (!cron[4].nextMatch(next)) continue;
+            if (!cron[4].matches(next)) continue;
 
             int month = next[0].getMonthValue();
             while (!(cron[3].matches(next[0]) && cron[5].matches(next[0]))) {
@@ -283,9 +283,9 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
                 if (next[0].getMonthValue() != month) continue root;
             }
 
-            if (!cron[2].nextMatch(next)) continue;
-            if (!cron[1].nextMatch(next)) continue;
-            if (!cron[0].nextMatch(next)) continue;
+            if (!cron[2].matches(next)) continue;
+            if (!cron[1].matches(next)) continue;
+            if (!cron[0].matches(next)) continue;
             return next[0];
         }
     }

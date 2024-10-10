@@ -174,7 +174,7 @@ class Cron {
      * @param date Array containing a single ZonedDateTime to be updated.
      * @return true if a match was found, false if the field overflowed.
      */
-    boolean nextMatch(ZonedDateTime[] date) {
+    boolean matches(ZonedDateTime[] date) {
         int value = date[0].get(field);
 
         for (int[] part : parts) {
