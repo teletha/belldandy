@@ -178,13 +178,16 @@ class Cron {
         int value = date[0].get(field);
 
         for (int[] part : parts) {
-            int nextMatch = nextMatch(value, part);
-            if (nextMatch > -1) {
-                if (nextMatch != value) {
+            int next = part[0] <= value ? value : part[0];
+            int rem = (next - part[0]) % part[2];
+            if (rem != 0) next += part[2] - rem;
+
+            if (next <= part[1]) {
+                if (next != value) {
                     if (field == ChronoField.MONTH_OF_YEAR) {
-                        date[0] = date[0].withMonth(nextMatch).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                        date[0] = date[0].withMonth(next).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
                     } else {
-                        date[0] = date[0].with(field, nextMatch).truncatedTo(field.getBaseUnit());
+                        date[0] = date[0].with(field, next).truncatedTo(field.getBaseUnit());
                     }
                 }
                 return true;
@@ -200,29 +203,5 @@ class Cron {
             date[0] = date[0].plus(1, field.getRangeUnit()).with(field, 0).truncatedTo(field.getBaseUnit());
         }
         return false;
-    }
-
-    /**
-     * Finds the next matching value within a single Part.
-     *
-     * @param value The current value.
-     * @param part The Part to match against.
-     * @return The next matching value, or -1 if no match is found.
-     */
-    private int nextMatch(int value, int[] part) {
-        if (value > part[1]) {
-            return -1;
-        }
-        int nextPotential = Math.max(value, part[0]);
-        if (nextPotential == part[0]) {
-            return nextPotential;
-        }
-
-        int remainder = ((nextPotential - part[0]) % part[2]);
-        if (remainder != 0) {
-            nextPotential += part[2] - remainder;
-        }
-
-        return nextPotential <= part[1] ? nextPotential : -1;
     }
 }
