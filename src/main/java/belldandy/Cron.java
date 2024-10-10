@@ -17,6 +17,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -172,6 +173,7 @@ class Cron {
      */
     boolean matches(ZonedDateTime[] date) {
         int value = date[0].get(field);
+        TreeSet<ZonedDateTime> set = new TreeSet();
 
         for (int[] part : parts) {
             int next = part[0] <= value ? value : part[0];
@@ -179,15 +181,22 @@ class Cron {
             if (rem != 0) next += part[2] - rem;
 
             if (next <= part[1]) {
+                ZonedDateTime target = date[0];
                 if (next != value) {
                     if (field == ChronoField.MONTH_OF_YEAR) {
-                        date[0] = date[0].with(field, next).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                        target = target.with(field, next).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
                     } else {
-                        date[0] = date[0].with(field, next).truncatedTo(field.getBaseUnit());
+                        target = target.with(field, next).truncatedTo(field.getBaseUnit());
                     }
                 }
-                return true;
+                set.add(target);
+                continue;
             }
+        }
+
+        if (!set.isEmpty()) {
+            date[0] = set.first();
+            return true;
         }
 
         if (field == ChronoField.MONTH_OF_YEAR) {
