@@ -245,12 +245,11 @@ public class Scheduler extends AbstractExecutorService implements ScheduledExecu
         String[] parts = cron.strip().split("\\s+");
         int i = parts.length == 5 ? 0 : parts.length == 6 ? 1 : Cron.error(cron);
 
-        return new Cron[] { //
-                new Cron(ChronoField.SECOND_OF_MINUTE, 0, 59, "", "", "/", i == 1 ? parts[0] : "0"), //
-                new Cron(ChronoField.MINUTE_OF_HOUR, 0, 59, "", "", "/", parts[i++]), //
-                new Cron(ChronoField.HOUR_OF_DAY, 0, 23, "", "", "/", parts[i++]), //
-                new Cron(ChronoField.DAY_OF_MONTH, 1, 31, "", "?LW", "/", parts[i++]), //
-                new Cron(ChronoField.MONTH_OF_YEAR, 1, 12, "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ", "", "/", parts[i++]), //
+        return new Cron[] {new Cron(ChronoField.SECOND_OF_MINUTE, 0, 59, "", "", "/", i == 1 ? parts[0] : "0"),
+                new Cron(ChronoField.MINUTE_OF_HOUR, 0, 59, "", "", "/", parts[i++]),
+                new Cron(ChronoField.HOUR_OF_DAY, 0, 23, "", "", "/", parts[i++]),
+                new Cron(ChronoField.DAY_OF_MONTH, 1, 31, "", "?LW", "/", parts[i++]),
+                new Cron(ChronoField.MONTH_OF_YEAR, 1, 12, "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ", "", "/", parts[i++]),
                 new Cron(ChronoField.DAY_OF_WEEK, 1, 7, "MON TUE WED THU FRI SAT SUN ", "?L", "#/", parts[i++])};
     }
 

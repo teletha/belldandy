@@ -76,8 +76,6 @@ class Cron {
             } else if (m.group(2) != null) {
                 mod = m.group(2);
                 part[3] = mod.charAt(mod.length() - 1);
-            } else {
-                error(range);
             }
 
             if (inc != null) {
@@ -85,8 +83,7 @@ class Cron {
                 part[2] = Integer.parseInt(inc);
             }
 
-            // validate range
-            if ((part[0] != -1 && part[0] < min) || (part[1] != -1 && part[1] > max) || (part[0] != -1 && part[1] != -1 && part[0] > part[1])) {
+            if ((part[0] != -1 && part[0] < min) || (part[1] != -1 && part[1] > max) || part[0] > part[1]) {
                 error(range);
             }
 
