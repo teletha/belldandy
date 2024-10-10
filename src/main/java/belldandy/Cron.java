@@ -70,14 +70,15 @@ class Cron {
                 } else {
                     part[1] = part[0];
                 }
-            } else if (m.group(1) != null) {
+            }
+            if (m.group(1) != null) {
                 part[0] = min;
                 part[1] = max;
-            } else if (m.group(2) != null) {
+            }
+            if (m.group(2) != null) {
                 mod = m.group(2);
                 part[3] = mod.charAt(mod.length() - 1);
             }
-
             if (inc != null) {
                 part[4] = incmod.charAt(0);
                 part[2] = Integer.parseInt(inc);
