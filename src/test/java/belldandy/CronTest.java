@@ -512,18 +512,14 @@ class CronTest {
         assert parsed.next("2024-10-{01~09}", "2024-10-10");
         assert parsed.next("2024-10-{10~28}", "2024-10-29");
         assert parsed.next("2024-10-{29~31}", "2024-11-10");
-
-        parsed = new Parsed("0 0 0 4L,10 * *");
-        assert parsed.next("2024-10-{01~09}", "2024-10-10");
-        assert parsed.next("2024-10-{10~26}", "2024-10-27");
-        assert parsed.next("2024-10-{27~31}", "2024-11-10");
     }
 
     @Test
     void dayLastAndNumberUnsorted() {
-        Parsed parsed = new Parsed("0 0 0 L,10 * *");
+        Parsed parsed = new Parsed("0 0 0 4L,10 * *");
         assert parsed.next("2024-10-{01~09}", "2024-10-10");
-        assert parsed.next("2024-10-{10~30}", "2024-10-31");
+        assert parsed.next("2024-10-{10~26}", "2024-10-27");
+        assert parsed.next("2024-10-{27~31}", "2024-11-10");
     }
 
     @Test
