@@ -154,8 +154,7 @@ class Cron {
                 }
             } else if (part[4] == '#') {
                 if (dow == part[0]) {
-                    int num = day / 7;
-                    return part[2] == (day % 7 == 0 ? num : num + 1);
+                    return part[2] == (day % 7 == 0 ? day / 7 : day / 7 + 1);
                 }
                 return false;
             } else {
