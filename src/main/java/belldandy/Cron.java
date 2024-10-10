@@ -49,7 +49,9 @@ class Cron {
 
         for (String range : expr.split(",")) {
             Matcher m = FORMAT.matcher(range);
-            if (!m.matches()) error(range);
+            if (!m.matches()) {
+                throw new IllegalArgumentException("Invalid cron '" + range + "'");
+            }
 
             String start = m.group(3);
             String mod = m.group(4);
@@ -83,17 +85,10 @@ class Cron {
                 part[2] = Integer.parseInt(inc);
             }
 
-            // validate range
-            if ((part[0] != -1 && part[0] < min) || max < part[1] || part[0] > part[1]) {
-                error(range);
-            }
-
-            // validate part
-            if (part[3] != 0 && modifier.indexOf(part[3]) == -1) {
-                error(range);
-            }
-            if (part[4] != 0 && increment.indexOf(part[4]) == -1) {
-                error(range);
+            // validate parts
+            if ((part[0] != -1 && part[0] < min) || max < part[1] || part[0] > part[1] || (part[3] != 0 && modifier
+                    .indexOf(part[3]) == -1) || part[4] != 0 && increment.indexOf(part[4]) == -1) {
+                throw new IllegalArgumentException("Invalid cron '" + range + "'");
             }
             parts.add(part);
         }
@@ -228,15 +223,5 @@ class Cron {
         }
 
         return nextPotential <= part[1] ? nextPotential : -1;
-    }
-
-    /**
-     * Throw the invalid format error.
-     * 
-     * @param cron
-     * @return
-     */
-    static int error(String cron) {
-        throw new IllegalArgumentException("Invalid format '" + cron + "'");
     }
 }
