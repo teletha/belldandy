@@ -53,7 +53,13 @@
 		<system>github</system>
 		<url>https://github.com/teletha/belldandy/issues</url>
 	</issueManagement>
-	<developers/>
+	<developers>
+		<developer>
+			<name>teletha</name>
+			<email/>
+			<url>https://github.com/teletha</url>
+		</developer>
+	</developers>
 	<build>
 		<plugins>
 			<plugin>
