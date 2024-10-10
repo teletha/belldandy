@@ -195,12 +195,16 @@ class CronTest {
     }
 
     @Test
-    void secondInvalidRange() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("42-63 * * * * *"));
-    }
+    void secondInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("-1 * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("60 * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("100 * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("0.2 * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("# * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("@ * * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("X * * * * *"));
 
-    @Test
-    void secondInvalidIncrementModifier() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("42-63 * * * * *"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("42#3 * * * * *"));
     }
 
@@ -287,12 +291,15 @@ class CronTest {
     @Test
     void minuteInvalid() {
         assertThrows(IllegalArgumentException.class, () -> new Parsed("-1 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("-5 * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("60 * * * *"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("100 * * * *"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0.2 * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("invlid * * * *"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("# * * * *"));
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("/ * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("@ * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("X * * * *"));
+
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("42-63 * * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("42#3 * * * *"));
     }
 
     @Test
@@ -352,6 +359,20 @@ class CronTest {
         after = ZonedDateTime.of(2012, 4, 10, 19, 59, 0, 0, zoneId);
         expected = ZonedDateTime.of(2012, 4, 11, 7, 0, 0, 0, zoneId);
         assertEquals(expected, cronExpr.next(after));
+    }
+
+    @Test
+    void hourInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* -1 * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 60 * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 100 * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 0.2 * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* # * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* @ * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* X * * *"));
+
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 42-63 * * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* 42#3 * * *"));
     }
 
     @Test
@@ -478,13 +499,19 @@ class CronTest {
     }
 
     @Test
-    void dayInvalidModifier() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9X * *"));
-    }
+    void dayInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * -1 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 0 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 32 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 100 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 0.2 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * # * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * @ * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * X * *"));
 
-    @Test
-    void dayInvalidIncrementModifier() {
-        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9#2 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 42-63 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * 42#3 * *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 9X * *"));
     }
 
     @Test
@@ -585,7 +612,18 @@ class CronTest {
     }
 
     @Test
-    void monthInvalidModifier() {
+    void monthInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * -1 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 0 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 13 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 100 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 0.2 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * # *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * @ *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * X *"));
+
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 42-63 *"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * 42#3 *"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 1 ? *"));
     }
 
@@ -826,6 +864,14 @@ class CronTest {
 
     @Test
     void dowInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * -1"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 8"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 100"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * 0.2"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * #"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * @"));
+        assertThrows(IllegalArgumentException.class, () -> new Parsed("* * * * X"));
+
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5W"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5?3"));
         assertThrows(IllegalArgumentException.class, () -> new Parsed("0 0 0 * * 5*3"));
