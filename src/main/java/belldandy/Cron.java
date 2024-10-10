@@ -185,7 +185,7 @@ class Cron {
             if (next <= part[1]) {
                 if (next != value) {
                     if (field == ChronoField.MONTH_OF_YEAR) {
-                        date[0] = date[0].withMonth(next).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+                        date[0] = date[0].with(field, next).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
                     } else {
                         date[0] = date[0].with(field, next).truncatedTo(field.getBaseUnit());
                     }
@@ -195,7 +195,7 @@ class Cron {
         }
 
         if (field == ChronoField.MONTH_OF_YEAR) {
-            date[0] = date[0].plusYears(1).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            date[0] = date[0].plus(1, field.getRangeUnit()).withMonth(1).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         } else {
             // The field must be set to the minimum value, but this method is only used for Second,
             // Minute, Hour, and Month, and since Month is handled in the above branch, there is no
