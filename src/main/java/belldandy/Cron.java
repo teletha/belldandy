@@ -92,7 +92,7 @@ class Cron {
             parts.add(part);
         }
 
-        Collections.sort(parts, (x, y) -> Integer.compare(x[0], y[0]));
+        Collections.sort(parts, (x, y) -> Integer.compare(x[0] + x[3], y[0] + y[3]));
     }
 
     /**
