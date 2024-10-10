@@ -83,16 +83,17 @@ class Cron {
                 part[2] = Integer.parseInt(inc);
             }
 
-            if ((part[0] != -1 && part[0] < min) || (part[1] != -1 && part[1] > max) || part[0] > part[1]) {
+            // validate range
+            if ((part[0] != -1 && part[0] < min) || max < part[1] || part[0] > part[1]) {
                 error(range);
             }
 
             // validate part
             if (part[3] != 0 && modifier.indexOf(part[3]) == -1) {
-                error(String.valueOf((char) part[3]));
+                error(String.valueOf(range));
             }
             if (part[4] != 0 && increment.indexOf(part[4]) == -1) {
-                error(String.valueOf((char) part[4]));
+                error(String.valueOf(range));
             }
             parts.add(part);
         }
