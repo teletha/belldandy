@@ -90,10 +90,10 @@ class Cron {
 
             // validate part
             if (part[3] != 0 && modifier.indexOf(part[3]) == -1) {
-                error(String.valueOf(range));
+                error(range);
             }
             if (part[4] != 0 && increment.indexOf(part[4]) == -1) {
-                error(String.valueOf(range));
+                error(range);
             }
             parts.add(part);
         }
