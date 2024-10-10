@@ -294,6 +294,18 @@ class CronTest {
     }
 
     @Test
+    void minuteRangeIncrementOne() {
+        Parsed parsed = new Parsed("3-20/1 * * * *");
+        assert parsed.next("10:02", "10:03");
+        assert parsed.next("10:03", "10:04");
+        assert parsed.next("10:04", "10:05");
+        assert parsed.next("10:06", "10:07");
+        assert parsed.next("10:08", "10:09");
+        assert parsed.next("10:10", "10:11");
+        assert parsed.next("10:22", "11:03");
+    }
+
+    @Test
     void minuteInvalid() {
         assert invalidFormat("-1 * * * *");
         assert invalidFormat("60 * * * *");

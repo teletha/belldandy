@@ -214,7 +214,7 @@ class Cron {
             return -1;
         }
         int nextPotential = Math.max(value, part[0]);
-        if (part[2] == 1 || nextPotential == part[0]) {
+        if (nextPotential == part[0]) {
             return nextPotential;
         }
 
