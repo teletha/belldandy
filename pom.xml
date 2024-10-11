@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.teletha</groupId>
 	<artifactId>belldandy</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<packaging>jar</packaging>
 	<name>belldandy</name>
 	<description>Belldandy provides various APIs specialized for date/time related operations using Date-Time API and virtual threads.
