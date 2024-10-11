@@ -141,13 +141,13 @@ class Cron {
                     if (day == target) {
                         return true;
                     } else if (dow == 5) {
-                        int diff = last - day;
-                        if (2 >= diff && day + diff == target) {
+                        if (2 >= last - day && last == target) {
                             return true;
                         }
                     } else if (dow == 1) {
-                        int diff = 1 - day;
-                        if (-2 <= diff && day + diff == target) {
+                        // -2 <= 1 - day
+                        // The above equation has been transformed into the following form
+                        if (day <= 3 && 1 == target) {
                             return true;
                         }
                     }
