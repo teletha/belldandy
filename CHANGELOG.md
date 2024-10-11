@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/teletha/belldandy/compare/v1.1.0...v1.2.0) (2024-10-11)
+
+
+### Features
+
+* cron supports LW format ([ff82b9a](https://github.com/teletha/belldandy/commit/ff82b9a7fd37360c5c694c958112205b905f1fdf))
+* integrate Cron and Type ([ddf7d98](https://github.com/teletha/belldandy/commit/ddf7d98ea30722d5ed056eddf29f1509b4bbcc78))
+
+
+### Bug Fixes
+
+* correct sorting ([3c19a72](https://github.com/teletha/belldandy/commit/3c19a72f2eee6e60eb30631fa8a599f5ed565118))
+* reduce code size ([294bc39](https://github.com/teletha/belldandy/commit/294bc39d080b62fecb1ec096c31f5032f5b122a0))
+* support correct sorting with multiple values ([9c23bf2](https://github.com/teletha/belldandy/commit/9c23bf241b2ea59e6ee263e41e871967d7598152))
+* support nth list on weekday ([9148945](https://github.com/teletha/belldandy/commit/9148945f25800ff12436b1593c8341a9e18447c2))
+* support number and last in one list ([8151c62](https://github.com/teletha/belldandy/commit/8151c62f1269f7d7afe682984a47f5786bd0c5ae))
+* W is broken ([d7a2b6c](https://github.com/teletha/belldandy/commit/d7a2b6ce6563b16c1aa912354c21c0cd088b0724))
+
 ## [1.1.0](https://github.com/teletha/belldandy/compare/v1.0.0...v1.1.0) (2024-10-07)
 
 
