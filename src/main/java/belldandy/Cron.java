@@ -140,9 +140,9 @@ class Cron {
 
                     if (day == target) {
                         return true;
-                    } else if (dow == 5 && (target - day == 1 || (target == last && last - 2 <= day))) {
+                    } else if (dow == 5 && (target == day + 1 || (target == last && last - 2 <= day))) {
                         return true;
-                    } else if (dow == 1 && (day - target == 1 || (target == 1 && day <= 3))) {
+                    } else if (dow == 1 && (target == day - 1 || (target == 1 && day <= 3))) {
                         return true;
                     }
                 }

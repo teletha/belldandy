@@ -549,12 +549,12 @@ class CronTest {
     }
 
     @Test
-    void dayFirstWeekday() {
+    void dayWeekday1() {
         Parsed parsed = new Parsed("0 0 1W * *");
-        // 2025-02-01 is SUT, but don't back to January
+        // 2025-02-01 is SAT, but don't back to January
         assert parsed.next("2025-01-{01~31}", "2025-02-03");
         assert parsed.next("2025-02-{01~02}", "2025-02-03");
-        // 2025-03-01 is SUT, but don't back to Feburary
+        // 2025-03-01 is SAT, but don't back to Feburary
         assert parsed.next("2025-02-{03~28}", "2025-03-03");
         // 2025-06-01 is SUN
         assert parsed.next("2025-05-{01~31}", "2025-06-02");
@@ -564,7 +564,21 @@ class CronTest {
     }
 
     @Test
-    void dayLastWeekday() {
+    void dayWeekday2() {
+        Parsed parsed = new Parsed("0 0 2W * *");
+        // 2025-02-02 is SUN, but don't back to January
+        assert parsed.next("2025-01-{02~31}", "2025-02-03");
+        assert parsed.next("2025-02-{01~02}", "2025-02-03");
+        // 2025-03-02 is SUN, but don't back to Feburary
+        assert parsed.next("2025-02-{03~28}", "2025-03-03");
+        // 2025-08-02 is SAT
+        assert parsed.next("2025-07-{02~31}", "2025-08-01");
+        // 2025-09-02 is weekday
+        assert parsed.next("2025-08-{02~31}", "2025-09-02");
+    }
+
+    @Test
+    void dayWeekdayL() {
         Parsed parsed = new Parsed("0 0 LW * *");
         // 2025-01-31 is weekday
         assert parsed.next("2025-01-{01~30}", "2025-01-31");
