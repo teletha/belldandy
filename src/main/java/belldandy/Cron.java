@@ -13,7 +13,6 @@ import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -120,22 +119,21 @@ class Cron {
     boolean matches(ZonedDateTime date) {
         int day = date.getDayOfMonth();
         int dow = date.getDayOfWeek().getValue();
+        int last = YearMonth.of(date.getYear(), date.getMonth()).lengthOfMonth();
 
         for (int[] part : parts) {
             if (part[3] == 'L') {
-                YearMonth ym = YearMonth.of(date.getYear(), date.getMonth().getValue());
                 if (field == ChronoField.DAY_OF_WEEK) {
-                    if (dow == part[0] && day > (ym.lengthOfMonth() - 7)) {
+                    if (dow == part[0] && day > (last - 7)) {
                         return true;
                     }
                 } else {
-                    if (day == ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0])) {
+                    if (day == last - (part[0] == -1 ? 0 : part[0])) {
                         return true;
                     }
                 }
             } else if (part[3] == 'W') {
                 if (dow <= 5) {
-                    int last = date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
                     int target = part[0] == -1 ? last : part[0];
 
                     if (day == target) {
