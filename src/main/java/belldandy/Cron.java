@@ -129,7 +129,7 @@ class Cron {
                         return true;
                     }
                 } else {
-                    if (day == (ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0]))) {
+                    if (day == ym.lengthOfMonth() - (part[0] == -1 ? 0 : part[0])) {
                         return true;
                     }
                 }
@@ -140,16 +140,10 @@ class Cron {
 
                     if (day == target) {
                         return true;
-                    } else if (dow == 5) {
-                        if (2 >= last - day && last == target) {
-                            return true;
-                        }
-                    } else if (dow == 1) {
-                        // -2 <= 1 - day
-                        // The above equation has been transformed into the following form
-                        if (day <= 3 && 1 == target) {
-                            return true;
-                        }
+                    } else if (dow == 5 && (target - day == 1 || (target == last && last - 2 <= day))) {
+                        return true;
+                    } else if (dow == 1 && (day - target == 1 || (target == 1 && day <= 3))) {
+                        return true;
                     }
                 }
             } else if (part[4] == '#') {

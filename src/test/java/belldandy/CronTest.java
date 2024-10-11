@@ -515,6 +515,24 @@ class CronTest {
     }
 
     @Test
+    void dayWeekdayOnSunday() {
+        // 2024-10-13 is SUN
+        Parsed parsed = new Parsed("0 0 13W * *");
+        assert parsed.next("2024-10-{1~13}", "2024-10-14");
+        assert parsed.next("2024-10-{14~31}", "2024-11-13");
+        assert parsed.next("2024-11-{01~12}", "2024-11-13");
+    }
+
+    @Test
+    void dayWeekdayOnSaturday() {
+        // 2024-10-12 is SAT
+        Parsed parsed = new Parsed("0 0 12W * *");
+        assert parsed.next("2024-10-{1~10}", "2024-10-11");
+        assert parsed.next("2024-10-{11~31}", "2024-11-12");
+        assert parsed.next("2024-11-{01~11}", "2024-11-12");
+    }
+
+    @Test
     void dayWeekdayAndNumber() {
         Parsed parsed = new Parsed("0 0 15W,18 * *");
         assert parsed.next("2024-10-{1~14}", "2024-10-15");
